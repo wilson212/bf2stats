@@ -1,0 +1,65 @@
+body, html {
+font: .83em Verdana;
+}
+
+#awards,
+#donatenow,
+#getstats,
+#navitems,
+#secondhome,
+#pgad,
+#trending,
+#compare,
+#buddy,
+#prefers,
+#unlocks {
+display: none;
+}
+
+
+#profile, 
+.stat,
+.basic-stat {
+width: 95%;
+margin-bottom: 2em;
+border: 1px solid #333;
+}
+
+#tta, 
+#profile, 
+hr {
+clear: both;
+width: 97.5%;
+margin: 0;
+}
+
+hr {
+margin: .5em 0;
+border: 0;
+border-top: 1px solid #ccc;
+}
+
+.stat th,
+.basic-stat th,
+#profile table th{
+background: #ccc;
+border-bottom: 1px solid #333;
+}
+
+#profile {
+margin-bottom: 1em;
+}
+
+#profile table {
+margin: 0 1%;
+width: 100%;
+}
+
+div.col {
+float: left;
+width: 50%;
+}
+
+.clear {
+clear: both;
+}

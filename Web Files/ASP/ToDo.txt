@@ -1,0 +1,12 @@
+BF2Stats ToDo!!!
+================
+
+1) Finish BF2stats Admin
+	* ClanManager Web Front-End
+	* Add Filter/Search to Player Lists?
+2) Add Install Script
+	* Create simple install wizard...
+3) Add ValidationManger to BF2 Game Server
+	* Check bf2statsconfig.py settings
+	* Test "GameSpy" response
+4) Add a option to import EA Stats into the bf2statistics database.
