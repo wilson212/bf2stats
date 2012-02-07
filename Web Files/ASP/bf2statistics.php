@@ -35,6 +35,9 @@ ini_set('zlib.output_compression', '0');
 set_time_limit(0);
 ignore_user_abort(true);
 
+// Kill score (points for each kill)
+$killscore = 2;
+
 // Import configuration
 require('includes/utils.php');
 $cfg = new Config();
@@ -326,7 +329,7 @@ if ($data['pc'] >= $cfg->get('stats_players_min') && $globals['roundtime'] >= $c
 					ip = '" . $data["ip_$x"] . "',
 					score = " . $data["rs_$x"] . ",
 					cmdscore = " . $data["cs_$x"] . ",
-		            skillscore = (" . $data["kk0_$x"] . " + " . $data["kk1_$x"] . " + " . $data["kk2_$x"] . " + " . $data["kk3_$x"] . " + " . $data["kk4_$x"] . " + " . $data["kk5_$x"] . " + " . $data["kk6_$x"] . ") * 2,
+		            skillscore = (" . $data["kk0_$x"] . " + " . $data["kk1_$x"] . " + " . $data["kk2_$x"] . " + " . $data["kk3_$x"] . " + " . $data["kk4_$x"] . " + " . $data["kk5_$x"] . " + " . $data["kk6_$x"] . ") * ". $killscore .",
 					teamscore = " . $data["ts_$x"] . ",
 					kills = " . $data["kk0_$x"] . " + " . $data["kk1_$x"] . " + " . $data["kk2_$x"] . " + " . $data["kk3_$x"] . " + " . $data["kk4_$x"] . " + " . $data["kk5_$x"] . " + " . $data["kk6_$x"] . ",
                     deaths = " . $data["dk0_$x"] . " + " . $data["dk1_$x"] . " + " . $data["dk2_$x"] . " + " . $data["dk3_$x"] . " + " . $data["dk4_$x"] . " + " . $data["dk5_$x"] . " + " . $data["dk6_$x"] . ",
@@ -499,7 +502,7 @@ if ($data['pc'] >= $cfg->get('stats_players_min') && $globals['roundtime'] >= $c
 					ip = '" . $data["ip_$x"] . "',
 					score = `score` + " . $data["rs_$x"] . ",
 					cmdscore = `cmdscore` + " . $data["cs_$x"] . ",
-					skillscore = {$row[skillscore]} + (" . $data["kk0_$x"] . " + " . $data["kk1_$x"] . " + " . $data["kk2_$x"] . " + " . $data["kk3_$x"] . " + " . $data["kk4_$x"] . " + " . $data["kk5_$x"] . " + " . $data["kk6_$x"] . ") * 2,
+					skillscore = {$row[skillscore]} + (" . $data["kk0_$x"] . " + " . $data["kk1_$x"] . " + " . $data["kk2_$x"] . " + " . $data["kk3_$x"] . " + " . $data["kk4_$x"] . " + " . $data["kk5_$x"] . " + " . $data["kk6_$x"] . ") * ". $killscore .",
 					teamscore = `teamscore` + " . $data["ts_$x"] . ",
 					kills = {$row[kills]} + " . $data["kk0_$x"] . " + " . $data["kk1_$x"] . " + " . $data["kk2_$x"] . " + " . $data["kk3_$x"] . " + " . $data["kk4_$x"] . " + " . $data["kk5_$x"] . " + " . $data["kk6_$x"] . ",
                     deaths = {$row[deaths]} + " . $data["dk0_$x"] . " + " . $data["dk1_$x"] . " + " . $data["dk2_$x"] . " + " . $data["dk3_$x"] . " + " . $data["dk4_$x"] . " + " . $data["dk5_$x"] . " + " . $data["dk6_$x"] . ",
@@ -551,7 +554,7 @@ if ($data['pc'] >= $cfg->get('stats_players_min') && $globals['roundtime'] >= $c
 				time = " . $data["ctime_$x"] . ",
 				score = " . $data["rs_$x"] . ",
 				cmdscore = " . $data["cs_$x"] . ",
-				skillscore = (" . $data["kk0_$x"] . " + " . $data["kk1_$x"] . " + " . $data["kk2_$x"] . " + " . $data["kk3_$x"] . " + " . $data["kk4_$x"] . " + " . $data["kk5_$x"] . " + " . $data["kk6_$x"] . ") * 2,
+				skillscore = (" . $data["kk0_$x"] . " + " . $data["kk1_$x"] . " + " . $data["kk2_$x"] . " + " . $data["kk3_$x"] . " + " . $data["kk4_$x"] . " + " . $data["kk5_$x"] . " + " . $data["kk6_$x"] . ") * ". $killscore .",
 				teamscore = " . $data["ts_$x"] . ",
 				kills = " . $data["kk0_$x"] . " + " . $data["kk1_$x"] . " + " . $data["kk2_$x"] . " + " . $data["kk3_$x"] . " + " . $data["kk4_$x"] . " + " . $data["kk5_$x"] . " + " . $data["kk6_$x"] . ",
                 deaths = " . $data["dk0_$x"] . " + " . $data["dk1_$x"] . " + " . $data["dk2_$x"] . " + " . $data["dk3_$x"] . " + " . $data["dk4_$x"] . " + " . $data["dk5_$x"] . " + " . $data["dk6_$x"] . ",
@@ -1431,7 +1434,7 @@ function smocCheck()
 	global $cfg;
 	
 	$players = array();
-	$query = "SELECT id, score FROM player WHERE rank = 10 AND ip <> '127.0.0.1'";
+	$query = "SELECT id, score FROM player WHERE rank = 10";
 	$result = mysql_query($query);
 	checkSQLResult ($result, $query);
 	if (mysql_num_rows($result))

@@ -3,7 +3,7 @@ BF2Statistics Unofficial 1.4.7 Release - Private Statistics System for Battlefie
 ====================================================================================
 
 Released by:  		Wilson212 (based on the work of The Shadow, MrNiceGuy, Chump, nylOn, Wolverine, and others)
-Release date: 		2012-02-05
+Release date: 		2012-02-07
 Release version:	1.4.7
 License:		GNU General Public License
 

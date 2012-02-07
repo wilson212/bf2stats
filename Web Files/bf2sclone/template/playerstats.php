@@ -69,20 +69,20 @@ $template = '
 							</tr>
 							<tr>
 								<td>Global</td>
-								<td>' . $player['score'] . '</td>
+								<td>' . @number_format($player['score']) . '</td>
 							</tr>
 
 							<tr>
 								<td>Team</td>
-								<td>' . $player['teamscore'] . '</td>
+								<td>' . @number_format($player['teamscore']) . '</td>
 							</tr>
 							<tr>
 								<td>Combat</td>
-								<td>' . $player['skillscore'] . '</td>
+								<td>' . @number_format($player['skillscore']) . '</td>
 							</tr>
 							<tr>
 								<td>Commander</td>
-								<td>' . $player['cmdscore'] . '</td>
+								<td>' . @number_format($player['cmdscore']) . '</td>
 							</tr>
 							<tr>
 								<th colspan="2">Time</th>
@@ -120,9 +120,9 @@ $template = '
 							<tr>
 								<td nowrap="nowrap">Wins &amp; Losses</td>
 								<td nowrap="nowrap">';
-									$template .= $player['wins'] ."&nbsp;/&nbsp;" . $player['losses'].'&nbsp;(';
+									$template .= @number_format($player['wins']) ."&nbsp;/&nbsp;" . @number_format($player['losses']).'&nbsp;(';
 									if ($player['losses'])
-										$template .= ($player['wins']/$player['losses']); 
+										$template .= round($player['wins'] / $player['losses'], 2); 
 									else
 										$template .= $player['wins'];
 									$template .= ')
@@ -134,15 +134,15 @@ $template = '
 
 							<tr>
 								<td nowrap="nowrap">Captured CP </td>
-								<td>' . $player['captures'] . '</td>
+								<td>' . @number_format($player['captures']) . '</td>
 							</tr>
 							<tr>
 								<td nowrap="nowrap">Capture Assist </td>
-								<td>' . $player['captureassists'] . '</td>
+								<td>' . @number_format($player['captureassists']) . '</td>
 							</tr>
 							<tr>
 								<td nowrap="nowrap">Defended CP </td>
-								<td>' . $player['defends'] . '</td>
+								<td>' . @number_format($player['defends']) . '</td>
 							</tr>
 							<tr>
 								<th colspan="2">Teamwork</th>
@@ -153,23 +153,23 @@ $template = '
 							</tr>
 							<tr>
 								<td>Heal</td>
-								<td>' . $player['heals'] . '</td>
+								<td>' . @number_format($player['heals']) . '</td>
 							</tr>
 							<tr>
 								<td>Revive</td>
-								<td>' . $player['revives'] . '</td>
+								<td>' . @number_format($player['revives']) . '</td>
 							</tr>
 							<tr>
 								<td>Support</td>
-								<td>' . $player['ammos'] . '</td>
+								<td>' . @number_format($player['ammos']) . '</td>
 							</tr>
 							<tr>
 								<td>Repair</td>
-								<td>' . $player['repairs'] . '</td>
+								<td>' . @number_format($player['repairs']) . '</td>
 							</tr>
 							<tr>
 								<td>Driver</td>
-								<td>' . ($player['driverspecials']+$player['driverassists']) . '</td>
+								<td>' . @number_format($player['driverspecials'] + $player['driverassists']) . '</td>
 							</tr>
 						</table>
 					</td>
@@ -210,7 +210,7 @@ $template = '
 							</tr>
 							<tr>
 								<td nowrap="nowrap">Total &amp; Streak</td>
-								<td>' . $player['kills'] . ' / ' . $player['killstreak'] . '</td>
+								<td>' . @number_format($player['kills']) . ' / ' . $player['killstreak'] . '</td>
 							</tr>
 							<tr>
 								<td nowrap="nowrap">Per Minute </td>
@@ -218,7 +218,7 @@ $template = '
 									if (intToMins($player['time'])) 
 										$template .= round($player['kills'] / round(intToMins($player['time']),0), 3);
 									else
-										$template .= $player['kills'];
+										$template .= @number_format($player['kills']);
 									$template .= '
 								</td>
 							</tr>
@@ -239,9 +239,9 @@ $template = '
 								<td>Total &amp; Streak</td>
 								<td>';
 									if ($player['deathstreak'])
-										$template .= $player['deaths'] . ' / ' . $player['deathstreak'];
+										$template .= @number_format($player['deaths']) . ' / ' . $player['deathstreak'];
 									else
-										$template .= $player['deaths'];
+										$template .= @number_format($player['deaths']);
 									$template .= '
 								</td>
 							</tr>
@@ -293,12 +293,12 @@ $template = '
 
 								<td id="army-'.$i.'">'.getArmyByID($i).'</td>
 								<td nowrap="nowrap" title="'.$armies[0]['time'.$i].'">'.intToTime($armies[0]['time'.$i]).'</td>
-								<td>'.$armies[0]['win'.$i].'</td>
+								<td>'. @number_format($armies[0]['win'.$i]) .'</td>
 					
-								<td>'.$armies[0]['loss'.$i].'</td>
+								<td>'. @number_format($armies[0]['loss'.$i]) .'</td>
 								<td>';
 							if ($armies[0]['loss'.$i])
-								$template .= round($armies[0]['win'.$i]/$armies[0]['loss'.$i],2);
+								$template .= round($armies[0]['win'.$i] / $armies[0]['loss'.$i],2);
 							else
 								$template .= $armies[0]['win'.$i];
 							$template .= '</td>
@@ -310,8 +310,8 @@ $template = '
 						$template .= '		
 						<tr class="totals sortbottom">			<td>Total</td>
 							<td nowrap="nowrap">' . intToTime($armySummary['total']['time']) . '</td>
-							<td>' . $armySummary['total']['win'] . '</td>
-							<td>' . $armySummary['total']['loss'] . '</td>
+							<td>' . @number_format($armySummary['total']['win']) . '</td>
+							<td>' . @number_format($armySummary['total']['loss']) . '</td>
 							<td> - </td>
 
 							<td> - </td>
@@ -350,8 +350,8 @@ $template = '
 							$template .= '
 								<td id="map-'.$maps[$i]['mapid'].'">'.getMapByID($maps[$i]['mapid']).'</td>
 								<td nowrap="nowrap" title="'.$maps[$i]['time'].'">'.intToTime($maps[$i]['time']).'</td>
-								<td>'.$maps[$i]['win'].'</td>
-								<td>'.$maps[$i]['loss'].'</td>
+								<td>'. @number_format($maps[$i]['win']) .'</td>
+								<td>'. @number_format($maps[$i]['loss']) .'</td>
 								<td>';
 								if ($maps[$i]['loss'])
 									$template .= round($maps[$i]['win']/$maps[$i]['loss'],2);
@@ -366,17 +366,17 @@ $template = '
 						$template .= '
 						<tr class="totals sortbottom">			<td>Total</td>
 							<td nowrap="nowrap">' . intToTime($mapSummary['total']['time']) . '</td>
-							<td>' . $mapSummary['total']['win'] . '</td>
-							<td>' . $mapSummary['total']['loss'] . '</td>
+							<td>' . @number_format($mapSummary['total']['win']) . '</td>
+							<td>' . @number_format($mapSummary['total']['loss']) . '</td>
 							<td> &ndash; </td>
 							<td> &ndash; </td>
 						</tr>
 						<tr class="averages sortbottom">			<td>Averages</td>
 							<td nowrap="nowrap">' . intToTime($mapSummary['average']['time']) . '</td>
-							<td>' . $mapSummary['average']['win'] . '</td>
-							<td>' . $mapSummary['average']['loss'] . '</td>
+							<td>' . @number_format($mapSummary['average']['win']) . '</td>
+							<td>' . @number_format($mapSummary['average']['loss']) . '</td>
 							<td>' . $mapSummary['average']['ratio'] . '</td>
-							<td>' . $mapSummary['average']['br'] . '</td>
+							<td>' . @number_format($mapSummary['average']['br']) . '</td>
 						</tr>
 					</table>
 
@@ -402,10 +402,10 @@ $template = '
 								$template .= '
 									<td id="theater-'.$i.'">'.$TheaterData[$i]['name'].'</td>
 									<td title="'.$TheaterData[$i]['time'].'" nowrap="nowrap">'.intToTime($TheaterData[$i]['time']).'</td>
-									<td>'.$TheaterData[$i]['wins'].'</td>
-									<td>'.$TheaterData[$i]['losses'].'</td>
-									<td>'.round(getRatio($TheaterData[$i]['wins'], $TheaterData[$i]['losses']),2).'</td>
-									<td>'.$TheaterData[$i]['br'].'</td>
+									<td>'. @number_format($TheaterData[$i]['wins']) .'</td>
+									<td>'. @number_format($TheaterData[$i]['losses']).'</td>
+									<td>'. @round(getRatio($TheaterData[$i]['wins'], $TheaterData[$i]['losses']),2).'</td>
+									<td>'. $TheaterData[$i]['br']. '</td>
 								</tr>';
 							}
 							
@@ -436,13 +436,13 @@ $template = '
 							$template .= '
 								<td id="vehicle-'.$i.'">'.getVehicleByID($i).'</td>
 								<td nowrap="nowrap" title="'.$vehicles[0]['time'.$i].'">'.intToTime($vehicles[0]['time'.$i]).'</td>
-								<td><span class="abbr" alt="Accounts for '.$vehicleTotalKills.'% of all kills">'.$vehicles[0]['kills'.$i].'</span></td>
-								<td>'.$vehicles[0]['deaths'.$i].'</td>
+								<td><span class="abbr" alt="Accounts for '.$vehicleTotalKills.'% of all kills">'. @number_format($vehicles[0]['kills'.$i]) .'</span></td>
+								<td>'. @number_format($vehicles[0]['deaths'.$i]) .'</td>
 								<td>';
 								if ($vehicles[0]['deaths'.$i])
 									$template .= round(($vehicles[0]['kills'.$i] + $vehicles[0]['rk'.$i]) / $vehicles[0]['deaths'.$i], 2);
 								else 
-									$template .= $vehicles[0]['kills'.$i];
+									$template .= @number_format($vehicles[0]['kills'.$i]);
 								$template .= '</td>
 								<td>'.$vehicles[0]['rk'.$i].'</td>
 							</tr>
@@ -459,18 +459,18 @@ $template = '
 									else
 										$template .= 0;
 									$template .= '
-									% of all kills">' . $vehicleSummary['total']['kills'] . '
+									% of all kills">' . @number_format($vehicleSummary['total']['kills']) . '
 								</span>
 							</td>
-							<td>' . $vehicleSummary['total']['deaths'] . '</td>
+							<td>' . @number_format($vehicleSummary['total']['deaths']) . '</td>
 							<td> &ndash; </td>
 							<td>' . $vehicleSummary['total']['rk'] . '</td>
 						</tr>
 						<tr class="totals sortbottom">			
 							<td>Averages</td>
 							<td nowrap="nowrap">' . intToTime($vehicleSummary['average']['time']) . '</td>
-							<td>' . round($vehicleSummary['average']['kills']) . '</td>
-							<td>' . round($vehicleSummary['average']['deaths']) . '</td>
+							<td>' . @number_format(round($vehicleSummary['average']['kills'])) . '</td>
+							<td>' . @number_format(round($vehicleSummary['average']['deaths'])) . '</td>
 							<td>' . $vehicleSummary['average']['ratio'] . '</td>
 							<td>' . round($vehicleSummary['average']['rk'],0) . '</td>
 						</tr>
@@ -486,7 +486,6 @@ $template = '
 							<th>SF</th>
 							<th>EF</th>
 							<th>AF</th>
-							<th>Aix</th>
 						</tr>
 						<tr>
 							<td>Time</td>
@@ -494,14 +493,12 @@ $template = '
 							<td nowrap="nowrap" title="'.getExpasionTimeByName($PID, 'sf').'">'.intToTime(getExpasionTimeByName($PID, 'sf')).'</td>
 							<td nowrap="nowrap" title="'.getExpasionTimeByName($PID, 'ef').'">'.intToTime(getExpasionTimeByName($PID, 'ef')).'</td>
 							<td nowrap="nowrap" title="'.getExpasionTimeByName($PID, 'af').'">'.intToTime(getExpasionTimeByName($PID, 'af')).'</td>
-							<td nowrap="nowrap" title="'.getExpasionTimeByName($PID, 'aix').'">'.intToTime(getExpasionTimeByName($PID, 'aix')).'</td>
 						</tr>
 					</table>
 
 					<table border="0" cellspacing="0" cellpadding="0" id="kit" class="stat sortable">
 						<tr>
 							<th>Kit</th>
-
 							<th>Time</th>
 							<th>Kills</th>
 							<th>Deaths</th>
@@ -527,8 +524,8 @@ $template = '
 								}
 								else
 									$template .= 0;
-								$template .= '% of all kills">'.$kits[0]['kills'.$i].'</span></td>
-								<td>'.$kits[0]['deaths'.$i].'</td>
+								$template .= '% of all kills">'. @number_format($kits[0]['kills'.$i]) .'</span></td>
+								<td>'. @number_format($kits[0]['deaths'.$i]) .'</td>
 								<td>';
 								if ($kits[0]['deaths'.$i])
 									$template .= round($kits[0]['kills'.$i] / $kits[0]['deaths'.$i], 2);
@@ -542,15 +539,15 @@ $template = '
 						<tr class="averages sortbottom">
 							<td>Total</td>
 							<td nowrap="nowrap">' . intToTime($kitSummary['total']['time']) . '</td>
-							<td><span class="abbr" alt="Accounts for ' . round(100 * $kitSummary['total']['totalkills'], 2) . '% of all kills">' . $kitSummary['total']['kills'] . '</span></td>
-							<td>' . $kitSummary['total']['deaths'] . '</td>
+							<td><span class="abbr" alt="Accounts for ' . round(100 * $kitSummary['total']['totalkills'], 2) . '% of all kills">' . @number_format($kitSummary['total']['kills']) . '</span></td>
+							<td>' . @number_format($kitSummary['total']['deaths']) . '</td>
 							<td> &ndash; </td>
 						</tr>
 						<tr class="totals sortbottom">
 							<td>Averages</td>
 							<td nowrap="nowrap">' . intToTime($kitSummary['average']['time']) . '</td>
-							<td>' . round($kitSummary['average']['kills'],0) . '</td>
-							<td>' . round($kitSummary['average']['deaths'],0) . '</td>
+							<td>' . @number_format(round($kitSummary['average']['kills'],0)) . '</td>
+							<td>' . @number_format(round($kitSummary['average']['deaths'],0)) . '</td>
 							<td>' . round($kitSummary['average']['ratio'],2) . '</td>
 						</tr>
 					</table>
@@ -573,8 +570,8 @@ $template = '
 							$template .= '
 								<td id="weapon-'.$i.'">'.$weapons[$i]['name'].'</td>
 								<td nowrap="nowrap" title="'.$weapons[$i]['time'].'">'.intToTime($weapons[$i]['time']).'</td>
-								<td><span class="abbr" alt="Accounts for '.round($weapons[$i]['totalkills'], 2).'% of all kills">'.$weapons[$i]['kills'].'</span></td>
-								<td>'.$weapons[$i]['deaths'].'</td>
+								<td><span class="abbr" alt="Accounts for '.round($weapons[$i]['totalkills'], 2).'% of all kills">'. @number_format($weapons[$i]['kills']) .'</span></td>
+								<td>'. @number_format($weapons[$i]['deaths']) .'</td>
 					
 								<td>';
 								if ($weapons[$i]['deaths'])
@@ -590,7 +587,7 @@ $template = '
 								else
 									$ratio = 0;
 								$template .=  '</td>
-								<td title="'.$ratio.'"><span class="abbr" alt="Shots: '.$weapons[$i]['fired'].', Hits: '.$weapons[$i]['hit'].'">'.round($ratio, 2).'%</span></td>
+								<td title="'.$ratio.'"><span class="abbr" alt="Shots: '. @number_format($weapons[$i]['fired']) .', Hits: '. @number_format($weapons[$i]['hit']) .'">'.round($ratio, 2).'%</span></td>
 							</tr>';	
 						}		
 						$template .= '
@@ -607,9 +604,9 @@ $template = '
 							$template .= round($ratio,2);
 
 							$template .=  '
-							% of all kills">' . ($weapons[11]['kills'] + $weapons[13]['kills'] + $weapons[14]['kills']) . '</span></td>
+							% of all kills">' . @number_format($weapons[11]['kills'] + $weapons[13]['kills'] + $weapons[14]['kills']) . '</span></td>
 
-							<td>' . ($weapons[11]['deaths'] + $weapons[13]['deaths'] + $weapons[14]['deaths']) . '</td>';
+							<td>' . @number_format($weapons[11]['deaths'] + $weapons[13]['deaths'] + $weapons[14]['deaths']) . '</td>';
 							
 								// kd ratio
 								if ($weapons[11]['deaths' ]+ $weapons[13]['deaths'] + $weapons[14]['deaths'])
@@ -626,13 +623,14 @@ $template = '
 									$ratio =  0;			
 								$template .= '
 							</td>
-							<td title="' . $ratio . '"><span class="abbr" alt="Shots: ' . ($weapons[11]['fired']+$weapons[13]['fired']+$weapons[14]['fired']) . ', Hits: ' . ($weapons[11]['hit']+$weapons[13]['hit']+$weapons[14]['hit']) . '">' . round($ratio,2) . '%</span></td>
+							<td title="' . $ratio . '"><span class="abbr" alt="Shots: ' . @number_format($weapons[11]['fired']+$weapons[13]['fired']+$weapons[14]['fired']) . ', Hits: ' . 
+								@number_format($weapons[11]['hit']+$weapons[13]['hit']+$weapons[14]['hit']) . '">' . round($ratio,2) . '%</span></td>
 						</tr>
 						<tr>
 							<td id="weapon-12">' . $weapons[12]['name'] . '</td>
 							<td nowrap="nowrap" title="' . $weapons[12]['time'] . '">' . intToTime($weapons[12]['time']) . '</td>
-							<td><span class="abbr" alt="Accounts for ' . $weapons[12]['totalkills'] . '% of all kills">' . $weapons[12]['kills'] . '</span></td>
-							<td>' . $weapons[12]['deaths'] . '</td>
+							<td><span class="abbr" alt="Accounts for ' . $weapons[12]['totalkills'] . '% of all kills">' . @number_format($weapons[12]['kills']) . '</span></td>
+							<td>' . @number_format($weapons[12]['deaths']) . '</td>
 							<td>';
 								if ($weapons[12]['deaths'])
 									$template .= round($weapons[12]['kills']/$weapons[12]['deaths'],2);
@@ -646,13 +644,13 @@ $template = '
 								else
 									$ratio = $weapons[12]['fired'];
 							$template .= '
-							<td title="' . $ratio . '"><span class="abbr" alt="Shots: ' . $weapons[12]['fired'] . ', Hits: ' . $weapons[12]['hit'] . '">' . round($ratio,2) . '%</span></td>
+							<td title="' . $ratio . '"><span class="abbr" alt="Shots: ' . @number_format($weapons[12]['fired']) . ', Hits: ' . @number_format($weapons[12]['hit']) . '">' . round($ratio,2) . '%</span></td>
 						</tr>
 						<tr class="totals sortbottom">
 							<td>Total</td>
 							<td nowrap="nowrap">' . intToTime($weaponSummary['total']['time']) . '</td>
-							<td><span class="abbr" alt="Accounts for ' . round($weaponSummary['total']['totalkills'], 2) . '% of all kills">' . $weaponSummary['total']['kills'] . '</span></td>
-							<td>' . $weaponSummary['total']['deaths'] . '</td>
+							<td><span class="abbr" alt="Accounts for ' . round($weaponSummary['total']['totalkills'], 2) . '% of all kills">' . @number_format($weaponSummary['total']['kills']) . '</span></td>
+							<td>' . @number_format($weaponSummary['total']['deaths']) . '</td>
 							<td> &ndash; </td>
 							<td> &ndash; </td>
 
@@ -660,11 +658,14 @@ $template = '
 						<tr class="averages sortbottom">
 							<td>Averages</td>
 							<td nowrap="nowrap">' . intToTime($weaponSummary['average']['time']) . '</td>
-							<td>' . round($weaponSummary['average']['kills'],0) . '</td>
-							<td>' . round($weaponSummary['average']['deaths'],0) . '</td>
+							<td>' . @number_format(round($weaponSummary['average']['kills'],0)) . '</td>
+							<td>' . @number_format(round($weaponSummary['average']['deaths'],0)) . '</td>
 							<td>' . round($weaponSummary['average']['ratio'],0) . '</td>
 
-							<td><span class="abbr" alt="Shots: ' . round($weaponSummary['average']['fired'],0) . ', Hits: ' . round($weaponSummary['average']['hit'],0) . '">' . round($weaponSummary['average']['acc'],3) . '%</span></td>
+							<td><span class="abbr" alt="Shots: ' . 
+								@number_format(round($weaponSummary['average']['fired'],0)) . ', Hits: ' . 
+								@number_format(round($weaponSummary['average']['hit'],0)) . 
+								'">' . round($weaponSummary['average']['acc'],3) . '%</span></td>
 						</tr>
 					</table>
 			
@@ -686,8 +687,8 @@ $template = '
 							$template .= '
 									<td>'.$weapons[$i]['name'].'</td>
 									<td nowrap="nowrap" title="'. $weapons[$i]['time'] .'">'. intToTime($weapons[$i]['time']) .'</td>
-									<td><span class="abbr" alt="Accounts for '. round($weapons[$i]['totalkills'], 2) .'% of all kills">'. $weapons[$i]['kills'] .'</span></td>
-									<td>'. $weapons[$i]['deaths'] .'</td>
+									<td><span class="abbr" alt="Accounts for '. round($weapons[$i]['totalkills'], 2) .'% of all kills">'. @number_format($weapons[$i]['kills']) .'</span></td>
+									<td>'. @number_format($weapons[$i]['deaths']) .'</td>
 									<td>';
 							if ($weapons[$i]['deaths'])
 								$template .= round($weapons[$i]['kills']/$weapons[$i]['deaths'],2);
@@ -695,7 +696,7 @@ $template = '
 								$template .= $weapons[$i]['kills'];	
 							$template .= '
 									</td>
-									<td>'. $weapons[$i]['fired'].'</td>
+									<td>'. @number_format($weapons[$i]['fired']) .'</td>
 								</tr>';
 						}
 						$template .= '
@@ -704,20 +705,20 @@ $template = '
 							<td nowrap="nowrap">' . intToTime($equipmentSummary['total']['time']) . '</td>
 							<td>
 								<span class="abbr" alt="Accounts for ' . round($equipmentSummary['total']['totalkills'], 2) . '% of all kills">
-									' . $equipmentSummary['total']['kills'] . '
+									' . @number_format($equipmentSummary['total']['kills']) . '
 								</span>
 							</td>
-							<td>' . $equipmentSummary['total']['deaths'] . '</td>
+							<td>' . @number_format($equipmentSummary['total']['deaths']) . '</td>
 							<td>' . round($equipmentSummary['total']['ratio'],2) . '</td>
-							<td>' . round($equipmentSummary['total']['fired'],0) . '</td>
+							<td>' . @number_format(round($equipmentSummary['total']['fired'],0)) . '</td>
 						</tr>
 						<tr class="averages sortbottom">
 							<td>Averages</td>
 							<td nowrap="nowrap">' . intToTime($equipmentSummary['average']['time']) . '</td>
-							<td>' . round($equipmentSummary['average']['kills'],0) . '</td>
-							<td>' . round($equipmentSummary['average']['deaths'],0) . '</td>
+							<td>' . @number_format(round($equipmentSummary['average']['kills'],0)) . '</td>
+							<td>' . @number_format(round($equipmentSummary['average']['deaths'],0)) . '</td>
 							<td>' . round($equipmentSummary['average']['ratio'],2) . '</td>
-							<td>' . round($equipmentSummary['average']['fired'],0) . '</td>
+							<td>' . @number_format(round($equipmentSummary['average']['fired'],0)) . '</td>
 						</tr>
 					</table>
 			
@@ -1120,7 +1121,8 @@ $template = '
 										<div class="progress" style="width: '.$value['percent'].'%"><span>'.$value['percent'].'%</span></div>
 									</div>
 									
-									<small>Score: '.$player['score'].' of '.$value['rank_points'].'. At your historical rate, you should earn '.$value['points_needed'].' in '.$value['days'].' days (or '.$value['time_straight'].' straight).</small>
+									<small>Score: '. @number_format($player['score']) .' of '. @number_format($value['rank_points']) .'. At your historical rate, you should earn '
+										. @number_format($value['points_needed']) .' in '.$value['days'].' days (or '.$value['time_straight'].' straight).</small>
 									
 									<div class="clear"> </div>';
 								}

@@ -65,21 +65,6 @@ function getPlayerDataFromPID($PID)
 	return $player;
 }
 
-function getUnlocksByPID($PID)
-{
-	include(ROOT . DS . 'queries'. DS .'getUnlocksByPID.php'); // imports the correct sql statement
-	$result = mysql_query($query) or die('Query failed: ' . mysql_error());
-	
-	$unlocks = array();
-	while ($row = mysql_fetch_assoc($result)) 
-	{
-		$unlocks[$row['kit']] = $row['state'];
-	}
-
-	mysql_free_result($result);
-	return $unlocks;
-}
-
 /*
 | --------------------------------------------------------------
 | Favorite enemy & Victims
@@ -414,6 +399,29 @@ function getWeaponSummary($weapons, $player)
 	return $summary;
 }
 
+function getWeaponID($weapons, $weaponname)
+{
+	foreach ($weapons as $key => $value)
+	{
+		if (strcasecmp($value, $weaponname) == 0) return $key; // same but not case sensitive!
+	}
+}
+
+function getUnlocksByPID($PID)
+{
+	include(ROOT . DS . 'queries'. DS .'getUnlocksByPID.php'); // imports the correct sql statement
+	$result = mysql_query($query) or die('Query failed: ' . mysql_error());
+	
+	$unlocks = array();
+	while ($row = mysql_fetch_assoc($result)) 
+	{
+		$unlocks[$row['kit']] = $row['state'];
+	}
+
+	mysql_free_result($result);
+	return $unlocks;
+}
+
 function getEquipmentSummary($weapons, $player)
 {
 	$summary = array();
@@ -450,14 +458,6 @@ function getEquipmentSummary($weapons, $player)
 	$summary['average']['fired'] 	= ($summary['total']['fired'] / 13);
 	
 	return $summary;
-}
-
-function getWeaponID($weapons, $weaponname)
-{
-	foreach ($weapons as $key => $value)
-	{
-		if (strcasecmp($value, $weaponname) == 0) return $key; // same but not case sensitive!
-	}
 }
 
 /*
@@ -510,6 +510,7 @@ function getKitSummary($kits, $player)
 		$summary['average']['ratio'] = ($summary['total']['kills'] / 13);
 	return $summary;	
 }
+
 /*
 | --------------------------------------------------------------
 | Map data & Summary
@@ -785,7 +786,7 @@ function getNextRankInfo($PID)
 			'rank_points' => $points[$id],
 			'points_needed' => $points[$id] - $player['score'],
 			'percent' => @round(($player['score'] / $points[$id]) * 100, 2),
-			'days' => getNextRankDayCount($player['joined'], $player['score'], $points[$id]),
+			'days' => getNextRankDayCount($player['joined'], $player['lastonline'], $player['score'], $points[$id]),
 			'time_straight' => getNextRankTime($player['score'], $points[$id], $SPM)
 		);
 	}
@@ -824,9 +825,9 @@ function getNextRankTime($score, $points_needed, $spm)
 	return $return;
 }
 
-function getNextRankDayCount($joined, $score, $points_needed)
+function getNextRankDayCount($joined, $last, $score, $points_needed)
 {
-	$temp = time() - $joined;
+	$temp = $last - $joined;
 	$days = round(($temp / 86400), 0);
 	
 	// Score Per Day
