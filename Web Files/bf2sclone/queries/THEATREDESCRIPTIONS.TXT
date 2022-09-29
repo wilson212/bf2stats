@@ -1,0 +1,36 @@
+
+1 Kubra Dam - USMC VS MEC
+2 Mashtuur City - USMC VS MEC
+3 Operation Clean Sweep - USMC VS MEC
+4 Zatar Wetlands - USMC VS MEC
+5 Strike at Karkand - USMC VS MEC
+6 Sharqi Peninsula - USMC VS MEC
+10 Operation Smoke Screen *Euro Force booster pack - EU VS MEC
+11 Taraba Quarry *Euro Force booster pack - EU VS MEC
+
+
+100 Daqing Oilfields - USMC VS PLA
+101 Dalian Plant - USMC VS PLA
+102 Dragon Valley - USMC VS PLA
+103 Fushe Pass - USMC VS PLA
+104 Hingan Hills - USMC VS PLA
+105 Songhua Stalemate - USMC VS PLA
+110 Great Wall *Euro Force booster pack - EU VS PLA
+
+
+200 Midnight Sun *Armored Fury booster pack - USMC VS PLA
+201 Operation Road Rage *Armored Fury booster pack - USMC VS MEC
+202 Operation Harvest *Armored Fury booster pack - USMC VS MEC
+
+
+300 Devils Perch *Special Forces expansion - SEALs vs. MEC SF
+301 Iron Gator *Special Forces expansion - SEALs vs. MEC SF
+302 Night Flight *Special Forces expansion - SAS vs. Aufständische
+303 Warlord *Special Forces expansion - SAS vs. Aufständische
+304 Leviathan *Special Forces expansion - SEALs vs. MEC SF
+305 Mass Destruction *Special Forces expansion - SpezNas vs. Russische Rebellen
+306 Surge *Special Forces expansion - SpezNas vs. Rebellen
+307 Ghost Town *Special Forces expansion - SpezNas vs. SAS
+
+# Special maps
+601 Wake Island 2007 *patch - USMC VS PLA

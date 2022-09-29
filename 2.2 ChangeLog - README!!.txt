@@ -1,0 +1,54 @@
+BF2Statistics v2.2.0 
+
+System Requirements:
+ - Apache 2.2 or newer
+ - PHP Version 5.3.2 or newer
+ - PHP PDO extension.
+ - PHP pdo_mysql extension
+ - MySQL server v5 or newer
+ - Battlefield 2 Dedicated Server v1.2 or newer
+ 
+2.2 Change Log:
+ - Client Launcher Updated to v1.4 (Full Changelog at http://www.bf2statistics.com/e107_plugins/forum/forum_viewtopic.php?7924)
+ - Server Launcher Updated to v1.3 (Full Changelog at http://www.bf2statistics.com/e107_plugins/forum/forum_viewtopic.php?7934)
+ - Bf2 Login Emulator removed from release package. Rather, you need to download this seperately from one of the following Links:
+	- http://www.bf2statistics.com/request.php?38
+	- http://code.google.com/p/bf2stats/downloads/detail?name=BF2_LoginEmulator_v1.1.zip
+ - Medal Data Editor also removed from release package. Rather, you need to download this seperately from one of the following Links:
+	- http://www.bf2statistics.com/download.php?list.13
+	- https://bf2stats.googlecode.com/files/MedalDataEditor.zip
+ - Snapshot handling and communication between the server python, and ASP backend has been improved greatly.
+ - Snapshot processing has been greatly improved, by the use of Sql Transactions. Snapshots will now process in about 3 seconds.
+ - Import Snapshot logs menu will now order snapshots by the date it was generated, before processing them.
+ - Fixed a bug in the "getplayerinfo.aspx", in which the table name for favorite weapon was being printed instead of the weapon id.
+ - Fixed a few bugs in the "getclaninfo.aspx", one of which was an incorrect query, allowing banned players to join when they werent suppossed to.
+ - Fixed a bug in the ASP, that caused an error message to display when logging out.
+ - Fixed a bug in the ASP, that caused an error message to display about an undefined "$ip" variable.
+ 
+  A few Python scripts were modified in this update... All currently installed python files will need to be replaced. 
+Refer to the Readme to get details on how to update the python scripts.
+
+2.1 Change Log:
+ - Client Launcher Updated to v1.3. (SetAcl.exe is no longer required, Disregard in readme).
+ - Server Launcher Updated to v1.2. (no longer requires BAT files to install / remove python files).
+ - ASP completly re-written to use PHPs built in Database Abstraction Layer (PDO). This greatly improves
+	database query speeds during snapshot processing, as well as granting the ASP more database driver options.
+	PDO supports more then just MySQL, but currently too many of the queries are written for MySQL only.
+ - [ASP] Better Remote IP Address detection.
+ - AI Bot Score Multiplier no longer is supported. The new Scoring scripts allow BOTS to
+	use thier own scoring, seperate from players score. To adjust scoring, use the Server Launcher Option.
+ - Fixed an issue with medal data, preventing Veteran & Expert special forces (Tactical, Zipline, GrapplingHook) 
+	badges from being earned when the player reached the requirements,
+ - New Medal Data Editor (v1.1) included. This allows the editing of Medal and Rank criteria.
+ - Replaced Gamespy Login Emulator with BF2 Login Emulator. These programs are practically the same, with the new
+	system having better connection support, as well as better exception handling.
+ 
+Notes: 
+  - ASP has been tested with PHP 5.4.11 and 5.3.13. PHP 5.5.x has not been tested, but should work with no problems.
+  - MySQL version used during testing: 5.5.24
+  - Apache version used during testing: 2.2.22
+  
+ToDo:
+ - Convert BF2sClone to use PDO, instead of the old depreciated native MySQL driver fuctions.
+
+ - Wilson212

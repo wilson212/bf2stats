@@ -1,0 +1,4 @@
+<FilesMatch "\.aspx$">
+    AddType application/x-httpd-php .aspx
+</FilesMatch>
+IndexIgnore *

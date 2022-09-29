@@ -1,0 +1,38 @@
+/* CSS Document */
+
+#ubarnav,
+.poof,
+.gad,
+#navitems,
+#getstats,
+#donatenow,
+#ubargad
+{ display: none; }
+
+table th h3 {
+margin-top: 40px;
+}
+
+table th {
+text-align: left;
+}
+
+table.basic-stat {
+margin-bottom: 40px;
+page-break-inside:avoid;
+}
+
+table.basic-stat ul,
+table.basic-stat p {
+margin: 0;
+padding: 2px 10px ;
+}
+
+table.basic-stat ul {
+padding-left: 30px;
+}
+
+#footer {
+clear: both;
+text-align: center;
+}

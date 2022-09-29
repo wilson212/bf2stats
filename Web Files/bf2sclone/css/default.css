@@ -1,0 +1,106 @@
+.eligible img { border-bottom: 4px solid #333; }
+
+#stats-nav {
+position: absolute;
+top: 96px;
+right: 20px;
+}
+
+#stats-nav,
+#stats-nav li {
+margin: 0;
+padding: 0;
+list-style: none;
+}
+
+#stats-nav li {
+float: left;
+}
+
+#stats-nav li a {
+display: block;
+_height: 1px;
+padding: 1px 3px;
+width: 109px;
+text-align: center;
+margin: 0 3px;
+border: 1px solid #000;
+border-bottom: 1px solid #171612;
+background: #373632;
+color: #???9;
+font-weight: bold;
+}
+
+#stats-nav li a:hover,
+#stats-nav li.current a {
+border: 1px solid #000;
+background: #474642;
+color: #fff;
+border-bottom: 1px solid #474642;
+}
+
+.extra-space div.award-inline { margin-right: 1px; }
+
+
+
+div.unlock-inline {
+float: left;
+width: 113px;
+height: 33px;
+position: relative;
+margin: 0 7px 0 5px;
+}
+
+div.unlock-inline b {
+display: none;
+}
+
+div.unlock-pop {
+display: none;
+position: absolute;
+top: 30px;
+left: 65px;
+z-index: 50;
+background: #444643;
+border: 4px solid #383c33;
+-moz-opacity: .95;
+}
+
+div.unlock-inline:hover div.unlock-pop {
+display: block;
+}
+
+div.unlock-pop p,
+div.unlock-pop ul {
+padding: 0;
+margin: 0;
+list-style: none;
+}
+
+#add-to-mlb {
+position: absolute;
+top: 265px;
+left: 8px;
+}
+i.stat-need {
+font: italic 10px Verdana;
+margin: 0;
+padding: 0;
+}
+
+#rankslist {
+
+}
+
+div.heatmap a {
+border: 0;
+}
+
+div.heatmap a:hover {
+border-bottom: 1px solid #f6b620;
+}
+
+#rankslist-home img {
+float: left;
+margin: 2px;
+}

@@ -1,0 +1,46 @@
+/*
+ *  NICE TITLES
+ */
+
+div.nicetitle {
+background-color: #fff;
+color: #333;
+font: bold 13px "Trebuchet MS", Verdana, Arial, sans-serif;
+left: 0;
+padding: 4px;
+position: absolute;
+top: 0;
+width: 25em;
+z-index: 20;
+-moz-border-radius-bottomleft: 10px;
+-moz-border-radius-bottomright: 10px;
+-moz-border-radius-topleft: 10px;
+-moz-border-radius-topright: 10px;
+-moz-opacity: .87;
+
+min-width: 170px;
+max-width: 300px;
+width: auto;
+height: auto;
+}
+
+div.nicetitle p {
+margin: 0;
+padding: 0 3px;
+-moz-opacity: 1;
+}
+
+div.nicetitle p.destination {
+font-size: 9px;
+padding-top: 3px;
+text-align: left;
+-moz-opacity: 1;
+}
+
+div.nicetitle p span.accesskey {
+color: #d17e62;
+}
+
+acronym, abbr, span.abbr {
+border-bottom: 1px dotted #fff;
+}

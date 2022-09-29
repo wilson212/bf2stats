@@ -1,0 +1,1105 @@
+a {
+color: #F6B620;
+text-decoration: none;
+border-bottom: 1px dotted #595853;
+}
+
+a:hover {
+border-bottom: 1px dotted #FFEE40;
+}
+
+a img {
+border: 0;
+}
+
+hr {
+display: none;
+}
+
+html, body {
+margin: 0;
+padding: 0;
+color: #c0bcb0;
+font: normal 11px Verdana;
+}
+
+body{
+text-align: center;
+}
+
+
+/*
+* home page everytrhing
+*/
+
+body.home #secondhome {
+display: none;
+}
+
+body.home {
+background: #474642;
+}
+
+body.home #page-1 {
+width: 980px;
+margin: 0 auto;
+text-align: left;
+position: relative;
+}
+
+body.home #page-3 {
+}
+
+body.home h1 {
+display: none;
+}
+
+body.home #stats-col {
+float: left;
+margin-top: 70px;
+width: 400px;
+}
+
+body.home #community-col {
+float: left;
+width: 400px;
+margin-top: 70px;
+margin-left: 180px;
+}
+
+body.home .col-section {
+padding: 0 20px;
+}
+
+body.home table.stat {
+width: 100%;
+}
+
+body.home #navitems {
+position: absolute;
+text-align: center;
+top: 240px;
+left: 406px;
+line-height: 14px;
+_line-height: 7px;
+margin: 0;
+padding: 0;
+list-style: none;
+width: 169px;
+}
+
+body.home #navitems a {
+display: block;
+padding: 4px 0;
+border: 0;
+padding-left: 2px;
+_line-height: 0px;
+}
+
+body.home #navitems a:hover {
+color: #f2efe6;
+background: #32312d;
+}
+
+body.home h2 {
+font: normal 28px/.8em Slyphaen, Times, serif;
+letter-spacing: -.025em;
+border-bottom: 1px solid #c2bfb6;
+margin: 1em 0 0 0;
+padding: 0;
+clear: both;
+}
+
+body.home .id p {
+margin: .2em 0 1em 0;
+padding: 0;
+line-height: 14px
+}
+
+
+body.home #getstats{
+display: none;
+}
+
+body.home #donatenow {
+position: absolute;
+top: 430px;
+left: 460px;
+}
+
+
+#donatenow a,
+#donatenow form,
+#donatenow input {
+margin: 0;
+padding: 0;
+font-size: 9px;
+}
+
+
+#footer {
+clear: both;
+text-align: center;
+padding: 30px 0;
+}
+
+body.home #footer {
+padding: 30px 430px;
+}
+
+body.home #wiki img,
+body.home #ubar-home img,
+body.home #irc img {
+float: right;
+}
+
+body.home #get-stats form {
+margin: 0;
+padding: 0;
+}
+
+body.home #get-stats form input,
+body.home #find-player form input {
+font: bold 10px Verdana;
+border: 1px solid #000;
+border-bottom: 1px solid #555;
+border-right: 1px solid #555;
+background: #474642;
+padding: 4px 6px;
+margin: 0;
+color: #fff;
+width: 230px;
+}
+
+body.home #get-stats form input.btn,
+body.home #find-player form input.btn {
+padding: 3px 6px;
+width: auto;
+border: 1px solid #555;
+border-bottom: 1px solid #000;
+border-right: 1px solid #000;
+}
+
+
+body.home #top-players,
+body.home #mlb-short {
+float: left;
+width: 50%;
+padding: 0;
+margin: 0;
+}
+
+body.home #top-players {
+width: 55%;
+}
+
+body.home #mlb-short {
+width: 45%;
+}
+
+body.home #top-players h2,
+body.home #mlb-short h2 {
+font-size: 21px;
+}
+
+body.home #top-players .id, 
+body.home #top-players h2 {
+margin-left: 20px;
+}
+
+body.home #mlb-short .id, 
+body.home #mlb-short h2 {
+margin-left: 10px;
+margin-right: 20px;
+}
+
+body.home #top-players ol,
+body.home #top-players li,
+body.home #mlb-short ul,
+body.home #mlb-short li {
+margin: 0;
+padding: 0;
+}
+
+body.home #top-players ol {
+margin-top: 2px;
+margin-left: 30px;
+line-height: 14px;
+}
+
+body.home #mlb-short ul {
+margin-top: 2px;
+list-style: none;
+}
+
+body.home #mlb-short ul .oo {
+float: right;
+position: relative;
+top: 6px;
+}
+
+body.home #mlb-short p {
+float: right;
+}
+
+body.home #server{
+clear: both;
+padding-top: 1px;
+}
+
+body.home #find-player {
+padding-bottom: 15px;
+}
+
+body.home #branzone-ad {
+text-align: center;
+}
+
+/* 
+* inner pages basic
+*/
+
+
+body.inner #page-1 {
+background: #3c3a36 url('../site-images/inner-body-bg.gif') 0 0 repeat-y;
+}
+
+html.inner {
+background: #3c3a36 url('../site-images/inner-body-bg.gif') top center repeat-y;
+}
+
+body.inner  {
+background: #3c3a36 url('../site-images/inner-far-back.gif') 0 0 repeat-x;
+}
+
+body.inner #page-1 {
+width: 997px;
+margin: 0 auto;
+text-align: left;
+position: relative;
+}
+
+body.inner #page-2 {
+background: url('../site-images/inner-header.gif') top center no-repeat;
+}
+
+
+#secondhome {
+position: absolute;
+top: 0px;
+right: 90px;
+display: block;
+width: 70px;
+height: 85px;
+border: 0;
+}
+
+
+body.inner #navitems {
+position: absolute;
+top: 10px;
+left: 10px;
+margin: 0;
+padding: 0;
+list-style: none;
+}
+
+body.inner #navitems li {
+float: left;
+}
+
+body.inner #navitems li a {
+padding: 0 4px;
+font-weight: bold;
+font-size: 10px;
+}
+
+body.inner #getstats {
+position: absolute;
+top: 33px;
+left: 14px;
+}
+
+
+body.inner #getstats form,
+body.inner #getstats input,
+body.inner #getstats label {
+margin: 0;
+padding: 0;
+border: 0;
+float: left;
+margin-right: 5px;
+}
+
+body.inner #getstats label {
+color: #c2bfb6;
+font: bold 10px Verdana, sans-serif;
+display: block;
+border: 0;
+padding-top: 1px;
+}
+
+
+body.inner #getstats input {
+background: transparent;
+color: #fff;
+font: bold 10px Verdana, sans-serif;
+width: 100px;
+padding: 1px;
+height: 11px;
+border-bottom: 1px dotted #c2bfb6;
+}
+
+body.inner #getstats input.btn {
+background: transparent;
+color: #fff;
+font: bold 10px Verdana, sans-serif;
+border: 1px solid #bbb;
+width: 30px;
+padding: 0;
+height: 16px;
+}
+
+body.inner #getstats input:hover,
+body.inner #getstats input:active,
+body.inner #getstats input:focus {
+bbackground: #fff;
+}
+
+
+
+body.inner #donatenow {
+position: absolute;
+top: 7px;
+right: 6px;
+_right: 10px;
+}
+
+
+
+body.inner h1 {
+margin: 0;
+padding: 0;
+color: #f0f0f0;
+display: block;
+height: 50px;
+width: 960px;
+padding: 70px 0 0 10px;
+font: normal 32px Sylfaen, "Times New Roman", Times, serif;
+line-height: 1em;
+letter-spacing: .02em;
+}
+
+body.inner h1 img {
+float: left;
+margin:0;
+padding:0;
+margin-top: -15px;
+margin-left: -15px;
+}
+
+body.inner h1 small {
+font-size: 14px;
+}
+
+body.inner #content {
+padding: 10px;
+}
+
+
+
+
+/*
+* 'tables' of interest
+*/
+
+
+table.stat,
+table.stat td,
+table.stat a {
+color: #fff;
+}
+
+table.stat {
+border: 1px solid #111;
+border-bottom: 0;
+margin: 5px;
+width: 960px;
+}
+
+table.stat th {
+padding: 4px 4px;
+background: #383c33;
+border: 0;
+border-bottom: 1px solid #111;
+text-align: left;
+}
+
+table.stat tr > th {
+font: normal 17px Verdana;
+}
+
+table.stat th + th {
+padding: 8px 4px 4px 4px;
+font: bold 11px Verdana;
+}
+
+table.stat td {
+padding: 4px 4px;
+border: 0;
+background: #5c5f52;
+border-bottom: 1px solid #222c22;
+}
+
+table.stat tr > td {
+background: #484b3d;
+border-right: 1px solid #333;
+font-weight: bold;
+}
+
+table.stat td + td {
+background: #5c5f52;
+border-right: 0;
+font-weight: normal;
+}
+
+table.stat tr.favorite > td,
+table.stat tr.favorite > td + td {
+background: #676a5e; 
+border: 2px solid #333;
+border-top: 1px solid #999;
+border-right: 0;
+border-left: 0;
+padding: 5px 4px;
+}
+
+
+table.stat tr.totals> td,
+table.stat tr.averages> td {
+background: #3d4334;
+}
+
+table.stat tr.totals> td + td,
+table.stat tr.averages> td + td {
+background: #4f5546;
+}
+
+table.stat tr th,
+table.stat tr td{
+}
+
+
+
+table.basic-stat {
+border: 1px solid #111;
+margin: 5px;
+width: 960px;
+}
+
+table.basic-stat th {
+padding: 4px 4px;
+background: #383c33;
+text-align: left;
+border-bottom: 1px solid #111;
+}
+
+table.basic-stat tr > th {
+font: normal 17px Verdana;
+color: #fff;
+}
+
+table.basic-stat th + th {
+}
+
+table.basic-stat td {
+padding: 2px 4px;
+border: 0;
+background: #5c5f52;
+}
+
+table.basic-stat tr > td {
+}
+
+table.basic-stat td + td {
+}
+
+
+
+div.basic-stat {
+border: 1px solid #111;
+border-bottom: 0;
+margin: 5px;
+width: 960px;
+}
+
+div.basic-stat h2 {
+font-size: 18px;
+padding: 4px 4px;
+background: #383c33;
+border: 0;
+border-bottom: 1px solid #666;
+text-align: left;
+}
+
+div.basic-stat .id {
+padding: 2px 4px;
+border: 0;
+border-top: 1px solid #555;
+border-bottom: 1px solid #444;
+background: #5c5f52;
+}
+
+
+
+/*
+* player profile
+*/
+
+
+#prefers {
+float: left;
+width: 230px;
+height: 285px;
+position: relative;
+}
+
+#prefCol {
+float: left;
+width: 230px;
+height: 100px;
+position: relative;
+text-align: center;
+}
+
+#prefers img {
+position: absolute;
+}
+
+#prefers img {
+border: 1px solid #666;
+margin: 3px;
+right: 2px;
+}
+
+#prefers img.weapon{
+top: 3px;
+}
+#prefers img.vehicle{
+top: 73px;
+}
+#prefers img.kit{
+top: 143px;
+}
+#prefers img.map{
+top: 213px;
+}
+
+#prefers img#flag{
+top: 2px;
+left: 2px;
+}
+
+#prefers img.solider {
+top: 0px;
+left: 0;
+right: auto;
+width: 190px;
+height: 280px;
+}
+
+#prefCol p {
+}
+
+
+#profile {
+width: 740px;
+border-top: 2px solid #474642;
+}
+
+/* the following selector is Opera only */
+@media all and (min-width: 0px){
+	#profile { width: 740px; }
+}
+
+
+
+#profile td {
+width: 33%;
+border-right: 6px solid #474642;
+}
+
+#profile th {
+width: 33%;
+background: #070602;
+border-bottom: 2px solid #474642;
+border-right: 6px solid #474642;
+padding: 10px 0;
+text-align: center;
+}
+
+#profile tr > td,
+#profile tr > th  {
+width: 28%;
+}
+
+
+
+
+
+#profile table,
+#profile td,
+#profile th,
+#profile a {
+color: #fff;
+}
+#profile table {
+width: 100%;
+margin: 0;
+}
+
+#profile table {
+border: 1px solid #111;
+border-top: 0;
+}
+
+#profile table td {
+width: 50%;
+padding: 3px 4px;
+border: 0;
+border-top: 1px solid #222c22;
+background: #5c5f52;
+}
+
+#profile table th {
+padding: 4px 0;
+background: #383c33;
+border: 0;
+border-top: 1px solid #222c22;
+}
+
+#profile table td + td {
+text-align: right;
+}
+
+.awards-row img { border: 0; padding: 0; margin: 0; }
+.extra-space div.award-inline { margin-right: 5px; }
+
+
+/*
+#compare {
+position: absolute;
+top: 90px;
+right: 10px;
+}
+
+
+#compare label,
+#compare input.btn {
+font-weight: bold;
+color: #ddd;
+font-size: 10px;
+}
+
+#compare input {
+margin:0;
+padding:0;
+border:0;
+color: #ddd;
+border-bottom: 1px dotted #ddd;
+background: transparent;
+font: 10px/13px Verdana;
+}
+
+#compare input.btn {
+border: 1px solid #ccc;
+background: #1e1c18;
+color: #fff;
+}
+*/
+
+#buddy {
+position: absolute;
+top: 90px;
+right: 385px;
+_right: 395px;
+}
+
+#buddy img,
+#buddy a {
+border: 0;
+}
+
+/*
+* little fixes
+*/
+
+
+.col {
+width: 50%;
+margin: 0;
+padding: 0;
+float: left;
+}
+
+
+.col table {
+width: 98%;
+}
+
+table#awards,
+/* table#sigs, */
+table#unlocks,
+table#tta,
+table#award-details {
+clear: both;
+margin: 0 0.5%;
+padding: 0;
+width: 99%;
+margin-bottom: 15px;
+}
+
+table#unlocks tr td a,
+table#unlocks tr td img {
+border: 0;
+}
+
+table#unlocks tr td {
+padding: 5px 45px;
+}
+
+
+table#army tr > td,
+table#map tr > td,
+table#theater tr > td {
+width: 150px;
+}
+
+table#army tr > td + td,
+table#map tr > td + td,
+table#theater tr > td + td {
+width: auto;
+}
+
+
+
+
+/*
+* UBAR formatting 
+*/
+
+
+
+#ubar img.border {
+border: 1px solid #111;
+}
+
+#ubar a:hover {
+text-decoration: none;
+}
+
+#ubar {
+width: 835px;
+margin-left: auto;
+margin-right: auto;
+}
+
+#ubar table {
+width: 100%;
+margin-left: 0;
+margin-right: 0;
+}
+
+#ubar .basic-stat {
+border: 0;
+margin: 20px 0 ;
+}
+
+#ubar .basic-stat tr th {
+padding: 6px 10px;
+margin: 0;
+border: 1px solid #111;
+background: #1f241a;
+}
+
+#ubar .basic-stat tr + tr th {
+border: 0;
+background: transparent;
+}
+
+#ubar .basic-stat tr + tr th {
+}
+
+
+#ubar .basic-stat tr td {
+background: transparent;
+border: 0;
+}
+
+
+#ubarnav {
+margin: 3px 0 0 0;
+padding: 0;
+list-style: none;
+width: 835px;
+margin: 0px auto;
+height: 30px;
+}
+
+#ubarnav li {
+float: left;
+width: 119px;
+background: #d8d8d8;
+}
+
+#ubarnav li.li1 {
+width: 121px;
+}
+
+#ubarnav li a {
+display: block;
+_height: 1px;
+margin: 0;
+border: 0;
+padding: 3px;
+text-align: center;
+color: #666;
+font-weight: bold;
+}
+
+#ubarnav li a.current,
+#ubarnav li a:hover  {
+background: #1f241a;
+color: #fff;
+}
+
+#ubar table.stat ul ,
+#ubar table.basic-stat ul {
+padding: 0 0 0 15px;
+margin: 0;
+}
+
+#ubar img.badge {
+float: left;
+margin: 0 20px 0 0;
+border: none;
+}
+
+#ubar h3 {
+font: bold 16px Verdana;
+margin: 0;
+padding: 0;
+}
+
+
+
+
+
+/*
+* comparison page
+*/
+
+.p1 { color: #3ff; }
+.p2 { color: #ff3; }
+.pe { color: #fff; }
+
+#pc #profile {
+width: 970px;
+margin: 5px;
+}
+
+#pc-header {
+width: 360px;
+margin: 10px 70px;
+}
+
+
+
+
+#pgad {
+position: absolute;
+top: 425px;
+right: 30px;
+}
+
+#gadhome {
+position: absolute;
+top: 350px;
+left: 14px;
+}
+
+
+
+
+.poof {
+font-size: 0px;
+color: #474642;
+}
+
+
+/*
+* TTA
+*/
+
+.clear { clear: both; }
+
+.progressbar {
+background: #474642;
+float: left;
+border: 1px solid #333;
+
+width: 98%; 
+margin: 0; 
+padding: 0;
+}
+
+#tta .progressbar {
+width: 800px; 
+}
+
+.progressbar div {
+background: #476642;
+font-size: 10px;
+}
+
+.progressbar div span {
+padding: 0 5px;
+}
+
+.stat-need {
+font-style: italic;
+}
+
+
+.qaa {
+margin: 20px 20%; padding: 0;
+}
+
+
+.qaa dt {
+margin: 0; padding: 0;
+font-size: 14px;
+font-weight: bold;
+color: #e2dfd6;
+}
+
+.qaa dd {
+margin: 0; padding: 0 0 30px 0;
+}
+
+#trend {
+border: 1px solid #000;
+width: 970px;
+margin: 5px auto;
+}
+
+#trendmenu {
+text-align: center;
+}
+
+strong.achieved {
+color: #3f3;
+}
+
+strong.notachieved {
+color: #a00;
+}
+
+
+
+div.award-inline {
+float: left;
+width: 42px;
+height: 42px;
+position: relative;
+}
+
+div.award-inline b {
+display: none;
+}
+
+div.award-pop {
+display: none;
+position: absolute;
+top: 40px;
+left: 0;
+z-index: 50;
+width: 400px;
+background: #444643;
+border: 4px solid #383c33;
+-moz-opacity: .95;
+min-height: 140px;
+_height: 140px;
+}
+
+div.dir-left {
+left: 30px;
+right: auto;
+}
+
+div.dir-right {
+left: auto;
+right: 30px;
+}
+
+
+div.award-inline:hover div.award-pop {
+display: block;
+}
+
+div.award-pop p,
+div.award-pop ul {
+padding: 5px;
+margin: 0 0 0 132px;
+list-style: none;
+}
+
+div.award-pop p.stat-need {
+clear: none;
+margin: 0;
+padding: 0 0 5px 2px;
+font-size: 10px;
+}
+
+div.award-pop img {
+position: absolute;
+top: 0;
+left: 0;
+border-right: 4px solid #383c33;
+border-bottom: 4px solid #383c33;
+}
+
+#history-menu ul {
+padding: 0;
+margin: 0;
+list-style: none;
+}
+
+#history-menu ul li {
+float: left;
+width: 108px;
+}
+
+#history-menu ul li a {
+display: block;
+_height: 1px;
+border: 0;
+text-decoration: none;
+padding: 5px 0;
+margin: 1px;
+border: 1px solid #232826;
+border-bottom: 1px solid #585754;
+border-right: 1px solid #585754;
+background: #3c3a36;
+text-align: center;
+color: #fcfcfc;
+}
+
+
+#history-menu ul li a:hover,
+#history-menu ul li.selected a {
+background: #4c4a46;
+}
+
+.award-inline div ul li {
+padding-bottom: 10px;
+}
