@@ -1,0 +1,28 @@
+FROM php:7.4-fpm-alpine AS build
+ARG TARGETPLATFORM
+ARG BUILDPLATFORM
+RUN echo "I am running on $BUILDPLATFORM, building for $TARGETPLATFORM"
+
+# Set permissions for 'www-data' user
+COPY ./src/bf2sclone /src/bf2sclone
+WORKDIR /src/bf2sclone
+RUN chown -R www-data:www-data . \
+    && find . -type d -exec chmod 750 {} \; \
+    && find . -type f -exec chmod 640 {} \;
+
+FROM php:7.4-fpm-alpine AS final
+
+# opcache
+RUN docker-php-ext-install opcache
+
+# mysql PDO
+RUN docker-php-ext-install pdo pdo_mysql
+
+RUN php -i
+RUN php -m
+
+# Add default configs
+
+COPY --from=build /src/bf2sclone /src/bf2sclone
+COPY ./config/bf2sclone/php/conf.d/php.ini /usr/local/etc/php/conf.d/php.ini
+COPY ./config/bf2sclone/php-fpm.d/www.conf /usr/local/etc/php-fpm.d/www.conf
