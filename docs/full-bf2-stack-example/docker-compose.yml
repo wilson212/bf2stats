@@ -205,10 +205,6 @@ services:
       # - ./config/bf2sclone/php-fpm.d/www.conf:/usr/local/etc/php-fpm.d/www.conf:ro  # Customize only if needed
     networks:
       - bf2-network
-    extra_hosts:
-      # For xdebug to reach the host via `host.docker.internal`. See: https://github.com/moby/moby/pull/40007#issuecomment-578729356 and https://stackoverflow.com/questions/49907308/installing-xdebug-in-docker
-      # If xdebug does not work, you may need to add an iptables rule to the INPUT chain: iptables -A INPUT -i br+ -j ACCEPT
-      - host.docker.internal:host-gateway
     depends_on:
       - init-container
     restart: unless-stopped
