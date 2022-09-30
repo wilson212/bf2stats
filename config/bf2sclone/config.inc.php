@@ -28,7 +28,7 @@ $site_url = str_replace('//', '/', $host .'/'. $site_dir);
 while(strpos($site_url, '//') !== FALSE) $site_url = str_replace('//', '/', $site_url);
 
 // Root url to bf2sclone
-$ROOT = str_replace( '\\', '', 'http://' . rtrim($site_url, '/') .'/' );
+$ROOT = ( isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ) || ( isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https' ) ? str_replace( '\\', '', 'https://' . rtrim($site_url, '/') .'/' ) : str_replace( '\\', '', 'http://' . rtrim($site_url, '/') .'/' );
 
 // Your domain name (eg: www.example.com)
 $DOMAIN = preg_replace('@^(http(s)?)://@i', '', $host);
