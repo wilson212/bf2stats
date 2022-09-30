@@ -100,7 +100,7 @@ services:
       dockerfile: Dockerfile.bf2sclone-php.dev
     volumes:
       - ./src/bf2sclone:/src/bf2sclone
-      - ./config/bf2sclone/config.inc.php:/src/config.inc.php:ro # Main config file
+      - ./config/bf2sclone/config.inc.php:/src/bf2sclone/config.inc.php:ro # Main config file. Customize as needed
       - ./config/bf2sclone/php/conf.d/php.ini:/usr/local/etc/php/conf.d/php.ini:ro
       - ./config/bf2sclone/php-fpm.d/www.conf:/usr/local/etc/php-fpm.d/www.conf:ro
       - bf2sclone-cache-volume:/src/bf2sclone/cache
