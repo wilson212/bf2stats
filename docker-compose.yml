@@ -35,8 +35,8 @@ services:
           find /src/ASP/system/logs -type d -exec chmod 750 {} \;
           find /src/ASP/system/logs -type f -exec chmod 640 {} \;
 
-          mkdir -p /src/ASP/system/snapshots/temp
           mkdir -p /src/ASP/system/snapshots/processed
+          mkdir -p /src/ASP/system/snapshots/temp
           chown -R 82:82 /src/ASP/system/snapshots
           find /src/ASP/system/snapshots -type d -exec chmod 750 {} \;
           find /src/ASP/system/snapshots -type f -exec chmod 640 {} \;

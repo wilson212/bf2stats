@@ -112,10 +112,8 @@ services:
           find /src/ASP/system/logs -type d -exec chmod 750 {} \;
           find /src/ASP/system/logs -type f -exec chmod 640 {} \;
 
-          mkdir -p /src/ASP/system/snapshots/failed
           mkdir -p /src/ASP/system/snapshots/processed
-          mkdir -p /src/ASP/system/snapshots/unauthorized
-          mkdir -p /src/ASP/system/snapshots/unprocessed
+          mkdir -p /src/ASP/system/snapshots/temp
           chown -R 82:82 /src/ASP/system/snapshots
           find /src/ASP/system/snapshots -type d -exec chmod 750 {} \;
           find /src/ASP/system/snapshots -type f -exec chmod 640 {} \;
@@ -203,6 +201,7 @@ services:
       - ./config/bf2sclone/config.inc.php:/src/bf2sclone/config.inc.php:ro  # Main config file. Customize as needed
       # - ./config/bf2sclone/php/conf.d/php.ini:/usr/local/etc/php/conf.d/php.ini:ro  # Customize only if needed
       # - ./config/bf2sclone/php-fpm.d/www.conf:/usr/local/etc/php-fpm.d/www.conf:ro  # Customize only if needed
+      - bf2sclone-cache-volume:/src/bf2sclone/cache
     networks:
       - bf2-network
     depends_on:
