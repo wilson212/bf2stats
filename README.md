@@ -8,6 +8,14 @@
 
 Although [`bf2statistics` `3.1.0`](https://github.com/BF2Statistics/ASP) has been released, it is not backward compatible with `<= 2.2.0`. Hence, this project is to help those who want to retain their `2.2.0` stats system, and to ease deployment of the stack since support is scarce.
 
+## Usage
+
+See [docker-compose.example.yml](docker-compose.example.yml) example showing how to deploy BF2Statistics using `docker-compose`.
+
+Notes:
+- Mount the `ASP` [`config.php`](./config/ASP/config.php) with write permissions, or else `ASP` dashboard will throw an error. Use `System > Edit Configuration` as reference to customize the config file.
+- Setup the DB on the first time you login to the `ASP`, using `$db_host`,`$db_port`,`$db_name`,`$db_user`,`$db_pass` you defined in [`config.php`](./config/ASP/config.php).
+
 ## Development
 
 ```sh
