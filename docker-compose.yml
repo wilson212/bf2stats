@@ -23,6 +23,10 @@ services:
           find /src/ASP -type f -exec chmod 644 {} \;
 
           echo "Granting ASP php write permissions"
+          chmod 777 /src/ASP/system/config
+          chmod 666 /src/ASP/system/config/config.php
+          chmod 666 /src/ASP/system/config/config.php.bak || true
+
           chown -R 82:82 /src/ASP/system/database/backups
           find /src/ASP/system/database/backups -type d -exec chmod 750 {} \;
           find /src/ASP/system/database/backups -type f -exec chmod 640 {} \;
