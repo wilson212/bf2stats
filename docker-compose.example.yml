@@ -1,0 +1,127 @@
+version: '2.2'
+services:
+  init-container:
+    image: alpine:latest
+    volumes:
+      - backups-volume:/src/ASP/system/database/backups # This volume is effectively unused since ASP doesn't allow DB backups for a remote DB, but mount it anyway to avoid errors.
+      - logs-volume:/src/ASP/system/logs
+      - snapshots-volume:/src/ASP/system/snapshots
+      - db-volume:/var/lib/mysql
+    entrypoint:
+      - /bin/sh
+    command:
+      - -c
+      - |
+          set -eu
+
+          echo "Granting php's 'www-data' user write permissions"
+          chown -R 82:82 /src/ASP/system/database/backups
+          find /src/ASP/system/database/backups -type d -exec chmod 750 {} \;
+          find /src/ASP/system/database/backups -type f -exec chmod 640 {} \;
+
+          chown -R 82:82 /src/ASP/system/logs
+          find /src/ASP/system/logs -type d -exec chmod 750 {} \;
+          find /src/ASP/system/logs -type f -exec chmod 640 {} \;
+
+          mkdir -p /src/ASP/system/snapshots/failed
+          mkdir -p /src/ASP/system/snapshots/processed
+          mkdir -p /src/ASP/system/snapshots/unauthorized
+          mkdir -p /src/ASP/system/snapshots/unprocessed
+          chown -R 82:82 /src/ASP/system/snapshots
+          find /src/ASP/system/snapshots -type d -exec chmod 750 {} \;
+          find /src/ASP/system/snapshots -type f -exec chmod 640 {} \;
+
+          echo "Granting db's 'mysql' user write permissions"
+          chown -R 999:999 /var/lib/mysql
+
+  asp-nginx:
+    image: leojonathanoh/bf2stats:asp-nginx
+    volumes:
+      - ./config/ASP/nginx/nginx.conf:/etc/nginx/nginx.conf:ro # Customize as needed
+    ports:
+      - 8081:80
+    networks:
+      - bf2-network
+    depends_on:
+      - init-container
+      - asp-php
+    restart: unless-stopped
+
+  asp-php:
+    image: leojonathanoh/bf2stats:asp-php
+    volumes:
+      - ./config/ASP/config.php:/src/ASP/system/config/config.php # Main config file. Must be writeable or else ASP will throw an exception. Customize as needed
+      - ./config/ASP/php/conf.d/php.ini:/usr/local/etc/php/conf.d/php.ini:ro # Customize as needed
+      - ./config/ASP/php-fpm.d/www.conf:/usr/local/etc/php-fpm.d/www.conf:ro # Customize as needed
+      - backups-volume:/src/ASP/system/database/backups # This volume is effectively unused since ASP doesn't allow DB backups for a remote DB, but mount it anyway to avoid errors.
+      - logs-volume:/src/ASP/system/logs
+      - snapshots-volume:/src/ASP/system/snapshots
+    networks:
+      - bf2-network
+    depends_on:
+      - init-container
+    restart: unless-stopped
+
+  bf2sclone-nginx:
+    image: leojonathanoh/bf2stats:bf2sclone-nginx
+    volumes:
+      - ./config/bf2sclone/nginx/nginx.conf:/etc/nginx/nginx.conf:ro  # Customize as needed
+    ports:
+      - 8082:80
+    networks:
+      - bf2-network
+    depends_on:
+      - init-container
+      - bf2sclone-php
+
+  bf2sclone-php:
+    image: leojonathanoh/bf2stats:bf2sclone-php
+    volumes:
+      - ./config/bf2sclone/config.inc.php:/src/config.inc.php:ro # Main config file. Customize as needed
+      - ./config/bf2sclone/php/conf.d/php.ini:/usr/local/etc/php/conf.d/php.ini:ro # Customize as needed
+      - ./config/bf2sclone/php-fpm.d/www.conf:/usr/local/etc/php-fpm.d/www.conf:ro # Customize as needed
+    networks:
+      - bf2-network
+    extra_hosts:
+      # For xdebug to reach the host via `host.docker.internal`. See: https://github.com/moby/moby/pull/40007#issuecomment-578729356 and https://stackoverflow.com/questions/49907308/installing-xdebug-in-docker
+      # If xdebug does not work, you may need to add an iptables rule to the INPUT chain: iptables -A INPUT -i br+ -j ACCEPT
+      - host.docker.internal:host-gateway
+    depends_on:
+      - init-container
+
+  db:
+    image: mariadb:10.8
+    environment:
+      - MARIADB_ROOT_PASSWORD=admin
+      - MARIADB_USER=admin
+      - MARIADB_PASSWORD=admin
+      - MARIADB_DATABASE=bf2stats
+    volumes:
+      - db-volume:/var/lib/mysql
+    networks:
+      - bf2-network
+    depends_on:
+      - init-container
+    restart: unless-stopped
+
+  phpmyadmin:
+    image: phpmyadmin:5.2
+    environment:
+      # - PMA_ABSOLUTE_URI=https://phpmyadmin.example.com # Enable this if behind a reverse proxy
+      - PMA_HOST=db
+    ports:
+      - 8083:80
+    networks:
+      - bf2-network
+    restart: unless-stopped
+
+networks:
+  bf2-network:
+    name: bf2-network
+
+volumes:
+  backups-volume:
+  cache-volume:
+  logs-volume:
+  snapshots-volume:
+  db-volume:

@@ -1,0 +1,49 @@
+version: '2.2'
+services:
+  test-routes:
+    image: alpine:latest
+    environment:
+      URLS: |
+        http://asp-nginx/ 403
+        http://asp-nginx/ASP/ 200
+        http://asp-nginx/ASP/frontend/template.php 403
+        http://asp-nginx/ASP/frontend/css/reset.css 200
+        http://asp-nginx/ASP/frontend/js/jquery-ui.js 200
+        http://asp-nginx/ASP/frontend/images/bf2logo.png 200
+        http://asp-nginx/ASP/frontend/css/fonts/ptsans/PTS55F-webfont.woff 200
+        http://asp-nginx/ASP/system 403
+        http://asp-nginx/ASP/bf2statistics.php 200
+        http://asp-nginx/ASP/getawardsinfo.aspx 200
+        http://asp-nginx/ASP/getbackendinfo.aspx 200
+        http://asp-nginx/ASP/getclaninfo.aspx 200
+        http://asp-nginx/ASP/getleaderboard.aspx 200
+        http://asp-nginx/ASP/getmapinfo.aspx 200
+        http://asp-nginx/ASP/getplayerid.aspx 200
+        http://asp-nginx/ASP/getplayerinfo.aspx 200
+        http://asp-nginx/ASP/getrankinfo.aspx 200
+        http://asp-nginx/ASP/getunlocksinfo.aspx 200
+        http://asp-nginx/ASP/index.php 200
+        http://asp-nginx/ASP/ranknotification.aspx 200
+        http://asp-nginx/ASP/searchforplayers.aspx 200
+        http://asp-nginx/ASP/selectunlock.aspx 200
+        http://asp-nginx/ASP/getplayerinfo.aspx 200
+    networks:
+      - bf2-network
+    entrypoint:
+      - /bin/sh
+    command:
+      - -c
+      - |
+          set -eu
+          echo "$$URLS" | awk NF | while read -r i j; do
+              if wget -q -SO- "$$i" 2>&1 | grep "HTTP/1.1 $$j " > /dev/null; then
+                  echo "PASS: $$i"
+              else
+                  echo "FAIL: $$i"
+                  exit 1
+              fi
+          done
+
+networks:
+  bf2-network:
+    name: bf2-network
