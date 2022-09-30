@@ -5,13 +5,14 @@ services:
     environment:
       URLS: |
         http://asp-nginx/ 403
+        http://asp-nginx/.hidden 401
         http://asp-nginx/ASP/ 200
-        http://asp-nginx/ASP/frontend/template.php 403
+        http://asp-nginx/ASP/frontend/template.php 401
         http://asp-nginx/ASP/frontend/css/reset.css 200
         http://asp-nginx/ASP/frontend/js/jquery-ui.js 200
         http://asp-nginx/ASP/frontend/images/bf2logo.png 200
         http://asp-nginx/ASP/frontend/css/fonts/ptsans/PTS55F-webfont.woff 200
-        http://asp-nginx/ASP/system 403
+        http://asp-nginx/ASP/system 401
         http://asp-nginx/ASP/bf2statistics.php 200
         http://asp-nginx/ASP/getawardsinfo.aspx 200
         http://asp-nginx/ASP/getbackendinfo.aspx 200
@@ -28,6 +29,7 @@ services:
         http://asp-nginx/ASP/selectunlock.aspx 200
         http://asp-nginx/ASP/getplayerinfo.aspx 200
         http://bf2sclone-nginx/ 200
+        http://bf2sclone-nginx/.htaccess 401
         http://bf2sclone-nginx/cache 401
         http://bf2sclone-nginx/css/default.css 200
         http://bf2sclone-nginx/game-images/armies/0.png 200
