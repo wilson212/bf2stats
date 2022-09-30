@@ -27,6 +27,18 @@ services:
         http://asp-nginx/ASP/searchforplayers.aspx 200
         http://asp-nginx/ASP/selectunlock.aspx 200
         http://asp-nginx/ASP/getplayerinfo.aspx 200
+        http://bf2sclone-nginx/ 200
+        http://bf2sclone-nginx/cache 401
+        http://bf2sclone-nginx/css/default.css 200
+        http://bf2sclone-nginx/game-images/armies/0.png 200
+        http://bf2sclone-nginx/js/nt2.js 200
+        http://bf2sclone-nginx/queries/armies.list 401
+        http://bf2sclone-nginx/queries/getArmiesByPID.php 401
+        http://bf2sclone-nginx/site-images/online.png 200
+        http://bf2sclone-nginx/template/config.inc.php.template 401
+        http://bf2sclone-nginx/awards.inc.php 401
+        http://bf2sclone-nginx/install.php.disabled 401
+
     networks:
       - bf2-network
     entrypoint:
