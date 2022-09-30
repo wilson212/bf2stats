@@ -83,7 +83,7 @@ services:
   bf2sclone-php:
     image: leojonathanoh/bf2stats:bf2sclone-php
     volumes:
-      - ./config/bf2sclone/config.inc.php:/src/config.inc.php:ro # Main config file. Customize as needed
+      - ./config/bf2sclone/config.inc.php:/src/bf2sclone/config.inc.php:ro # Main config file. Customize as needed
       - ./config/bf2sclone/php/conf.d/php.ini:/usr/local/etc/php/conf.d/php.ini:ro # Customize as needed
       - ./config/bf2sclone/php-fpm.d/www.conf:/usr/local/etc/php-fpm.d/www.conf:ro # Customize as needed
     networks:
