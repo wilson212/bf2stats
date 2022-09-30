@@ -125,6 +125,7 @@ services:
       - MARIADB_PASSWORD=admin # Uncomment this if you want to create a regular user
       - MARIADB_DATABASE=bf2stats
     volumes:
+      - ./config/db/my.cnf:/etc/my.cnf:ro
       - db-volume:/var/lib/mysql
     networks:
       - bf2-network
