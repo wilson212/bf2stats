@@ -10,11 +10,7 @@ Although [`bf2statistics` `3.1.0`](https://github.com/BF2Statistics/ASP) has bee
 
 ## Usage
 
-See [docker-compose.example.yml](docker-compose.example.yml) example showing how to deploy BF2Statistics using `docker-compose`.
-
-Notes:
-- Mount the `ASP` [`config.php`](./config/ASP/config.php) with write permissions, or else `ASP` dashboard will throw an error. Use `System > Edit Configuration` as reference to customize the config file.
-- Setup the DB on the first time you login to the `ASP`, using `$db_host`,`$db_port`,`$db_name`,`$db_user`,`$db_pass` you defined in [`config.php`](./config/ASP/config.php).
+See [this](docs/full-bf2-stack-example) example showing how to deploy [Battlefield 2 1.5 server](../docker-bf2/), the [gamespy emulator](../PRMasterServer/), and `bf2stats` using `docker-compose`.
 
 ## Development
 

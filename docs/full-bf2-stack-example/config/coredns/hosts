@@ -1,0 +1,12 @@
+# Replace these gamespy's DNS records with your machine's external IP addresses
+192.168.1.100 eapusher.dice.se
+192.168.1.100 battlefield2.available.gamespy.com
+192.168.1.100 battlefield2.master.gamespy.com
+192.168.1.100 battlefield2.ms14.gamespy.com
+192.168.1.100 gamestats.gamespy.com
+192.168.1.100 master.gamespy.com
+192.168.1.100 motd.gamespy.com
+192.168.1.100 gpsp.gamespy.com
+192.168.1.100 gpcm.gamespy.com
+192.168.1.100 gamespy.com
+192.168.1.100 bf2web.gamespy.com

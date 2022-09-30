@@ -120,9 +120,9 @@ services:
   db:
     image: mariadb:10.8
     environment:
-      - MARIADB_ROOT_PASSWORD=my-strong-password
-      - MARIADB_USER=admin # Uncomment this if you want to create a regular user
-      - MARIADB_PASSWORD=admin # Uncomment this if you want to create a regular user
+      - MARIADB_ROOT_PASSWORD=admin
+      - MARIADB_USER=admin
+      - MARIADB_PASSWORD=admin
       - MARIADB_DATABASE=bf2stats
     volumes:
       - ./config/db/my.cnf:/etc/my.cnf:ro
