@@ -10,7 +10,7 @@ Although [`bf2statistics` `3.1.0`](https://github.com/BF2Statistics/ASP) has bee
 
 ## Usage
 
-See [this](docs/full-bf2-stack-example) example showing how to deploy [Battlefield 2 1.5 server](../docker-bf2/), the [gamespy emulator](../PRMasterServer/), and `bf2stats` using `docker-compose`.
+See [this](docs/full-bf2-stack-example) example showing how to deploy [Battlefield 2 1.5 server](https://github.com/startersclan/docker-bf2/), the [gamespy emulator](https://github.com/startersclan/PRMasterServer), and `bf2stats` using `docker-compose`.
 
 ## Development
 
