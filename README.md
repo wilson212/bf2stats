@@ -45,20 +45,32 @@ docker-compose down
 docker volume rm bf2stats_backups-volume
 docker volume rm bf2stats_logs-volume
 docker volume rm bf2stats_snapshots-volume
+docker volume rm bf2stats_bf2sclone-cache-volume
 docker volume rm bf2stats_db-volume
 ```
 
 ## FAQ
 
-### Q: `Xdebug: [Step Debug] Could not connect to debugging client. Tried: host.docker.internal:9000 (through xdebug.client_host/xdebug.client_port)` appears in the php logs
-
-A: The debugger is not running. Press `F5` in `vscode` to start the `php` `xdebug` debugger. If you stopped the debugger, it is safe to ignore this message.
-
-### Q: ` Warning: file_put_contents(/src/ASP/system/config/config.php): failed to open stream: Permission denied in /src/ASP/system/core/Config.php on line 165` appearing in ASP dashboard
+### Q: ASP installer never completes the first time
 
 A: Grant ASP `php`'s `www-data` user write permission for `config.php`.
 
 ```sh
 chmod 666 ./config/ASP/config.php
-docker-compose restart php
+docker-compose restart asp-php
 ```
+
+When hitting the `Install` button, a `POST` is made to `http://localhost:8081/ASP/index.php?task=installdb`, and an error `Warning: file_put_contents(/src/ASP/system/config/config.php): failed to open stream: Permission denied in /src/ASP/system/core/Config.php on line 165` is output before the JSON. This results in invalid JSON which is not properly handled by the UI and hence it appears to never complete.
+
+### Q: `Warning: file_put_contents(/src/ASP/system/config/config.php): failed to open stream: Permission denied in /src/ASP/system/core/Config.php on line 165` appearing in ASP dashboard
+
+A: Grant ASP `php`'s `www-data` user write permission for `config.php`.
+
+```sh
+chmod 666 ./config/ASP/config.php
+docker-compose restart asp-php
+```
+
+### Q: `Xdebug: [Step Debug] Could not connect to debugging client. Tried: host.docker.internal:9000 (through xdebug.client_host/xdebug.client_port)` appears in the php logs
+
+A: The debugger is not running. Press `F5` in `vscode` to start the `php` `xdebug` debugger. If you stopped the debugger, it is safe to ignore this message.

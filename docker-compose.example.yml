@@ -6,6 +6,7 @@ services:
       - backups-volume:/src/ASP/system/database/backups # This volume is effectively unused since ASP doesn't allow DB backups for a remote DB, but mount it anyway to avoid errors.
       - logs-volume:/src/ASP/system/logs
       - snapshots-volume:/src/ASP/system/snapshots
+      - bf2sclone-cache-volume:/src/bf2sclone/cache
       - db-volume:/var/lib/mysql
     entrypoint:
       - /bin/sh
@@ -14,7 +15,7 @@ services:
       - |
           set -eu
 
-          echo "Granting php's 'www-data' user write permissions"
+          echo "Granting ASP php write permissions"
           chown -R 82:82 /src/ASP/system/database/backups
           find /src/ASP/system/database/backups -type d -exec chmod 750 {} \;
           find /src/ASP/system/database/backups -type f -exec chmod 640 {} \;
@@ -30,6 +31,11 @@ services:
           chown -R 82:82 /src/ASP/system/snapshots
           find /src/ASP/system/snapshots -type d -exec chmod 750 {} \;
           find /src/ASP/system/snapshots -type f -exec chmod 640 {} \;
+
+          echo "Granting bf2sclone php write permissions"
+          chown -R 82:82 /src/bf2sclone/cache
+          find /src/bf2sclone/cache -type d -exec chmod 750 {} \;
+          find /src/bf2sclone/cache -type f -exec chmod 640 {} \;
 
           echo "Granting db's 'mysql' user write permissions"
           chown -R 999:999 /var/lib/mysql
@@ -121,7 +127,7 @@ networks:
 
 volumes:
   backups-volume:
-  cache-volume:
   logs-volume:
   snapshots-volume:
+  bf2sclone-cache-volume:
   db-volume:
