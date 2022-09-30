@@ -1,8 +1,8 @@
 # bf2stats
 
-[![github-actions](https://github.com/leojonathanoh/bf2stats/workflows/ci-master-pr/badge.svg)](https://github.com/leojonathanoh/bf2stats/actions)
-[![github-release](https://img.shields.io/github/v/release/leojonathanoh/bf2stats?style=flat-square)](https://github.com/leojonathanoh/bf2stats/releases/)
-[![docker-image-size](https://img.shields.io/docker/image-size/leojonathanoh/bf2stats/asp-nginx)](https://hub.docker.com/r/leojonathanoh/bf2stats)
+[![github-actions](https://github.com/startersclan/bf2stats/workflows/ci-master-pr/badge.svg)](https://github.com/startersclan/bf2stats/actions)
+[![github-release](https://img.shields.io/github/v/release/startersclan/bf2stats?style=flat-square)](https://github.com/startersclan/bf2stats/releases/)
+[![docker-image-size](https://img.shields.io/docker/image-size/startersclan/bf2stats/asp-nginx)](https://hub.docker.com/r/startersclan/bf2stats)
 
 [`bf2statistics` `2.2.0`](https://code.google.com/archive/p/bf2stats/) with docker support.
 
@@ -33,10 +33,10 @@ sudo iptables -A INPUT -i br+ -j ACCEPT
 docker-compose -f docker-compose.test.yml up
 
 # Test production builds locally
-docker build -t leojonathanoh/bf2stats:asp-nginx -f Dockerfile.asp-nginx.prod .
-docker build -t leojonathanoh/bf2stats:asp-php -f Dockerfile.asp-php.prod .
-docker build -t leojonathanoh/bf2stats:bf2sclone-nginx -f Dockerfile.bf2sclone-nginx.prod .
-docker build -t leojonathanoh/bf2stats:bf2sclone-php -f Dockerfile.bf2sclone-php.prod .
+docker build -t startersclan/bf2stats:asp-nginx -f Dockerfile.asp-nginx.prod .
+docker build -t startersclan/bf2stats:asp-php -f Dockerfile.asp-php.prod .
+docker build -t startersclan/bf2stats:bf2sclone-nginx -f Dockerfile.bf2sclone-nginx.prod .
+docker build -t startersclan/bf2stats:bf2sclone-php -f Dockerfile.bf2sclone-php.prod .
 docker-compose -f docker-compose.example.yml up
 
 # Dump the DB
