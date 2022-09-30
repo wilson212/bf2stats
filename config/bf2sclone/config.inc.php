@@ -37,6 +37,6 @@ $DOMAIN = preg_replace('@^(http(s)?)://@i', '', $host);
 unset($host, $site_dir, $site_url);
 
 // Setup the database connection
-$GLOBALS['link'] = mysqli_connect($DBIP, $DBLOGIN, $DBPASSWORD) or die('Could not connect: ' . mysqli_error($GLOBALS['link']));
+$link = mysqli_connect($DBIP, $DBLOGIN, $DBPASSWORD) or die('Could not connect: ' . mysqli_error($GLOBALS['link']));
 mysqli_select_db($GLOBALS['link'], $DBNAME) or die('Could not select database');
 ?>
