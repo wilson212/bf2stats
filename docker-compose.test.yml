@@ -5,7 +5,7 @@ services:
     environment:
       URLS: |
         http://asp-nginx/ 403
-        http://asp-nginx/.hidden 401
+        http://asp-nginx/.htaccess 401
         http://asp-nginx/ASP/ 200
         http://asp-nginx/ASP/frontend/template.php 401
         http://asp-nginx/ASP/frontend/css/reset.css 200
@@ -40,7 +40,6 @@ services:
         http://bf2sclone-nginx/template/config.inc.php.template 401
         http://bf2sclone-nginx/awards.inc.php 401
         http://bf2sclone-nginx/install.php.disabled 401
-
     networks:
       - bf2-network
     entrypoint:
