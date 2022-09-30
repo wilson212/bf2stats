@@ -8,7 +8,7 @@ if(!file_exists('config.inc.php'))
 
 // Include our config file
 include('config.inc.php');
-	
+
 // process page start:
 $time_start = microtime(true);
 
@@ -19,7 +19,7 @@ define('CACHE_PATH', ROOT . DS . 'cache' . DS);
 define('TEMPLATE_PATH', ROOT . DS . 'template' . DS);
 
 // IFF PID -> go show stats!
-$PID = isset($_GET["pid"]) ? mysql_real_escape_string($_GET["pid"]) : "0";
+$PID = isset($_GET["pid"]) ? mysqli_real_escape_string($GLOBALS['link'], $_GET["pid"]) : "0";
 $GO = isset($_GET["go"]) ? $_GET["go"] : "0";
 $GET = isset($_POST["get"]) ? $_POST["get"] : 0;
 $SET = isset($_POST["set"]) ? $_POST["set"] : 0;
@@ -99,13 +99,13 @@ if($GO == "0" && $PID)
 
 		// Include our template file
 		include( TEMPLATE_PATH . 'playerstats.php' );
-		
+
 		// write cache file
 		writeCache($PID, trim($template));
 		$LASTUPDATE = intToTime(0);
-		$NEXTUPDATE = intToTime(RANKING_REFRESH_TIME);		
+		$NEXTUPDATE = intToTime(RANKING_REFRESH_TIME);
 		$template 	= str_replace('{:LASTUPDATE:}', $LASTUPDATE, $template);
-		$template 	= str_replace('{:NEXTUPDATE:}', $NEXTUPDATE, $template);		
+		$template 	= str_replace('{:NEXTUPDATE:}', $NEXTUPDATE, $template);
 	}
 }
 
@@ -127,15 +127,15 @@ elseif(strcasecmp($GO, 'currentranking') == 0)
 	{
 		// Include our template file
 		include( TEMPLATE_PATH .'current-ranking.php');
-		
+
 		// write cache file
 		writeCache('current-ranking', $template);
 		$LASTUPDATE = intToTime(0);
-		$NEXTUPDATE = intToTime(RANKING_REFRESH_TIME);		
-	}	
+		$NEXTUPDATE = intToTime(RANKING_REFRESH_TIME);
+	}
 	$template = str_replace('{:LASTUPDATE:}', $LASTUPDATE, $template);
-	$template = str_replace('{:NEXTUPDATE:}', $NEXTUPDATE, $template);		
-	#echo $template;	
+	$template = str_replace('{:NEXTUPDATE:}', $NEXTUPDATE, $template);
+	#echo $template;
 }
 
 /***************************************************************
@@ -161,9 +161,9 @@ elseif(strcasecmp($GO, 'my-leaderboard') == 0)
 	elseif($REMOVE > 0)
 	{
 		$LEADERBOARD = explode(',', $_COOKIE['leaderboard']); // get array
-		
+
 		// delete "remove"
-		foreach($LEADERBOARD as $i => $value) 
+		foreach($LEADERBOARD as $i => $value)
 		{
 			if($value == $REMOVE)
 			{
@@ -178,7 +178,7 @@ elseif(strcasecmp($GO, 'my-leaderboard') == 0)
 	}
 	# nothing todo -> load from cookie
 	$LEADERBOARD = isset($_COOKIE['leaderboard']) ? $_COOKIE['leaderboard'] : '';
-	
+
 	if($PID != 0) // a saved leaderboard
 	{
 		$LEADER = getLeaderBoardEntries(urldecode($PID)); # query from database
@@ -215,7 +215,7 @@ elseif(strcasecmp($GO, 'ubar') == 0)
 		case "index":
 			$page = 'ubar-index';
 			break;
-			
+
 		case "ribbons":
 		case "ribbons-sf":
 		case "medals":
@@ -228,8 +228,8 @@ elseif(strcasecmp($GO, 'ubar') == 0)
 	}
 
 	// Include our template file
-	include( TEMPLATE_PATH . $page .'.php');	
-	#echo $template;	
+	include( TEMPLATE_PATH . $page .'.php');
+	#echo $template;
 }
 
 /***************************************************************
@@ -254,22 +254,22 @@ else
 		// write cache file
 		writeCache('home', $template);
 		$LASTUPDATE = intToTime(0);
-		$NEXTUPDATE = intToTime(RANKING_REFRESH_TIME);		
-	}	
+		$NEXTUPDATE = intToTime(RANKING_REFRESH_TIME);
+	}
 	$template = str_replace('{:LASTUPDATE:}', $LASTUPDATE, $template);
-	$template = str_replace('{:NEXTUPDATE:}', $NEXTUPDATE, $template);		
-	
+	$template = str_replace('{:NEXTUPDATE:}', $NEXTUPDATE, $template);
+
 }
 
 // Closing connection
-mysql_close($link);
+mysqli_close($GLOBALS['link']);
 
 //processing page END
 $time_end = microtime(true);
 $time = round($time_end - $time_start,4);
 
-$template = str_replace('{:PROCESSED:}', $time, $template);		
+$template = str_replace('{:PROCESSED:}', $time, $template);
 
 // Echo the template page and quit
-echo $template;	
+echo $template;
 ?>

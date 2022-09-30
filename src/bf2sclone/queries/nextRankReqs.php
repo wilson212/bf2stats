@@ -33,7 +33,7 @@ function checkReqs($rank, $PID)
 					//'1191819' => 1  // Resupply Badge
 				);
 			break;
-			
+
 			// Rank is MGYSG
 			case 9:
 				$award_list = array(
@@ -46,20 +46,20 @@ function checkReqs($rank, $PID)
 				);
 			break;
 		}
-		
+
 		// Initiate an array of players earned awards
 		$player_awards = array();
-		
+
 		// Start a query to get users awards
 		$query = "SELECT * FROM awards where id = $PID";
-		$result = mysql_query($query) or die('Query failed: ' . mysql_error());
-		
+		$result = mysqli_query($GLOBALS['link'], $query) or die('Query failed: ' . mysqli_error($GLOBALS['link']));
+
 		// Build the players earned awards to an array
-		while($row = mysql_fetch_assoc($result)) 
+		while($row = mysqli_fetch_assoc($result))
 		{
 			$player_awards[$row['awd']] = $row['level'];
 		}
-		
+
 		// Start a loop. For each required award, check to see 2 things:
 		// 1) The player has the award
 		// 2) The level of the award is equal to or greater then required
@@ -69,7 +69,7 @@ function checkReqs($rank, $PID)
 			if(array_key_exists($award, $player_awards))
 			{
 				$lvl = $player_awards[$award];
-				
+
 				// Check to see if the level of the earned award is geater or equal
 				// value of the required award
 				if($lvl >= $level)
@@ -90,7 +90,7 @@ function checkReqs($rank, $PID)
 				return FALSE;
 			}
 		}
-		
+
 		// If the loop finished, then the player had all awards so return TRUE!
 		return TRUE;
 	}
@@ -119,7 +119,7 @@ function getNextRanks($PID, $rank, $count = 3)
 	if($count == 0) $count = 21;
 	$return = array();
 	$i = 0;
-	
+
 	// loop
 	while($rank < 21 && $i < $count)
 	{
@@ -128,7 +128,7 @@ function getNextRanks($PID, $rank, $count = 3)
 		$return = array_merge($return, $data);
 		$rank = end($data);
 	}
-	
+
 	// remove extra's
 	$num = count($return);
 	if($num > $count)
@@ -151,7 +151,7 @@ function getNext3($PID, $rank)
 	$first = $rank + 1;
 	$second = $rank + 2;
 	$third = $rank + 3;
-	
+
 	// First we need to make sure that none of next 3 ranks are 1SG or SGM
 	if($first == 8 || $first == 10)
 	{
@@ -165,13 +165,13 @@ function getNext3($PID, $rank)
 		$third++; // Increment
 	}
 	if($third == 8 || $third == 10)		$third++; // Increment
-	
+
 	// if -> NEXT <- rank is MSG, or MGYSGT
 	if($first == 7 || $first == 9)
 	{
 		// Check to see if the player gets 1SG or SGM
 		$award_check = checkReqs($first, $PID);
-		
+
 		// If a true return return, add 1 to the cuurent rank to make it 1SG or SGM
 		if($award_check == TRUE)
 		{
@@ -179,10 +179,10 @@ function getNext3($PID, $rank)
 			{
 				case 7:
 					$first = 8;
-					$second = 9; 
+					$second = 9;
 					$third = 12;
 				break;
-				
+
 				case 9:
 					$first = 10;
 					$second = 12;
@@ -190,17 +190,17 @@ function getNext3($PID, $rank)
 				break;
 			}
 		}
-		
+
 		// 1SG or SGM is a no go
 		else
-		{	
+		{
 			switch($first)
 			{
 				case 7:
-					$second = 9; 
+					$second = 9;
 					$third = 12;
 				break;
-				
+
 				case 9:
 					$second = 12;
 					$third = 13;
@@ -208,53 +208,53 @@ function getNext3($PID, $rank)
 			}
 		}
 	}
-	
+
 	// Check the -> NEXT NeXT <-rank for MSG or MGYSGT
 	if($second == 7 || $second == 9)
 	{
 		// Check to see if the player gets 1SG or SGM
 		$award_check = checkReqs($second, $PID);
-		
+
 		// If a true return return, add 1 to the cuurent rank to make it 1SG or SGM
 		if($award_check == TRUE)
 		{
 			$second++; // 8 or 10
-			
+
 			switch($second)
 			{
 				case 8:
 					$third = 9;
 				break;
-		
+
 				case 10:
 					$third = 12; // 2nd Lieutenant
 				break;
 			}
 		}
 	}
-	
+
 	// Check the -> next next NEXT <- rank for MSG or MGYSGT
 	if($third == 7 || $third == 9)
 	{
 		// Check to see if the player gets 1SG or SGM
 		$award_check = checkReqs($third, $PID);
-		
+
 		// If a true return return, add 1 to the cuurent rank to make it 1SG or SGM
 		if($award_check == TRUE)
 		{
 			$third++; // Increment
 		}
 	}
-	
+
 	// Just incase we got a rank 11 (SMOC), Remove itsince its not a promotable rank
 	$return = removeSMOC($first, $second, $third);
-	
+
 	// Remove additional ranks
 	foreach($return as $k => $v)
 	{
 		if($v > 21) unset($return[$k]);
 	}
-	
+
 	// return the next 3 ranks
 	return $return;
 }

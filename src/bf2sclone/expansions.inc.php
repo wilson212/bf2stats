@@ -5,14 +5,14 @@ include_once(ROOT . DS . 'queries'. DS .'getTheaterTimeQueryByName.php');
 function getExpasionTimeByName($PID, $ExpansionID)
 {
 	$query = getExpasionTimeQueryByName($PID, $ExpansionID);
-	$result = mysql_query($query) or die('Query failed: ' . mysql_error());	
+	$result = mysqli_query($GLOBALS['link'], $query) or die('Query failed: ' . mysqli_error($GLOBALS['link']));
 	$data = array();
-	
-	while ($row = mysql_fetch_assoc($result)) 
+
+	while ($row = mysqli_fetch_assoc($result))
 	{
 		$data[] = $row;
-	}	 	
-	mysql_free_result($result);
+	}
+	mysqli_free_result($result);
 	return $data[0]['time'];
 }
 
@@ -36,14 +36,14 @@ function getTheaterData($PID)
 function getTheaterByName($PID, $TheaterID)
 {
 	$query = getTheaterTimeQueryByName($PID, $TheaterID);
-	$result = mysql_query($query) or die('Query failed: ' . mysql_error());	
+	$result = mysqli_query($GLOBALS['link'], $query) or die('Query failed: ' . mysqli_error($GLOBALS['link']));
 	$data = array();
-	
-	while ($row = mysql_fetch_assoc($result)) 
+
+	while ($row = mysqli_fetch_assoc($result))
 	{
 		$data[] = $row;
-	}	 	
-	mysql_free_result($result);
+	}
+	mysqli_free_result($result);
 	return $data[0];
 }
 ?>
