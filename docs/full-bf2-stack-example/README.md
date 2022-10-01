@@ -1,5 +1,7 @@
 # Full Battlefield 2 stack example
 
+This example deploys a stack with `bf2stats` v2. If you prefer `bf2stats` v3, see [here](https://github.com/startersclan/asp).
+
 ## Usage
 
 1. First, start the full stack:
@@ -61,7 +63,7 @@ Notes:
 - If traefik hasn't got a certificate via `ACME`, it will serve the `TRAEFIK DEFAULT CERT`. The browser will show a security issue when visiting https://asp.example.com, https://bf2sclone.example.com, and https://phpmyadmin.example.com. Simply click "visit site anyway" button to get past the security check.
 - Setup the DB on the first time you login to the `ASP`, using `$db_host`,`$db_port`,`$db_name`,`$db_user`,`$db_pass` you defined in [`config.php`](./config/ASP/config.php).
 
-7. If you are behind NAT, you will need to forward all of the above TCP and UDP ports to your external IP address, in order for clients to reach your server over the internet.
+6. If you are behind NAT, you will need to forward all of the above TCP and UDP ports to your external IP address, in order for clients to reach your server over the internet.
 
 ## Spoofing gamespy DNS for BF2 clients
 
