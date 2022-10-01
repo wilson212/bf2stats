@@ -25,6 +25,7 @@ services:
       - prmasterserver-volume:/data
     networks:
       - bf2-network
+    restart: unless-stopped
 
   # A DNS server to spoof gamespy's DNS records for BF2 clients
   # Tips:
