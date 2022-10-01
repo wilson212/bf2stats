@@ -56,14 +56,14 @@ docker volume rm bf2stats_db-volume
 
 ### Q: ASP installer never completes the first time
 
-A: Grant ASP `php`'s `www-data` user write permission for `config.php`.
+A: This is caused by a bug where the UI fails to handle an invalid response from the backend. A `PHP_ERROR` `Warning: file_put_contents(/src/ASP/system/config/config.php): failed to open stream: Permission denied in /src/ASP/system/core/Config.php on line 165` is output before the JSON response causing invalid JSON. You can see the error in the `/src/ASP/system/logs/php_errors.log`.
+
+Grant ASP `php`'s `www-data` user write permission for `config.php`.
 
 ```sh
 chmod 666 ./config/ASP/config.php
 docker-compose restart asp-php
 ```
-
-When hitting the `Install` button, a `POST` is made to `http://localhost:8081/ASP/index.php?task=installdb`, and an error `Warning: file_put_contents(/src/ASP/system/config/config.php): failed to open stream: Permission denied in /src/ASP/system/core/Config.php on line 165` is output before the JSON. This results in invalid JSON which is not properly handled by the UI and hence it appears to never complete.
 
 ### Q: `Warning: file_put_contents(/src/ASP/system/config/config.php): failed to open stream: Permission denied in /src/ASP/system/core/Config.php on line 165` appearing in ASP dashboard
 
@@ -72,6 +72,31 @@ A: Grant ASP `php`'s `www-data` user write permission for `config.php`.
 ```sh
 chmod 666 ./config/ASP/config.php
 docker-compose restart asp-php
+```
+
+### Q: `There was an error testing the system. Please refresh the page and try again.` when using `System > Test System` in ASP
+
+A: This is caused by a bug where the UI fails to handle an invalid response from the backend. A `PHP_NOTICE` is output right before the JSON response causing invalid JSON. You can see the error in the `/src/ASP/system/logs/php_errors.log`.
+
+### Q: `BF2Statistics Processing Check: Fail` or ` Gamespy (.aspx) Basic Response: Fail` or `Gamespy (.aspx) Advanced (1) Response: Fail` when using `System > Test System` in ASP
+
+A: DNS resolution problem. The `HOST` used in the test to test those Gamespy endpoints is the same host you see in your browser. For instance, if you are accessing the `ASP` using `http://localhost`, the `ASP` `php` container runs tests against `http://localhost/ASP/*.aspx`, which will fail, because the request is not going through `ASP` `nginx`.
+
+Use a fully qualified domain name (FQDN) so that `php` can resolve to its external DNS name to test against its external web endpoint.
+
+### Q: `Table (army) *NOT* Backed Up: [1045] Access denied for user 'admin'@'%' (using password: YES)` when using `System > Backup Database` in ASP
+
+A: The `db` user does not have the `FILE` privilege. Add a grant manually, but even if you did, you still won't be able to backup without major security issues. See [here](#q-table-army-not-backed-up-1-cant-createwrite-to-file-srcaspsystemdatabasebackupsbak202210010315armybak-errcode-2-"no-such-file-or-directory"-when-using-system--backup-database-in-asp).
+
+### Q: `Table (army) *NOT* Backed Up: [1] Can't create/write to file '/src/ASP/system/database/backups/bak_20221001_0315/army.bak' (Errcode: 2 "No such file or directory")` when using `System > Backup Database` in ASP
+
+The `backupdb` module uses [`SELECT * INTO OUTFILE`](https://mariadb.com/kb/en/select-into-outfile/), but the `src` files are not in the db container, `mariadb` cannot find the path to export the files. In the past, the `apache`, `php` and `mysql` ran on the same machine with write access to the same filesystem, but with `docker`, each container has its own filesystem. The only workaround is to mount the `backups-volume` inside the `db` container at the same path as it is mounted in the `ASP` `php` container `/src/ASP/system/database/backups/`, with write permissions for `php`'s user `82` and `mariadb`'s user `999` which menas the directory needs `777` permissions (world writeable), which is very bad from the point of view of security.
+
+It is better to backup the DB on a `cron` schedule using `mysqldump` from another container linked to the `db` container:
+
+```sh
+# Dump a DB at host `db`, user `root`, database `bf2stats`
+mysqldump -hdb -uroot -p<password> <database>
 ```
 
 ### Q: `Xdebug: [Step Debug] Could not connect to debugging client. Tried: host.docker.internal:9000 (through xdebug.client_host/xdebug.client_port)` appears in the php logs

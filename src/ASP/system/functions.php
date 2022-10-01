@@ -416,6 +416,7 @@
 	function getPageContents($url)
 	{	
 		// Try file() first
+		$results = null;
 		if( function_exists('file') && function_exists('fopen') && ini_get('allow_url_fopen') ) 
 		{
 			ini_set("user_agent", "GameSpyHTTP/1.0");
