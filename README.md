@@ -33,7 +33,6 @@ docker build -t startersclan/bf2stats:asp-nginx -f Dockerfile.asp-nginx.prod .
 docker build -t startersclan/bf2stats:asp-php -f Dockerfile.asp-php.prod .
 docker build -t startersclan/bf2stats:bf2sclone-nginx -f Dockerfile.bf2sclone-nginx.prod .
 docker build -t startersclan/bf2stats:bf2sclone-php -f Dockerfile.bf2sclone-php.prod .
-docker-compose -f docker-compose.example.yml up
 
 # Dump the DB
 docker exec $( docker-compose ps | grep db | awk '{print $1}' ) mysqldump -uroot -padmin bf2stats | gzip > bf2stats.sql.gz
