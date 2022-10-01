@@ -90,7 +90,7 @@ Pros:
 - Easy to change to another gamespy server
 
 Cons:
-- Dangerous. The DNS server may be used as an attack vector against clients to steal cookies and diret clients to malicious websites.
+- Dangerous. The DNS server may be used as an attack vector against clients to steal cookies and direct clients to malicious websites.
 
 ### Option 3: Use DNS records in the local machine
 
@@ -108,9 +108,9 @@ Solutions:
 
 ### Which is the best?
 
-The best solution depends on one's setup. If one never needs to switch between gamespy servers, `3.` is best. If one wants things to "just work", and doesn't want clients to have to install anything, use `2.`. If one prefers a gamespy server run by a trustworthy community, use `1.`.
+The best solution depends on one's setup. If one often needs to switch between gamespy servers, `3.` is best. If one doesn't want clients to have to install anything but wants things to "just work", use `2.`. If one prefers a single gamespy server run by a trustworthy community, use `1.`.
 
-This example opted for `2.` which is DNS spoofing using `coredns`. It's the easiest easy to setup for a single machine, and multiple machines to get spoofed gamespy DNS responses.
+This example opted for `2.` which is DNS spoofing using `coredns`. It can be used on a single machine and multiple machine setups.
 
 ## Scripts
 
