@@ -230,9 +230,12 @@ class Testconfig
                 fwrite($fh, $tst_snapshot . "\r\n");
                 
                 $buffer = "";
-                while (!feof($fh)) 
+                // feof() and fgets() don't seem to return true on `EOF` on a TCP file handle
+                // So we set a timeout
+                stream_set_timeout($fh, 1); // fgets  1 second timeout, after which fgets will return false. 
+                while ($s = fgets($fh, 4096) ) 
                 {
-                    $buffer .= fgets($fh, 4096);
+                    $buffer .= $s;
                 }
                 fclose($fh);
                 
