@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "*.aspx": "php",
+    },
+    "files.trimTrailingWhitespace": false,
+}
