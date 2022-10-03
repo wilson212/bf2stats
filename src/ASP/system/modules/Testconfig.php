@@ -183,7 +183,7 @@ class Testconfig
 
         // Check Admin Backup Write Access
         $out .= " > Checking Database Backup Storage Path...<br />";
-        $path = str_replace(array('/', '\\'), DS, ltrim(Config::Get('admin_backup_path'), '/'));
+        $path = str_replace(array('/', '\\'), DS, trim(Config::Get('admin_backup_path')));
         $out .= "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Backup Path Writable ({$path}): ";
         if (!FileSystem::IsWritable( $path ))
         {
