@@ -2,7 +2,7 @@
 .:53 {
     # Try resolving DNS using the hosts file first
     hosts /hosts {
-        ttl 1s     # DNS TTL. 1 second so that the BF2 client doesn't cache the DNS
+        ttl 1       # DNS TTL. 1 second so that the BF2 client doesn't cache the DNS
         no_reverse  # Do not generate reverse DNS records
         reload 5s   # hosts file reload interval
         fallthrough # If no host is matched, continue down the plugin chain
