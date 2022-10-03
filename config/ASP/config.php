@@ -6,7 +6,7 @@
 * this file. Please use the Web Admin  *
 * to change values.                    *
 ***************************************/
-$db_expected_ver = '2.2.0';
+$db_expected_ver = '2.3.0';
 $db_host = 'db';
 $db_port = 3306;
 $db_name = 'bf2stats';
@@ -14,7 +14,7 @@ $db_user = 'admin';
 $db_pass = 'admin';
 $admin_user = 'admin';
 $admin_pass = 'admin';
-$admin_hosts = array('0.0.0.0'); // Authorize all IP addresses for development
+$admin_hosts = array('0.0.0.0');
 $admin_backup_path = '/src/ASP/system/database/backups/';
 $admin_backup_ext = '.bak';
 $admin_ignore_ai = 0;
@@ -31,7 +31,7 @@ $stats_awds_complete = 0;
 $stats_lan_override = '174.49.21.221';
 $stats_local_pids = array('LocalPlayer01','210.84.29.151','LocalPlayer02','210.84.29.151');
 $debug_lvl = 2;
-$game_hosts = array('0.0.0.0'); // Authorize all IP addresses for development
+$game_hosts = array('0.0.0.0');
 $game_custom_mapid = 700;
 $game_unlocks = 0;
 $game_unlocks_bonus = 2;

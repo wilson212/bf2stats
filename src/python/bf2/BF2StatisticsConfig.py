@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-# BF2Statistics 2.2.0 - Config File
+# BF2Statistics 2.3.0 - Config File
 # ------------------------------------------------------------------------------
 # Conventions:
 #    0 -> Disable
@@ -40,9 +40,9 @@ http_central_asp = '/ASP/bf2statistics.php'
 # ------------------------------------------------------------------------------
 # Snapshot Logging
 # ------------------------------------------------------------------------------
-# Enables server to make snapshot backups. 
+# Enables server to make snapshot backups.
 # 0 = log only on error sending to backend
-# 1 = all snapshots 
+# 1 = all snapshots
 # ------------------------------------------------------------------------------
 snapshot_logging = 0
 snapshot_log_path_sent = 'python/bf2/logs/snapshots/sent' 		# Relative from the BF2 base folder
@@ -51,7 +51,7 @@ snapshot_log_path_unsent = 'python/bf2/logs/snapshots/unsent' 	# Relative from t
 # ------------------------------------------------------------------------------
 # Snapshot Prefix
 # ------------------------------------------------------------------------------
-# Prefix Snapshots with this tag. This is also your Server's Prefix. Multiple 
+# Prefix Snapshots with this tag. This is also your Server's Prefix. Multiple
 # servers on the same IP Must use different Prefix's to tell which is which.
 # ------------------------------------------------------------------------------
 snapshot_prefix = ''
@@ -59,7 +59,7 @@ snapshot_prefix = ''
 # ------------------------------------------------------------------------------
 # Medals Processing
 # ------------------------------------------------------------------------------
-# Suffix for your custom medals file(s). 
+# Suffix for your custom medals file(s).
 # Example "custom" = medal_data_custom.py AND medal_data_xpack_custom.py (for SF).
 medals_custom_data = ''
 
