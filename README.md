@@ -76,7 +76,7 @@ docker-compose restart asp-php
 
 ### Q: `There was an error testing the system. Please refresh the page and try again.` when using `System > Test System` in ASP
 
-A: This is caused by a bug where the UI fails to handle an invalid response from the backend. A `PHP_NOTICE` is output right before the JSON response causing invalid JSON. You can see the error in the `/src/ASP/system/logs/php_errors.log`.
+A: This is means the UI received an invalid JSON response from the backend. If you know how to, you can examine the payload of the `POST` response. You may also check for errors in the `/src/ASP/system/logs/php_errors.log`.
 
 ### Q: `BF2Statistics Processing Check: Fail` or ` Gamespy (.aspx) Basic Response: Fail` or `Gamespy (.aspx) Advanced (1) Response: Fail` when using `System > Test System` in ASP
 
