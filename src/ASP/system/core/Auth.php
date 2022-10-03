@@ -138,7 +138,7 @@ class Auth
         if(empty(self::$clientIp))
         {
             // Check to see if the server has the IP address
-            if(isset($_SERVER['HTTP_CLIENT_IP']) && isValidIp($_SERVER['HTTP_CLIENT_IP']))
+            if(isset($_SERVER['HTTP_CLIENT_IP']) && filter_var($_SERVER['HTTP_CLIENT_IP'], FILTER_VALIDATE_IP))
             {
                 self::$clientIp = $_SERVER['HTTP_CLIENT_IP'];
             }
@@ -148,30 +148,30 @@ class Auth
                 $ips = explode(",", $_SERVER['HTTP_X_FORWARDED_FOR']);
                 foreach($ips as $ip) 
                 {
-                    if(isValidIp($ip))
+                    if(filter_var($ip, FILTER_VALIDATE_IP))
                     {
                         self::$clientIp = $ip;
                         break;
                     }
                 }
             }
-            elseif(isset($_SERVER['HTTP_X_FORWARDED']) && isValidIp($_SERVER['HTTP_X_FORWARDED']))
+            elseif(isset($_SERVER['HTTP_X_FORWARDED']) && filter_var($_SERVER['HTTP_X_FORWARDED'], FILTER_VALIDATE_IP))
             {
                 self::$clientIp = $_SERVER['HTTP_X_FORWARDED'];
             }
-            elseif(isset($_SERVER['HTTP_X_CLUSTER_CLIENT_IP']) && isValidIp($_SERVER['HTTP_X_CLUSTER_CLIENT_IP']))
+            elseif(isset($_SERVER['HTTP_X_CLUSTER_CLIENT_IP']) && filter_var($_SERVER['HTTP_X_CLUSTER_CLIENT_IP'], FILTER_VALIDATE_IP))
             {
                 self::$clientIp = $_SERVER['HTTP_X_CLUSTER_CLIENT_IP'];
             }
-            elseif(isset($_SERVER['HTTP_FORWARDED_FOR']) && isValidIp($_SERVER['HTTP_FORWARDED_FOR']))
+            elseif(isset($_SERVER['HTTP_FORWARDED_FOR']) && filter_var($_SERVER['HTTP_FORWARDED_FOR'], FILTER_VALIDATE_IP))
             {
                 self::$clientIp = $_SERVER['HTTP_FORWARDED_FOR'];
             }
-            elseif(isset($_SERVER['HTTP_FORWARDED']) && isValidIp($_SERVER['HTTP_FORWARDED']))
+            elseif(isset($_SERVER['HTTP_FORWARDED']) && filter_var($_SERVER['HTTP_FORWARDED'], FILTER_VALIDATE_IP))
             {
                 self::$clientIp = $_SERVER['HTTP_FORWARDED'];
             }
-            elseif(isset($_SERVER['HTTP_VIA']) && isValidIp($_SERVER['HTTP_VIA']))
+            elseif(isset($_SERVER['HTTP_VIA']) && filter_var($_SERVER['HTTP_VIA'], FILTER_VALIDATE_IP))
             {
                 self::$clientIp = $_SERVER['HTTP_VIA'];
             }
