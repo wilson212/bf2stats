@@ -11,7 +11,7 @@ In this example, we will use the domain name  `example.com`. In production, you 
 Add a couple of hostnames to the `hosts` file for the web endpoints:
 
 ```sh
-# Since we are testing this stack locally, we these DNS records in the hosts file
+# Since we are testing this stack locally, we need these DNS records in the hosts file
 echo '127.0.0.1 asp.example.com' | sudo tee -a /etc/hosts
 echo '127.0.0.1 bf2sclone.example.com' | sudo tee -a /etc/hosts
 echo '127.0.0.1 phpmyadmin.example.com' | sudo tee -a /etc/hosts
@@ -77,19 +77,15 @@ The full stack is now running:
 
 ### 4. Setup the stats DB
 
-Visit https://asp.example.com and login using `$admin_user` and `$admin_pass` defined in its [config file](./config/ASP/config.php).
+Visit https://asp.example.com/ASP and login using `$admin_user` and `$admin_pass` defined in its [config file](./config/ASP/config.php).
 
 > Since traefik hasn't got a valid TLS certificate via `ACME`, it will serve the `TRAEFIK DEFAULT CERT`. The browser will show a security issue when visiting https://asp.example.com, https://bf2sclone.example.com, and https://phpmyadmin.example.com. Simply click "visit site anyway" button to get past the security check.
 
 Click on `System > Install Database` and install the DB using `$db_host`,`$db_port`,`$db_name`,`$db_user`,`$db_pass` you defined in [`config.php`](./config/ASP/config.php). Click `System > Test System` and `Run System Tests` and it should all be green.
 
-### 5. Connect to the BF2 1.5 server
+### 5. Setup DNS for client machines
 
-BF2 1.5 clients should be able to connect to your gameserver. Start BF2, click `Create Account`, and once you've logged in, click `MULTIPLAYER > JOIN INTERNET`, click `CONNECT TO IP`, and in the `IP ADDRESS` box enter the external IP address of the machine you used in Step `2.`. Join the game. At the end of the first game, you should see your stats updated at https://bf2sclone.example.com.
-
-### 6. Spoof gamespy DNS to play on your server
-
-Configure your machine (and your friends' machines) to use the DNS server you configured in `2.`.
+Configure your BF2 client machine (and your friends' machines) to use the DNS server (i.e. your local machine) you configured in `2.`.
 
 - If you are on different networks, you may use any of [these methods](#background-keeping-battlefield-2-working). Option `3.` is recommended.
 - If you are all on the same LAN network, configuring DNS via DHCP is the easiest. Configure router's DHCP server's DNS setting to your machine's IP address, which will automatically configure all client's machines to use your machine as the DNS server (i.e. `coredns`). Then ensure `coredns` forwards all unmatched DNS (all non-gamespy DNS) back to your router so that your LAN DNS remains fully intact. To do so, in [`config/coredns/Corefile`](config/coredns/Corefile) change this line:
@@ -112,16 +108,16 @@ docker-compose restart coredns`
 
 You can update spoofed DNS on the fly in [`config/coredns/hosts`](config/coredns/hosts), and it will serve new DNS records immediately. Update and save the file, and `coredns` serves the new DNS within 5 seconds.
 
-### 7. Play
+### 6. Play
 
-Connect to your BF2 server and play. Stats are updated at the end of every round.
+BF2 1.5 clients should be able to connect to your gameserver. Start BF2, click `Create Account`, and once you've logged in, click `MULTIPLAYER > JOIN INTERNET`, click `CONNECT TO IP`, and in the `IP ADDRESS` box enter the external IP address of the machine you used in Step `2.`. Join the game. At the end of the first game, you should see your stats updated at https://bf2sclone.example.com.
 
 ### Cheat sheet
 
 - Visit https://asp.example.com/ASP to adminstrate your stats database and gamespy server. Login using `$admin_user` and `$admin_pass` defined in its [config file](./config/ASP/config.php).
 - Visit https://bf2sclone.example.com to view your stats over the web. It's a nice pretty web interface. Your stats will be updated at the end of each gameserver round.
 - Visit https://phpmyadmin.example.com if you want to self-manage your DB (if you know how). Login using user `root` and password `MARIADB_ROOT_PASSWORD` (or `MARIADB_USER` and `MARIADB_PASSWORD`) defined on the `db` service in [docker-compose.yml](./docker-compose.yml)
-- The example includes all the configuration files for each stack component. Customize them to suit your needs:
+- The example includes all the configuration files for each stack component. Customize them to suit your needs.
 - In a production setup, you want to make sure:
   - to use a custom domain name
   - to configure `traefik` to be issued an ACME certificate for HTTPS to work for the web endpoints
