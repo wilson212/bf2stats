@@ -81,14 +81,35 @@ Visit https://asp.example.com/ASP and login using `$admin_user` and `$admin_pass
 
 > Since traefik hasn't got a valid TLS certificate via `ACME`, it will serve the `TRAEFIK DEFAULT CERT`. The browser will show a security issue when visiting https://asp.example.com, https://bf2sclone.example.com, and https://phpmyadmin.example.com. Simply click "visit site anyway" button to get past the security check.
 
-Click on `System > Install Database` and install the DB using `$db_host`,`$db_port`,`$db_name`,`$db_user`,`$db_pass` you defined in [`config.php`](./config/ASP/config.php). Click `System > Test System` and `Run System Tests` and it should all be green.
+Click on `System > Install Database` and install the DB using `$db_host`,`$db_port`,`$db_name`,`$db_user`,`$db_pass` you defined in [`config.php`](./config/ASP/config.php). Click `System > Test System` and `Run System Tests` and all tests should be green, except for the `BF2Statistics Processing` test and the four `.aspx` tests, because we still don't have a Fully Qualified Domain Name (FQDN) with a public DNS record.
 
-### 5. Setup DNS for client machines
+### 5. Setup DNS server
 
-Configure your BF2 client machine (and your friends' machines) to use the DNS server (i.e. your local machine) you configured in `2.`.
+Configure `coredns` to spoof all gamespy DNS in [config/coredns/hosts](config/coredns/hosts), replacing the IP addresses with your machine's external IP address which you specified in Step `2.`. Assuming your external IP is `192.168.1.100`, it should look like:
 
-- If you are on different networks, you may use any of [these methods](#background-keeping-battlefield-2-working). Option `3.` is recommended.
-- If you are all on the same LAN network, configuring DNS via DHCP is the easiest. Configure router's DHCP server's DNS setting to your machine's IP address, which will automatically configure all client's machines to use your machine as the DNS server (i.e. `coredns`). Then ensure `coredns` forwards all unmatched DNS (all non-gamespy DNS) back to your router so that your LAN DNS remains fully intact. To do so, in [`config/coredns/Corefile`](config/coredns/Corefile) change this line:
+```txt
+192.168.0.102 eapusher.dice.se
+192.168.0.102 battlefield2.available.gamespy.com
+192.168.0.102 battlefield2.master.gamespy.com
+192.168.0.102 battlefield2.ms14.gamespy.com
+192.168.0.102 gamestats.gamespy.com
+192.168.0.102 master.gamespy.com
+192.168.0.102 motd.gamespy.com
+192.168.0.102 gpsp.gamespy.com
+192.168.0.102 gpcm.gamespy.com
+192.168.0.102 gamespy.com
+192.168.0.102 bf2web.gamespy.com
+```
+
+Save the file. `coredns` immediately reads the changed file and serves the updated DNS records.
+
+### 6. Use the DNS server in BF2 clients
+
+Configure your BF2 client machine (and your friends' machines) to use the DNS server (i.e. your local machine) you configured in Step `2.`.
+
+If you are on different networks, you may use any of [these methods](#background-keeping-battlefield-2-working). Option `3.` is recommended.
+
+If you are all on the same LAN network, configuring DNS via DHCP is the easiest. Configure router's DHCP server's DNS setting to your machine's IP address, which will automatically configure all client's machines to use your machine as the DNS server (i.e. `coredns`). Then ensure `coredns` forwards all unmatched DNS (all non-gamespy DNS) back to your router so that your LAN DNS remains fully intact. To do so, in [`config/coredns/Corefile`](config/coredns/Corefile) change this line:
 
 ```conf
     forward . 192.168.0.1:53
@@ -100,24 +121,27 @@ to your router's IP address (e.g. `192.168.1.1`):
     forward . 192.168.1.1:53
 ```
 
-Then restart `coredns`:
+Restart `coredns` and it will be ready:
 
 ```sh
-docker-compose restart coredns`
+docker-compose restart coredns
 ```
-
-You can update spoofed DNS on the fly in [`config/coredns/hosts`](config/coredns/hosts), and it will serve new DNS records immediately. Update and save the file, and `coredns` serves the new DNS within 5 seconds.
 
 ### 6. Play
 
-BF2 1.5 clients should be able to connect to your gameserver. Start BF2, click `Create Account`, and once you've logged in, click `MULTIPLAYER > JOIN INTERNET`, click `CONNECT TO IP`, and in the `IP ADDRESS` box enter the external IP address of the machine you used in Step `2.`. Join the game. At the end of the first game, you should see your stats updated at https://bf2sclone.example.com.
+BF2 1.5 clients should be able to connect to your gameserver. Start BF2, click `Create Account`, and once you've logged in, click `MULTIPLAYER > JOIN INTERNET`, click `UPDATE SERVER LIST` and you should see your server listed. Join the server.
+
+If for some reason you don't see it listed, click `CONNECT TO IP`, and in the `IP ADDRESS` box enter the external IP address of the machine you used in Step `2.`. Join the server.
+
+At the end of the first game, you should see your stats updated at https://bf2sclone.example.com.
 
 ### Cheat sheet
 
 - Visit https://asp.example.com/ASP to adminstrate your stats database and gamespy server. Login using `$admin_user` and `$admin_pass` defined in its [config file](./config/ASP/config.php).
 - Visit https://bf2sclone.example.com to view your stats over the web. It's a nice pretty web interface. Your stats will be updated at the end of each gameserver round.
 - Visit https://phpmyadmin.example.com if you want to self-manage your DB (if you know how). Login using user `root` and password `MARIADB_ROOT_PASSWORD` (or `MARIADB_USER` and `MARIADB_PASSWORD`) defined on the `db` service in [docker-compose.yml](./docker-compose.yml)
-- The example includes all the configuration files for each stack component. Customize them to suit your needs.
+- This example includes all the configuration files for each stack component. Customize them to suit your needs.
+- Mount the `ASP` [`config.php`](./config/ASP/config.php) with write permissions, or else `ASP` dashboard will throw an error. Use `System > Edit Configuration` as reference to customize the config file.
 - In a production setup, you want to make sure:
   - to use a custom domain name
   - to configure `traefik` to be issued an ACME certificate for HTTPS to work for the web endpoints
@@ -138,6 +162,15 @@ docker-compose up
 
 # Attach to the bf2 server console
 docker attach bf2stats_bf2_1
+
+# View bf2 server logs
+docker exec -it bf2stats_bf2_1 bash
+cd python/bf2/logs
+cat *.log
+exit
+
+# Copy logs from bf2 server to this folder
+docker cp bf2stats_bf2_1:/server/bf2/python/bf2/logs .
 
 # Dump the DB
 docker exec $( docker-compose ps | grep db | awk '{print $1}' ) mysqldump -uroot -padmin bf2stats | gzip > bf2stats.sql.gz
@@ -180,7 +213,7 @@ Cons:
 
 - Difficult to change to another gamespy server
 - Difficult to distribute because it requires installation on each client
-- Trust issues. Binaries may be patched with malicious code
+- Binaries may be patched with malicious code
 
 ### Option 2: Spoof DNS at the DNS server
 
