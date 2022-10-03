@@ -18,40 +18,46 @@ def http_get(host, port = 80, document = "/"):
 
 		raise
 
-	http.writeline("GET %s HTTP/1.1" % str(document))
-	http.writeline("Host: %s" % host)
-	http.writeline("User-Agent: GameSpyHTTP/1.0")
-	http.writeline("Connection: close") # do not keep-alive
-	http.writeline("")
-	http.shutdown() # be nice, tell the http server we're done sending the request
-
-	# Determine Status
-	statusCode = 0
-	status = string.split(http.readline())
-	if status[0] != "HTTP/1.1":
-		print "MiniClient: Unknown status response (%s)" % str(status[0])
-	
 	try:
-		statusCode = string.atoi(status[1])
-	except ValueError:
-		print "MiniClient: Non-numeric status code (%s)" % str(status[1])
-	
-	#Extract Headers
-	headers = []
-	while 1:
-		line = http.readline()
-		if not line:
-			break
-		headers.append(line)
-	
-	http.close() # all done
+		http.writeline("GET %s HTTP/1.1" % str(document))
+		http.writeline("Host: %s" % host)
+		http.writeline("User-Agent: GameSpyHTTP/1.0")
+		http.writeline("Connection: close") # do not keep-alive
+		http.writeline("")
 
-	#Check we got a valid HTTP response
-	if statusCode == 200:
-		return http.read()
-	else:
-		return "E\nH\terr\nD\tHTTP Error %s \"%s\"\n$\tERR\t$" % (str(statusCode), str(status[2]))
-	
+		# Determine Status
+		statusCode = 0
+		status = string.split(http.readline())
+		if status[0] != "HTTP/1.1":
+			print "MiniClient: Unknown status response (%s)" % str(status[0])
+		
+		try:
+			statusCode = string.atoi(status[1])
+		except ValueError:
+			print "MiniClient: Non-numeric status code (%s)" % str(status[1])
+		
+		#Extract Headers
+		headers = []
+		while 1:
+			line = http.readline()
+			if not line:
+				break
+			headers.append(line)
+		
+		http.shutdown() # be nice, tell the http server we're done sending the request
+		http.close() # all done
+		
+		#Check we got a valid HTTP response
+		if statusCode == 200:
+			return http.read()
+		else:
+			return "E\nH\terr\nD\tHTTP Error %s \"%s\"\n$\tERR\t$" % (str(statusCode), str(status[2]))
+		
+	except Exception, e:
+		http.shutdown() # be nice, tell the http server we're done sending the request
+		http.close() # all done
+		raise
+		
 
 
 def http_postSnapshot(host, port = 80, document = "/", snapshot = ""):
@@ -76,7 +82,6 @@ def http_postSnapshot(host, port = 80, document = "/", snapshot = ""):
 		http.writeline("")
 		http.writeline(str(snapshot))
 		http.writeline("")
-		http.shutdown() # be nice, tell the http server we're done sending the request
 
 		# Check that SnapShot Arrives.
 		# Determine Status
@@ -98,6 +103,7 @@ def http_postSnapshot(host, port = 80, document = "/", snapshot = ""):
 				break
 			headers.append(line)
 			
+		http.shutdown() # be nice, tell the http server we're done sending the request
 		http.close() # all done
 		
 		if statusCode == 200:
@@ -106,6 +112,8 @@ def http_postSnapshot(host, port = 80, document = "/", snapshot = ""):
 			return "E\nH\terr\nD\tHTTP Error %s \"%s\"\n$\tERR\t$" % (str(statusCode), str(status[2]))
 
 	except Exception, e:
+		http.shutdown() # be nice, tell the http server we're done sending the request
+		http.close() # all done
 		raise
 
 class miniclient:
