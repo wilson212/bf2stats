@@ -6,7 +6,7 @@
 
 BF2Statistics [`2.x.x`](https://code.google.com/archive/p/bf2stats/) with docker support.
 
-Although BF2Statistics [`3.1.0`](https://github.com/BF2Statistics/ASP) has been released, it is not backward compatible with `<= 2.x.x`. Hence, this project is to help those who want to retain their `2.x.x` stats system, and to ease deployment of the stack since support is scarce.
+Although BF2Statistics [`3.1.0`](https://github.com/BF2Statistics/ASP) has been released, it is not backward compatible with `<= 2.x.x`. Hence, this project is to help those who want to retain their `2.x.x` stats system, and to ease deployment of the stack since support is scarce. It runs on PHP 7.4 with nginx.
 
 ## Usage
 
