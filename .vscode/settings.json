@@ -1,6 +1,8 @@
 {
     "files.associations": {
+        "*.ai": "bat",
+        "*.ai.add": "bat",
+        "*.con": "ini",
         "*.aspx": "php",
     },
-    "files.trimTrailingWhitespace": false,
 }
