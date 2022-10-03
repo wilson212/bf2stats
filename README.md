@@ -4,17 +4,17 @@
 [![github-release](https://img.shields.io/github/v/release/startersclan/bf2stats?style=flat-square)](https://github.com/startersclan/bf2stats/releases/)
 [![docker-image-size](https://img.shields.io/docker/image-size/startersclan/bf2stats/asp-nginx)](https://hub.docker.com/r/startersclan/bf2stats)
 
-[`bf2statistics` `2.2.0`](https://code.google.com/archive/p/bf2stats/) with docker support.
+BF2Statistics [`2.x.x`](https://code.google.com/archive/p/bf2stats/) with docker support.
 
-Although [`bf2statistics` `3.1.0`](https://github.com/BF2Statistics/ASP) has been released, it is not backward compatible with `<= 2.2.0`. Hence, this project is to help those who want to retain their `2.2.0` stats system, and to ease deployment of the stack since support is scarce.
+Although BF2Statistics [`3.1.0`](https://github.com/BF2Statistics/ASP) has been released, it is not backward compatible with `<= 2.x.x`. Hence, this project is to help those who want to retain their `2.x.x` stats system, and to ease deployment of the stack since support is scarce.
 
 ## Usage
 
 ```sh
-docker pull startersclan/bf2stats:2.2.0-asp-nginx
-docker pull startersclan/bf2stats:2.2.0-asp-php
-docker pull startersclan/bf2stats:2.2.0-bf2sclone-nginx
-docker pull startersclan/bf2stats:2.2.0-bf2sclone-php
+docker pull startersclan/bf2stats:2.3.0-asp-nginx
+docker pull startersclan/bf2stats:2.3.0-asp-php
+docker pull startersclan/bf2stats:2.3.0-bf2sclone-nginx
+docker pull startersclan/bf2stats:2.3.0-bf2sclone-php
 ```
 
 See [this](docs/full-bf2-stack-example) example showing how to deploy [Battlefield 2 1.5 server](https://github.com/startersclan/docker-bf2/), the [gamespy emulator](https://github.com/startersclan/PRMasterServer), and `bf2stats` using `docker-compose`.
@@ -89,7 +89,9 @@ A: This is means the UI received an invalid JSON response from the backend. If y
 
 A: DNS resolution problem. The `HOST` used in the test to test those Gamespy endpoints is the same host you see in your browser. For instance, if you are accessing the `ASP` using `http://localhost`, the `ASP` `php` container runs tests against `http://localhost/ASP/*.aspx`, which will fail, because the request is not going through `ASP` `nginx`.
 
-Use a fully qualified domain name (FQDN) so that `php` can resolve to its external DNS name to test against its external web endpoint.
+If you see this in a development environment, simply ignore the errors. There is an integration test using [docker-compose.test.yml](docker-compose.test.yml) to test those endpoints to ensure they work.
+
+If you are seeing this in a production environment, use a fully qualified domain name (FQDN) so that `php` can resolve to its external DNS name to test against its external web endpoint.
 
 ### Q: `Table (army) *NOT* Backed Up: [1045] Access denied for user 'admin'@'%' (using password: YES)` when using `System > Backup Database` in ASP
 

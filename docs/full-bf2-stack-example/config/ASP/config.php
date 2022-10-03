@@ -6,7 +6,7 @@
 * this file. Please use the Web Admin  *
 * to change values.                    *
 ***************************************/
-$db_expected_ver = '2.2.0';
+$db_expected_ver = '2.3.0';
 $db_host = 'db';
 $db_port = 3306;
 $db_name = 'bf2stats';
@@ -37,7 +37,7 @@ $game_hosts = array(
     '1.2.3.4', // Authorize a public gameserver IP
     '192.168.1.102', // Authorize a private gameserver IP
     '192.168.2.0/24', // Authorize a subnet
-); 
+);
 $game_custom_mapid = 700;
 $game_unlocks = 0;
 $game_unlocks_bonus = 2;
