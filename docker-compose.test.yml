@@ -48,6 +48,24 @@ services:
       - -c
       - |
           set -eu
+
+          echo "Waiting for stack to be ready"
+          s=0
+          while true; do
+              nc -vz -w 1 asp-nginx 80 \
+                  && nc -vz -w 1 asp-php 9000 \
+                  && nc -vz -w 1 bf2sclone-nginx 80 \
+                  && nc -vz -w 1 bf2sclone-php 9000 \
+                  && nc -vz -w 1 db 3306 \
+                  && break || true
+              s=$$(( $$s + 1 ))
+              if [ "$$s" -eq 600 ]; then
+                  exit 1
+              fi
+              echo "Retrying in 3 seconds"
+              sleep 3
+          done
+
           echo "$$URLS" | awk NF | while read -r i j; do
               if wget -q -SO- "$$i" 2>&1 | grep "HTTP/1.1 $$j " > /dev/null; then
                   echo "PASS: $$i"

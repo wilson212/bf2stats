@@ -69,6 +69,7 @@ services:
   asp-php:
     build:
       dockerfile: Dockerfile.asp-php.dev
+      context: .
     volumes:
       - ./src/ASP:/src/ASP
       - ./config/ASP/config.php:/src/ASP/system/config/config.php # Main config file. Must be writeable or else ASP will throw an exception. Customize as needed
@@ -102,6 +103,7 @@ services:
   bf2sclone-php:
     build:
       dockerfile: Dockerfile.bf2sclone-php.dev
+      context: .
     volumes:
       - ./src/bf2sclone:/src/bf2sclone
       - ./config/bf2sclone/config.inc.php:/src/bf2sclone/config.inc.php:ro # Main config file. Customize as needed
