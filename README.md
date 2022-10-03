@@ -10,6 +10,13 @@ Although [`bf2statistics` `3.1.0`](https://github.com/BF2Statistics/ASP) has bee
 
 ## Usage
 
+```sh
+docker pull startersclan/bf2stats:2.2.0-asp-nginx
+docker pull startersclan/bf2stats:2.2.0-asp-php
+docker pull startersclan/bf2stats:2.2.0-bf2sclone-nginx
+docker pull startersclan/bf2stats:2.2.0-bf2sclone-php
+```
+
 See [this](docs/full-bf2-stack-example) example showing how to deploy [Battlefield 2 1.5 server](https://github.com/startersclan/docker-bf2/), the [gamespy emulator](https://github.com/startersclan/PRMasterServer), and `bf2stats` using `docker-compose`.
 
 ## Development
@@ -86,9 +93,9 @@ Use a fully qualified domain name (FQDN) so that `php` can resolve to its extern
 
 ### Q: `Table (army) *NOT* Backed Up: [1045] Access denied for user 'admin'@'%' (using password: YES)` when using `System > Backup Database` in ASP
 
-A: The `db` user does not have the `FILE` privilege. Add a grant manually, but even if you did, you still won't be able to backup without major security issues. See [here](#q-table-army-not-backed-up-1-cant-createwrite-to-file-srcaspsystemdatabasebackupsbak202210010315armybak-errcode-2-"no-such-file-or-directory"-when-using-system--backup-database-in-asp).
+A: The `db` user does not have the `FILE` privilege. Add a grant manually. But note that even if you did, you still won't be able to backup without major security issues. See [here](#q-table-army-not-backed-up-1-cant-createwrite-to-file-when-using-system--backup-database-in-asp).
 
-### Q: `Table (army) *NOT* Backed Up: [1] Can't create/write to file '/src/ASP/system/database/backups/bak_20221001_0315/army.bak' (Errcode: 2 "No such file or directory")` when using `System > Backup Database` in ASP
+### Q: `Table (army) *NOT* Backed Up: [1] Can't create/write to file` when using `System > Backup Database` in ASP
 
 The `backupdb` module uses [`SELECT * INTO OUTFILE`](https://mariadb.com/kb/en/select-into-outfile/), but the `src` files are not in the db container, `mariadb` cannot find the path to export the files. In the past, the `apache`, `php` and `mysql` ran on the same machine with write access to the same filesystem, but with `docker`, each container has its own filesystem. The only workaround is to mount the `backups-volume` inside the `db` container at the same path as it is mounted in the `ASP` `php` container `/src/ASP/system/database/backups/`, with write permissions for `php`'s user `82` and `mariadb`'s user `999` which menas the directory needs `777` permissions (world writeable), which is very bad from the point of view of security.
 

@@ -3,11 +3,23 @@ services:
   # Battlefield 2 1.5 server with bf2stats 2.2.0 python scripts
   bf2:
     image: startersclan/docker-bf2:v1.5.3153.0-bf2stats-2.2.0
+    volumes:
+      - ./config/bf2/mods/bf2/ai/aidefault-custom.ai:/server/bf2/mods/bf2/ai/aidefault.ai:ro # Customize bots
+      - ./config/bf2/mods/bf2/ai/aibehaviours-fixlookatwrapper.ai:/server/bf2/mods/bf2/ai/aibehaviours.ai:ro # LoopAtWrapper fix
+      # - ./config/bf2/mods/bf2/ai/aidefaultstrategies-custom.ai:/server/bf2/mods/bf2/ai/aidefaultstrategies.ai:ro # Enable ESAI with a default strategy for all maps
+      # - ./config/bf2/mods/bf2/ai/aidefaultstrategies-custom.ai.add:/server/bf2/mods/bf2/ai/aidefaultstrategies.ai.add:ro # Enable ESAI with a default strategy for all maps
+      - ./config/bf2/mods/bf2/settings/serversettings-custom.con:/server/bf2/mods/bf2/settings/serversettings.con:ro # Server config
+      - ./config/bf2/mods/bf2/settings/maplist-custom-coop.con:/server/bf2/mods/bf2/settings/maplist.con:ro # Maplist
+      - ./config/bf2/python/bf2/BF2StatisticsConfig-custom.py:/server/bf2/python/bf2/BF2StatisticsConfig.py:ro # bf2stats python config
     ports:
       - 16567:16567/udp
       - 29900:29900/udp
     networks:
+      - gamespy-network
       - bf2-network
+    depends_on:
+      - asp-nginx
+      - asp-php
     restart: unless-stopped
     tty: true
     stdin_open: true
@@ -24,10 +36,23 @@ services:
     volumes:
       - prmasterserver-volume:/data
     networks:
-      - bf2-network
+      # Spoof all gamespy DNS for the gameserver connected to this network
+      gamespy-network:
+        aliases:
+          - eapusher.dice.se
+          - battlefield2.available.gamespy.com
+          - battlefield2.master.gamespy.com
+          - battlefield2.ms14.gamespy.com
+          - gamestats.gamespy.com
+          - master.gamespy.com
+          - motd.gamespy.com
+          - gpsp.gamespy.com
+          - gpcm.gamespy.com
+          - gamespy.com
+          - bf2web.gamespy.com
     restart: unless-stopped
 
-  # A DNS server to spoof gamespy's DNS records for BF2 clients
+  # A DNS server to spoof gamespy's DNS records for BF2 clients or servers
   # Tips:
   #   Clients should only use trusted DNS servers. This should only be used in a private network.
   #   If there is a port conflict, the OS might already have a DNS server running on localhost, e.g. systemd-resolved or docker dns
@@ -135,10 +160,13 @@ services:
       - "traefik.docker.network=traefik-network"
       # traefik v2
       # http
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-asp-gamespy-http.entrypoints=web"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-asp-gamespy-http.rule=Host(`bf2web.gamespy.com`)" # Note: bf2web.gamespy.com doesn't need https
+      # http
       - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-asp-nginx-http.entrypoints=web"
       - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-asp-nginx-http.rule=Host(`asp.example.com`)"
-      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-asp-nginx-http.middlewares=${COMPOSE_PROJECT_NAME}-asp-nginx-http-myRedirectScheme"
-      - "traefik.http.middlewares.${COMPOSE_PROJECT_NAME}-asp-nginx-http-myRedirectScheme.redirectScheme.scheme=https"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-asp-nginx-http.middlewares=${COMPOSE_PROJECT_NAME}-asp-nginx-http-myRedirectScheme" # Redirect http to https
+      - "traefik.http.middlewares.${COMPOSE_PROJECT_NAME}-asp-nginx-http-myRedirectScheme.redirectScheme.scheme=https" # Redirect http to https
       # https
       - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-asp-nginx.entrypoints=websecure"
       - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-asp-nginx.tls"
@@ -179,15 +207,15 @@ services:
       # http
       - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-bf2sclone-nginx-http.entrypoints=web"
       - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-bf2sclone-nginx-http.rule=Host(`bf2sclone.example.com`)"
-      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-bf2sclone-nginx-http.middlewares=${COMPOSE_PROJECT_NAME}-bf2sclone-nginx-http-myRedirectScheme"
-      - "traefik.http.middlewares.${COMPOSE_PROJECT_NAME}-bf2sclone-nginx-http-myRedirectScheme.redirectScheme.scheme=https"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-bf2sclone-nginx-http.middlewares=${COMPOSE_PROJECT_NAME}-bf2sclone-nginx-http-myRedirectScheme" # Redirect http to https
+      - "traefik.http.middlewares.${COMPOSE_PROJECT_NAME}-bf2sclone-nginx-http-myRedirectScheme.redirectScheme.scheme=https" # Redirect http to https
       # https
       - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-bf2sclone-nginx.entrypoints=websecure"
       - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-bf2sclone-nginx.tls"
       - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-bf2sclone-nginx.rule=Host(`bf2sclone.example.com`)"
       - "traefik.http.services.${COMPOSE_PROJECT_NAME}-bf2sclone-nginx.loadbalancer.server.port=80"
     # volumes:
-      # - ./config/bf2sclone/nginx/nginx.conf:/etc/nginx/nginx.conf:ro  # Customize only if needed
+    #   - ./config/bf2sclone/nginx/nginx.conf:/etc/nginx/nginx.conf:ro  # Customize only if needed
     networks:
       - traefik-network
       - bf2-network
@@ -236,8 +264,8 @@ services:
       # http
       - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-phpmyadmin-http.entrypoints=web"
       - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-phpmyadmin-http.rule=Host(`phpmyadmin.example.com`)"
-      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-phpmyadmin-http.middlewares=${COMPOSE_PROJECT_NAME}-phpmyadmin-http-myRedirectScheme"
-      - "traefik.http.middlewares.${COMPOSE_PROJECT_NAME}-phpmyadmin-http-myRedirectScheme.redirectScheme.scheme=https"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-phpmyadmin-http.middlewares=${COMPOSE_PROJECT_NAME}-phpmyadmin-http-myRedirectScheme" # Redirect http to https
+      - "traefik.http.middlewares.${COMPOSE_PROJECT_NAME}-phpmyadmin-http-myRedirectScheme.redirectScheme.scheme=https" # Redirect http to https
       # https
       - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-phpmyadmin.entrypoints=websecure"
       - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-phpmyadmin.tls"
@@ -252,12 +280,14 @@ services:
     restart: unless-stopped
 
 networks:
+  gamespy-network:
+    name: gamespy-network
+  bf2-network:
+    name: bf2-network
   traefik-public-network:
   traefik-network:
     name: traefik-network
     internal: true
-  bf2-network:
-    name: bf2-network
 
 volumes:
   prmasterserver-volume:

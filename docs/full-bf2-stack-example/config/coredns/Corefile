@@ -2,17 +2,20 @@
 .:53 {
     # Try resolving DNS using the hosts file first
     hosts /hosts {
-        ttl 300     # DNS TTL
+        ttl 1s     # DNS TTL. 1 second so that the BF2 client doesn't cache the DNS
         no_reverse  # Do not generate reverse DNS records
         reload 5s   # hosts file reload interval
         fallthrough # If no host is matched, continue down the plugin chain
     }
 
-    # If it didn't match any records in the hosts file, forward this DNS request to upstream DNS servers
-    forward . tls://1.1.1.1 tls://1.0.0.1 {
-        tls_servername cloudflare-dns.com
-        health_check 5s
-    }
+    # If it didn't match any records in the hosts file, forward this to your router's DNS server
+    forward . 192.168.0.1:53
+
+    # Or forward this DNS request to public DNS servers
+    # forward . tls://1.1.1.1 tls://1.0.0.1 {
+    #     tls_servername cloudflare-dns.com
+    #     health_check 5s
+    # }
 
     # Log everything. There might be a performance hit, so remove it for better performance
     log
