@@ -37,25 +37,40 @@ def http_get(host, port = 80, document = "/"):
 			print "MiniClient: Non-numeric status code (%s)" % str(status[1])
 		
 		#Extract Headers
-		headers = []
+		headers = {}
 		while 1:
 			line = http.readline()
 			if not line:
 				break
-			headers.append(line)
+			split = line.split(":")
+			headers[split[0].strip()] = split[1].strip()
 		
-		http.shutdown() # be nice, tell the http server we're done sending the request
-		http.close() # all done
+		print "headers: "
+		print headers
 		
 		#Check we got a valid HTTP response
 		if statusCode == 200:
-			return http.read()
+			body = ""
+			if "Content-Length" in headers:
+				content_length = headers["Content-Length"]
+				body = http.read()
+			elif headers["Transfer-Encoding"] == "chunked":
+				while 1:
+					chunk_length = int(http.readline(), 16)
+					if chunk_length != 0:
+						body += http.read(chunk_length)
+					http.readline() # CRLF
+					if chunk_length == 0:
+						break
+			http.shutdown() # be nice, tell the http server we're done sending the request
+			http.close() # all done
+			return body
 		else:
+			http.shutdown() # be nice, tell the http server we're done sending the request
+			http.close() # all done
 			return "E\nH\terr\nD\tHTTP Error %s \"%s\"\n$\tERR\t$" % (str(statusCode), str(status[2]))
 		
 	except Exception, e:
-		http.shutdown() # be nice, tell the http server we're done sending the request
-		http.close() # all done
 		raise
 		
 
@@ -96,24 +111,38 @@ def http_postSnapshot(host, port = 80, document = "/", snapshot = ""):
 			print "MiniClient: Non-numeric status code (%s)" % str(status[1])
 		
 		#Extract Headers
-		headers = []
+		headers = {}
 		while 1:
 			line = http.readline()
 			if not line:
 				break
-			headers.append(line)
-			
-		http.shutdown() # be nice, tell the http server we're done sending the request
-		http.close() # all done
-		
+			split = line.split(":")
+			headers[split[0].strip()] = split[1].strip()
+		print "headers: "
+		print headers
+
 		if statusCode == 200:
-			return http.read()
+			body = ""
+			if "Content-Length" in headers:
+				content_length = headers["Content-Length"]
+				body = http.read()
+			elif headers["Transfer-Encoding"] == "chunked":
+				while 1:
+					chunk_length = int(http.readline(), 16)
+					if chunk_length != 0:
+						body += http.read(chunk_length)
+					http.readline() # CRLF
+					if chunk_length == 0:
+						break
+			http.shutdown() # be nice, tell the http server we're done sending the request
+			http.close() # all done
+			return body
 		else:
+			http.shutdown() # be nice, tell the http server we're done sending the request
+			http.close() # all done
 			return "E\nH\terr\nD\tHTTP Error %s \"%s\"\n$\tERR\t$" % (str(statusCode), str(status[2]))
 
 	except Exception, e:
-		http.shutdown() # be nice, tell the http server we're done sending the request
-		http.close() # all done
 		raise
 
 class miniclient:
