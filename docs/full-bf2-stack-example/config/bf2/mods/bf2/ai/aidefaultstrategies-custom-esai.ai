@@ -1,12 +1,12 @@
-rem ESAI Strategy : medium FCA PF
+rem esai strategy : medium fca pf
 
-rem -= load Enhanced SAI core =-
-run /mods/bf2/ESAI/Core/esaicore.ai
+rem -= load enhanced sai core =-
+run /mods/bf2/esai/core/esaicore.ai
 
-rem -= load Enhanced SAI default plugins =-
-run /mods/bf2/ESAI/Plugin/default/grabNeutrals.ai
-run /mods/bf2/ESAI/Plugin/default/endGame.ai
+rem -= load enhanced sai default plugins =-
+run /mods/bf2/esai/plugin/default/grabneutrals.ai
+run /mods/bf2/esai/plugin/default/endgame.ai
 
 rem -= load user plugins =-
-run /mods/bf2/ESAI/Plugin/user/userConditions.ai
-run /mods/bf2/ESAI/Plugin/user/focusedCounterAttack.ai
+run /mods/bf2/esai/plugin/user/userconditions.ai
+run /mods/bf2/esai/plugin/user/focusedcounterattack.ai

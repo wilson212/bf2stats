@@ -6,8 +6,8 @@ services:
     volumes:
       - ./config/bf2/mods/bf2/ai/aidefault-custom.ai:/server/bf2/mods/bf2/ai/aidefault.ai:ro # Customize bots
       - ./config/bf2/mods/bf2/ai/aibehaviours-fixlookatwrapper.ai:/server/bf2/mods/bf2/ai/aibehaviours.ai:ro # LoopAtWrapper fix
-      # - ./config/bf2/mods/bf2/ai/aidefaultstrategies-custom.ai:/server/bf2/mods/bf2/ai/aidefaultstrategies.ai:ro # Enable ESAI with a default strategy for all maps
-      # - ./config/bf2/mods/bf2/ai/aidefaultstrategies-custom.ai.add:/server/bf2/mods/bf2/ai/aidefaultstrategies.ai.add:ro # Enable ESAI with a default strategy for all maps
+      # - ./config/bf2/mods/bf2/ai/aidefaultstrategies-custom-esai.ai:/server/bf2/mods/bf2/ai/aidefaultstrategies.ai:ro # Enable ESAI with a default strategy for all maps
+      # - ./config/bf2/mods/bf2/ai/aidefaultstrategiesadd-custom-esai.ai:/server/bf2/mods/bf2/ai/aidefaultstrategiesadd.ai:ro # Enable ESAI with a default strategy for all maps
       - ./config/bf2/mods/bf2/settings/serversettings-custom.con:/server/bf2/mods/bf2/settings/serversettings.con:ro # Server config
       - ./config/bf2/mods/bf2/settings/maplist-custom-coop.con:/server/bf2/mods/bf2/settings/maplist.con:ro # Maplist
       - ./config/bf2/python/bf2/BF2StatisticsConfig-custom.py:/server/bf2/python/bf2/BF2StatisticsConfig.py:ro # bf2stats python config
@@ -157,21 +157,21 @@ services:
     image: startersclan/bf2stats:2.3.0-asp-nginx
     labels:
       - "traefik.enable=true"
-      - "traefik.docker.network=traefik-network"
+      - "traefik.docker.network=${COMPOSE_PROJECT_NAME?err}_traefik-network"
       # traefik v2
       # http
-      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-asp-gamespy-http.entrypoints=web"
-      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-asp-gamespy-http.rule=Host(`bf2web.gamespy.com`)" # Note: bf2web.gamespy.com doesn't need https
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME?err}-asp-gamespy-http.entrypoints=web"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME?err}-asp-gamespy-http.rule=Host(`bf2web.gamespy.com`)" # Note: bf2web.gamespy.com doesn't need https
       # http
-      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-asp-nginx-http.entrypoints=web"
-      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-asp-nginx-http.rule=Host(`asp.example.com`)"
-      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-asp-nginx-http.middlewares=${COMPOSE_PROJECT_NAME}-asp-nginx-http-myRedirectScheme" # Redirect http to https
-      - "traefik.http.middlewares.${COMPOSE_PROJECT_NAME}-asp-nginx-http-myRedirectScheme.redirectScheme.scheme=https" # Redirect http to https
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME?err}-asp-nginx-http.entrypoints=web"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME?err}-asp-nginx-http.rule=Host(`asp.example.com`)"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME?err}-asp-nginx-http.middlewares=${COMPOSE_PROJECT_NAME?err}-asp-nginx-http-myRedirectScheme" # Redirect http to https
+      - "traefik.http.middlewares.${COMPOSE_PROJECT_NAME?err}-asp-nginx-http-myRedirectScheme.redirectScheme.scheme=https" # Redirect http to https
       # https
-      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-asp-nginx.entrypoints=websecure"
-      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-asp-nginx.tls"
-      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-asp-nginx.rule=Host(`asp.example.com`)"
-      - "traefik.http.services.${COMPOSE_PROJECT_NAME}-asp-nginx.loadbalancer.server.port=80"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME?err}-asp-nginx.entrypoints=websecure"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME?err}-asp-nginx.tls"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME?err}-asp-nginx.rule=Host(`asp.example.com`)"
+      - "traefik.http.services.${COMPOSE_PROJECT_NAME?err}-asp-nginx.loadbalancer.server.port=80"
     # volumes:
     #   - ./config/ASP/nginx/nginx.conf:/etc/nginx/nginx.conf:ro # Customize only if needed
     networks:
@@ -202,18 +202,18 @@ services:
     image: startersclan/bf2stats:2.3.0-bf2sclone-nginx
     labels:
       - "traefik.enable=true"
-      - "traefik.docker.network=traefik-network"
+      - "traefik.docker.network=${COMPOSE_PROJECT_NAME?err}_traefik-network"
       # traefik v2
       # http
-      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-bf2sclone-nginx-http.entrypoints=web"
-      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-bf2sclone-nginx-http.rule=Host(`bf2sclone.example.com`)"
-      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-bf2sclone-nginx-http.middlewares=${COMPOSE_PROJECT_NAME}-bf2sclone-nginx-http-myRedirectScheme" # Redirect http to https
-      - "traefik.http.middlewares.${COMPOSE_PROJECT_NAME}-bf2sclone-nginx-http-myRedirectScheme.redirectScheme.scheme=https" # Redirect http to https
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME?err}-bf2sclone-nginx-http.entrypoints=web"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME?err}-bf2sclone-nginx-http.rule=Host(`bf2sclone.example.com`)"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME?err}-bf2sclone-nginx-http.middlewares=${COMPOSE_PROJECT_NAME?err}-bf2sclone-nginx-http-myRedirectScheme" # Redirect http to https
+      - "traefik.http.middlewares.${COMPOSE_PROJECT_NAME?err}-bf2sclone-nginx-http-myRedirectScheme.redirectScheme.scheme=https" # Redirect http to https
       # https
-      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-bf2sclone-nginx.entrypoints=websecure"
-      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-bf2sclone-nginx.tls"
-      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-bf2sclone-nginx.rule=Host(`bf2sclone.example.com`)"
-      - "traefik.http.services.${COMPOSE_PROJECT_NAME}-bf2sclone-nginx.loadbalancer.server.port=80"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME?err}-bf2sclone-nginx.entrypoints=websecure"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME?err}-bf2sclone-nginx.tls"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME?err}-bf2sclone-nginx.rule=Host(`bf2sclone.example.com`)"
+      - "traefik.http.services.${COMPOSE_PROJECT_NAME?err}-bf2sclone-nginx.loadbalancer.server.port=80"
     # volumes:
     #   - ./config/bf2sclone/nginx/nginx.conf:/etc/nginx/nginx.conf:ro  # Customize only if needed
     networks:
@@ -259,18 +259,18 @@ services:
     image: phpmyadmin:5.2
     labels:
       - "traefik.enable=true"
-      - "traefik.docker.network=traefik-network"
+      - "traefik.docker.network=${COMPOSE_PROJECT_NAME?err}_traefik-network"
       # traefik v2
       # http
-      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-phpmyadmin-http.entrypoints=web"
-      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-phpmyadmin-http.rule=Host(`phpmyadmin.example.com`)"
-      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-phpmyadmin-http.middlewares=${COMPOSE_PROJECT_NAME}-phpmyadmin-http-myRedirectScheme" # Redirect http to https
-      - "traefik.http.middlewares.${COMPOSE_PROJECT_NAME}-phpmyadmin-http-myRedirectScheme.redirectScheme.scheme=https" # Redirect http to https
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME?err}-phpmyadmin-http.entrypoints=web"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME?err}-phpmyadmin-http.rule=Host(`phpmyadmin.example.com`)"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME?err}-phpmyadmin-http.middlewares=${COMPOSE_PROJECT_NAME?err}-phpmyadmin-http-myRedirectScheme" # Redirect http to https
+      - "traefik.http.middlewares.${COMPOSE_PROJECT_NAME?err}-phpmyadmin-http-myRedirectScheme.redirectScheme.scheme=https" # Redirect http to https
       # https
-      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-phpmyadmin.entrypoints=websecure"
-      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-phpmyadmin.tls"
-      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-phpmyadmin.rule=Host(`phpmyadmin.example.com`)"
-      - "traefik.http.services.${COMPOSE_PROJECT_NAME}-phpmyadmin.loadbalancer.server.port=80"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME?err}-phpmyadmin.entrypoints=websecure"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME?err}-phpmyadmin.tls"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME?err}-phpmyadmin.rule=Host(`phpmyadmin.example.com`)"
+      - "traefik.http.services.${COMPOSE_PROJECT_NAME?err}-phpmyadmin.loadbalancer.server.port=80"
     environment:
       - PMA_ABSOLUTE_URI=https://phpmyadmin.example.com # Enable this if behind a reverse proxy
       - PMA_HOST=db
@@ -281,12 +281,9 @@ services:
 
 networks:
   gamespy-network:
-    name: gamespy-network
   bf2-network:
-    name: bf2-network
   traefik-public-network:
   traefik-network:
-    name: traefik-network
     internal: true
 
 volumes:
