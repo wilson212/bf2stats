@@ -17,8 +17,8 @@ maplist.append taraba_quarry gpm_coop 16
 maplist.append zatar_wetlands gpm_coop 16
 
 ; mods/xpack coop
-ghost_town gpm_coop/16
-mass_destruction gpm_coop/16
-night_flight gpm_coop/16
-surge gpm_coop/16
-warlord gpm_coop/16
+maplist.append ghost_town gpm_coop 16
+maplist.append mass_destruction gpm_coop 16
+maplist.append night_flight gpm_coop 16
+maplist.append surge gpm_coop 16
+maplist.append warlord gpm_coop 16

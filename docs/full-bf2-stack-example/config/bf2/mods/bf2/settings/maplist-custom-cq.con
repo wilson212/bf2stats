@@ -59,24 +59,24 @@ maplist.append zatar_wetlands gpm_cq 32
 maplist.append zatar_wetlands gpm_cq 64
 
 ; mods/xpack cq
-ghost_town gpm_cq/16
-ghost_town gpm_cq/32
-ghost_town gpm_cq/64
-iron_gator gpm_cq/16
-iron_gator gpm_cq/32
-iron_gator gpm_cq/64
-leviathan gpm_cq/16
-leviathan gpm_cq/32
-leviathan gpm_cq/64
-mass_destruction gpm_cq/16
-mass_destruction gpm_cq/32
-mass_destruction gpm_cq/64
-night_flight gpm_cq/16
-night_flight gpm_cq/32
-night_flight gpm_cq/64
-surge gpm_cq/16
-surge gpm_cq/32
-surge gpm_cq/64
-warlord gpm_cq/16
-warlord gpm_cq/32
-warlord gpm_cq/64
+maplist.append ghost_town gpm_cq 16
+maplist.append ghost_town gpm_cq 32
+maplist.append ghost_town gpm_cq 64
+maplist.append iron_gator gpm_cq 16
+maplist.append iron_gator gpm_cq 32
+maplist.append iron_gator gpm_cq 64
+maplist.append leviathan gpm_cq 16
+maplist.append leviathan gpm_cq 32
+maplist.append leviathan gpm_cq 64
+maplist.append mass_destruction gpm_cq 16
+maplist.append mass_destruction gpm_cq 32
+maplist.append mass_destruction gpm_cq 64
+maplist.append night_flight gpm_cq 16
+maplist.append night_flight gpm_cq 32
+maplist.append night_flight gpm_cq 64
+maplist.append surge gpm_cq 16
+maplist.append surge gpm_cq 32
+maplist.append surge gpm_cq 64
+maplist.append warlord gpm_cq 16
+maplist.append warlord gpm_cq 32
+maplist.append warlord gpm_cq 64
