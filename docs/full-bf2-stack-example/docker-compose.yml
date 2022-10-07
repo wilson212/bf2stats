@@ -27,14 +27,14 @@ services:
   # The gamespy server
   prmasterserver:
     image: startersclan/prmasterserver:v0.1.0
+    volumes:
+      - prmasterserver-volume:/data
     ports:
       - 29900:29900/tcp # Login server
       - 29901:29901/tcp # Login server
       - 28910:28910/tcp # Master server
       - 27900:27900/udp # Master server
       - 29910:29910/udp # CD key server
-    volumes:
-      - prmasterserver-volume:/data
     networks:
       # Spoof all gamespy DNS for the gameserver connected to this network
       gamespy-network:

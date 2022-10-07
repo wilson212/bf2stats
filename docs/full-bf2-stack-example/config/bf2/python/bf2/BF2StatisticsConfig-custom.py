@@ -9,7 +9,7 @@
 # ------------------------------------------------------------------------------
 # Debug Logging
 # ------------------------------------------------------------------------------
-debug_enable = 1
+debug_enable = 0
 debug_log_path = 'python/bf2/logs'		# Relative from BF2 base folder
 debug_fraglog_enable = 0				# Detailed 'Fragalyzer' Logs
 
