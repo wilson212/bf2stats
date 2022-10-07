@@ -6,7 +6,7 @@
 * this file. Please use the Web Admin  *
 * to change values.                    *
 ***************************************/
-$db_expected_ver = '2.3.0';
+$db_expected_ver = '2.3.1';
 $db_host = 'db';
 $db_port = 3306;
 $db_name = 'bf2stats';
