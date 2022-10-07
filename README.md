@@ -11,10 +11,10 @@ Although BF2Statistics [`3.1.0`](https://github.com/BF2Statistics/ASP) has been 
 ## Usage
 
 ```sh
-docker pull startersclan/bf2stats:2.3.0-asp-nginx
-docker pull startersclan/bf2stats:2.3.0-asp-php
-docker pull startersclan/bf2stats:2.3.0-bf2sclone-nginx
-docker pull startersclan/bf2stats:2.3.0-bf2sclone-php
+docker pull startersclan/bf2stats:2.3.1-asp-nginx
+docker pull startersclan/bf2stats:2.3.1-asp-php
+docker pull startersclan/bf2stats:2.3.1-bf2sclone-nginx
+docker pull startersclan/bf2stats:2.3.1-bf2sclone-php
 ```
 
 See [this](docs/full-bf2-stack-example) example showing how to deploy [Battlefield 2 1.5 server](https://github.com/startersclan/docker-bf2/), the [gamespy emulator](https://github.com/startersclan/PRMasterServer), and `bf2stats` using `docker-compose`.
