@@ -68,6 +68,8 @@ def http_get(host, port = 80, document = "/"):
 			return "E\nH\terr\nD\tHTTP Error %s \"%s\"\n$\tERR\t$" % (str(statusCode), str(status[2]))
 		
 	except Exception, e:
+		http.shutdown() # be nice, tell the http server we're done sending the request
+		http.close() # all done
 		raise
 		
 
@@ -138,6 +140,8 @@ def http_postSnapshot(host, port = 80, document = "/", snapshot = ""):
 			return "E\nH\terr\nD\tHTTP Error %s \"%s\"\n$\tERR\t$" % (str(statusCode), str(status[2]))
 
 	except Exception, e:
+		http.shutdown() # be nice, tell the http server we're done sending the request
+		http.close() # all done
 		raise
 
 class miniclient:
