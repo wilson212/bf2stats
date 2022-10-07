@@ -27,7 +27,6 @@ services:
         http://asp-nginx/ASP/ranknotification.aspx 200
         http://asp-nginx/ASP/searchforplayers.aspx 200
         http://asp-nginx/ASP/selectunlock.aspx 200
-        http://asp-nginx/ASP/getplayerinfo.aspx 200
         http://bf2sclone-nginx/ 200
         http://bf2sclone-nginx/.htaccess 401
         http://bf2sclone-nginx/cache 401
