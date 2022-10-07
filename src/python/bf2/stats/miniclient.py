@@ -45,9 +45,6 @@ def http_get(host, port = 80, document = "/"):
 			split = line.split(":")
 			headers[split[0].strip()] = split[1].strip()
 		
-		print "headers: "
-		print headers
-		
 		#Check we got a valid HTTP response
 		if statusCode == 200:
 			body = ""
@@ -118,8 +115,6 @@ def http_postSnapshot(host, port = 80, document = "/", snapshot = ""):
 				break
 			split = line.split(":")
 			headers[split[0].strip()] = split[1].strip()
-		print "headers: "
-		print headers
 
 		if statusCode == 200:
 			body = ""
