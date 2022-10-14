@@ -32,7 +32,7 @@ class Importplayer
 		// Get Player Info: Base (getplayerinfo.aspx query)
 		$playerinfoURL1 = $gsURL."/ASP/getplayerinfo.aspx?pid={$pid}&info=per*,cmb*,twsc,cpcp,cacp,dfcp,kila,heal,rviv,rsup,rpar,tgte,dkas,dsab,cdsc,rank,cmsc,kick,kill,deth,suic,ospm,klpm,klpr,dtpr,bksk,wdsk,bbrs,tcdr,ban,dtpm,lbtl,osaa,vrk,tsql,tsqm,tlwf,mvks,vmks,mvn*,vmr*,fkit,fmap,fveh,fwea,wtm-,wkl-,wdt-,wac-,wkd-,vtm-,vkl-,vdt-,vkd-,vkr-,atm-,awn-,alo-,abr-,ktm-,kkl-,kdt-,kkd-";
 		$playerinfoBase = getPageContents($playerinfoURL1);
-		if(!stristr(implode($playerinfoBase),"O\nH".chr(9)."asof\n")) 
+		if(!($playerinfoBase[0] == "O" && $playerinfoBase[1] == "H".chr(9)."asof")) 
 		{
 			echo json_encode( array('success' => false, 'message' => "Player with PID {$pid} doesn't exist on the EA stat server !") );
 			die();
