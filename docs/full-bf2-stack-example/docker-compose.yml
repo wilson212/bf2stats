@@ -175,8 +175,10 @@ services:
     # volumes:
     #   - ./config/ASP/nginx/nginx.conf:/etc/nginx/nginx.conf:ro # Customize only if needed
     networks:
-      - traefik-network
-      - bf2-network
+      traefik-network:
+      bf2-network:
+        aliases:
+          - asp.example.com
     depends_on:
       - init-container
       - asp-php
