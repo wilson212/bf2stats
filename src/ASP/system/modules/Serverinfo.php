@@ -205,19 +205,19 @@ class Serverinfo
         }
         if(!$p3) 
         {
-            $p3 = strpos($players,"\team_t");
+            $p3 = strpos($players,"\ï¿½team_t");
         }
 
         // Parse players
-        $players = substr($players,0,$p3);
-        $players = str_replace("\\ 0@splitnum\","",$players);
-        $players = str_replace("\\ 0@splitnum\\","",$players);
+        $players = $p3 ? substr($players,0,$p3) : substr($players,0);
+        $players = str_replace("\\ 0@splitnum\ï¿½","",$players);
+        $players = str_replace("\\ 0@splitnum\\ï¿½","",$players);
         $players = str_replace(" 0@splitnum\\","",$players);
-        $players = str_replace(" 0@splitnum\\‚","",$players);
+        $players = str_replace(" 0@splitnum\\ï¿½","",$players);
 
         //Parse Rules
         $rule_temp = substr($rules,1);
-        $rule_temp = str_replace("€","\\",$rule_temp);
+        $rule_temp = str_replace("ï¿½","\\",$rule_temp);
         $rules_arr = explode("\\",$rule_temp);
         $rules_count = count($rules_arr);
 
