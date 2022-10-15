@@ -93,6 +93,14 @@ If you see this in a development environment, simply ignore the errors. There is
 
 If you are seeing this in a production environment, use a fully qualified domain name (FQDN) so that `php` can resolve to its external DNS name to test against its external web endpoint.
 
+### Q: `Importing Logs Failed!` when using `Server Admin > Import Logs` in ASP
+
+A: DNS resolution problem. The `HOST` used in the test to test those Gamespy endpoints is the same host you see in your browser. For instance, if you are accessing the `ASP` using `http://localhost`, the `ASP` `php` container runs tests against `http://localhost/ASP/*.aspx`, which will fail, because the request is not going through `ASP` `nginx`.
+
+If you see this in a development environment, simply ignore the errors. There is an integration test using [docker-compose.test.yml](docker-compose.test.yml) to test those endpoints to ensure they work.
+
+If you are seeing this in a production environment, use a fully qualified domain name (FQDN) so that `php` can resolve to its external DNS name to test against its external web endpoint.
+
 ### Q: `Table (army) *NOT* Backed Up: [1045] Access denied for user 'admin'@'%' (using password: YES)` when using `System > Backup Database` in ASP
 
 A: The `db` user does not have the `FILE` privilege. Add a grant manually. But note that even if you did, you still won't be able to backup without major security issues. See [here](#q-table-army-not-backed-up-1-cant-createwrite-to-file-when-using-system--backup-database-in-asp).
