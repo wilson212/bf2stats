@@ -106,20 +106,22 @@ class Importlogs
         if($count > 50 && !isset($_POST['fprocess']))
         {
             // Open a new request, so we dont have to wait for who knows how long when there is tons of logs!
-            $fh = @fsockopen($_SERVER['HTTP_HOST'], 80);
-            if($fh)
-            {
-                $data = "&action=import&fprocess=1&type=". urlencode($_POST['type']); 
-                
-                // Post the headers and snapshot data
-                fwrite($fh, "POST /ASP/index.php?task=importlogs HTTP/1.1\r\n");
-                fwrite($fh, "HOST: ". $_SERVER['HTTP_HOST'] ."\r\n");
-                fwrite($fh, "Cookie: " . session_name() . "=" . session_id() . "; path=/\r\n");
-                fwrite($fh, "Content-Type: application/x-www-form-urlencoded\r\n");
-                fwrite($fh, "Content-Length: " . strlen($data) . "\r\n\r\n");
-                fwrite($fh, $data . "\r\n");
-                fclose($fh);
+            $data = "&action=import&fprocess=1&type=". urlencode($_POST['type']);
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, "http://{$_SERVER['HTTP_HOST']}/ASP/index.php?task=importlogs");
+            curl_setopt($ch, CURLOPT_COOKIE, session_name() . "=" . session_id() . "; path=/");
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+            $result = curl_exec($ch);
+            $errno = curl_errno($ch);
+            curl_close($ch);
 
+            // If we timed out (err code 28), consider it as success
+            if ($errno == 28) 
+            {
                 // Success
                 echo json_encode( 
                     array(
@@ -137,7 +139,7 @@ class Importlogs
                     array(
                         'success' => false, 
                         'type' => 'error',
-                        'message' => "Failed to open connection to localhost!"
+                        'message' => "Failed to open connection to http://{$_SERVER['HTTP_HOST']}!"
                     )
                 );
             }
@@ -164,28 +166,25 @@ class Importlogs
                 // Make sure we know this is an import of existing log data
                 if (strpos($file[1], '\import\\') === false) $data .= '\import\1';
                 
-                // post the data
-                $fh = @fsockopen($_SERVER['HTTP_HOST'], 80);
-                if($fh)
-                {
-                    // Post the headers and snapshot data
-                    fwrite($fh, "POST /ASP/bf2statistics.php HTTP/1.1\r\n");
-                    fwrite($fh, "HOST: 127.0.0.1\r\n");
-                    fwrite($fh, "User-Agent: GameSpyHTTP/1.0\r\n");
-                    fwrite($fh, "Content-Type: application/x-www-form-urlencoded\r\n");
-                    fwrite($fh, "Content-Length: " . strlen($data) . "\r\n\r\n");
-                    fwrite($fh, $data . "\r\n");
-                    
-                    // Read the buffer
-                    $response = fread($fh, 2048);
-                    if(strpos($response, "$\tOK\t$") !== false)
+                // Post the headers and snapshot data
+                $ch = curl_init();
+                curl_setopt($ch, CURLOPT_URL, "http://{$_SERVER['HTTP_HOST']}/ASP/bf2statistics.php");
+                curl_setopt($ch, CURLOPT_POST, true);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+                curl_setopt($ch, CURLOPT_USERAGENT, "GameSpyHTTP/1.0");
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+                curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+                $result = curl_exec($ch);
+                if ($result) {
+                    if(strpos($result, "$\tOK\t$") !== false) {
                         $total++;
-					
-					// Close http connection, and sleep for 1 second to prevent an sql error that
-					// occurs in the player_history table (timestamp must be unique for each player)
-                    fclose($fh);
-					sleep(1);
+                    }
                 }
+                // Close http connection, and sleep for 1 second to prevent an sql error that
+                // occurs in the player_history table (timestamp must be unique for each player)
+                curl_close($ch);
+                sleep(1);
             }
             
             // Open the stats debug file and log processing start

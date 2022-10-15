@@ -219,40 +219,23 @@ class Testconfig
         {
             // Check bf2statistics.php Processing
             $out .= " > Checking BF2Statistics Processing...<br />";
-            $fh = @fsockopen($_SERVER['HTTP_HOST'], 80);
-            if ($fh) 
+
+            // Post the headers and snapshot data
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, "http://{$_SERVER['HTTP_HOST']}/ASP/bf2statistics.php");
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $tst_snapshot);
+            curl_setopt($ch, CURLOPT_USERAGENT, "GameSpyHTTP/1.0");
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5); 
+            curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+            $result = curl_exec($ch);
+            $curlInfo = curl_getinfo($ch);
+            curl_close($ch);
+
+            if ($result && $curlInfo['http_code'] == 200) 
             {
-                fwrite($fh, "POST /ASP/bf2statistics.php HTTP/1.1\r\n");
-                fwrite($fh, "HOST: ".$_SERVER['HTTP_HOST']."\r\n");
-                fwrite($fh, "User-Agent: GameSpyHTTP/1.0\r\n");
-                fwrite($fh, "Content-Type: application/x-www-form-urlencoded\r\n");
-                fwrite($fh, "Content-Length: " . strlen($tst_snapshot) . "\r\n\r\n");
-                fwrite($fh, $tst_snapshot . "\r\n");
-                
-                $buffer = "";
-                // feof() and fgets() don't seem to return true on `EOF` on a TCP file handle
-                // So we set a timeout
-                stream_set_timeout($fh, 1); // fgets  1 second timeout, after which fgets will return false. 
-                while ($s = fgets($fh, 4096) ) 
-                {
-                    $buffer .= $s;
-                }
-                fclose($fh);
-                
-                // Check Response Buffer
-                if (preg_match("%^HTTP/1.[01]\s*(\d+) *([^\n\r]*)(.*?)$%is", $buffer, $matches)) 
-                {
-                    $responsecode = $matches[1];
-                }
-                if ($responsecode != '200') 
-                {
-                    $out .= "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- BF2Statistics Processing Check: ".__FAIL;
-                    $errors = true;
-                } 
-                else 
-                {
-                    $out .= "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- BF2Statistics Processing Check: ".__PASS;
-                }
+                $out .= "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- BF2Statistics Processing Check: ".__PASS;
             } 
             else 
             {
