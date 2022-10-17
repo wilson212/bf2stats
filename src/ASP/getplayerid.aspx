@@ -26,12 +26,14 @@
 define('DS', DIRECTORY_SEPARATOR);
 define('ROOT', dirname(__FILE__));
 define('SYSTEM_PATH', ROOT . DS . 'system');
+define("_ERR_RESPONSE", "E\nH\tresponse\nD\t");
 
 /*
 | ---------------------------------------------------------------
 | Require the needed scripts to launch the system
 | ---------------------------------------------------------------
 */
+require(SYSTEM_PATH . DS . 'core'. DS .'Auth.php');
 require(SYSTEM_PATH . DS . 'core'. DS .'Database.php');
 require(SYSTEM_PATH . DS . 'core'. DS .'Config.php');
 require(SYSTEM_PATH . DS . 'functions.php');
@@ -44,6 +46,17 @@ ini_set("display_errors", "0");
 
 //Disable Zlib Compression
 ini_set('zlib.output_compression', '0');
+
+/*
+| ---------------------------------------------------------------
+| Security Check
+| ---------------------------------------------------------------
+*/
+if(!isIPInNetArray(Auth::ClientIp(), Config::Get('game_hosts')))
+{
+    ErrorLog("Unauthorised Access Attempted! (IP: " . Auth::ClientIp() . ")", 0);
+    die(_ERR_RESPONSE . "Unauthorised Gameserver");
+}
 
 // Make sure we have a PID list
 $pidlist = (isset($_GET['playerlist'])) ? $_GET['playerlist'] : 0;
