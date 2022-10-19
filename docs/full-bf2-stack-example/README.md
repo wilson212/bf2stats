@@ -63,7 +63,7 @@ Attaching to bf2stats-asp-nginx-1, bf2stats-asp-php-1, bf2stats-bf2-1, bf2stats-
 
 The full stack is now running:
 
-- Battlefield 2 1.5 server with `bf2stats` `2.3.1` support available on your external IP address on UDP ports `16567` and `29900` on your external IP address
+- Battlefield 2 1.5 server with `bf2stats` `2.3.2` support available on your external IP address on UDP ports `16567` and `29900` on your external IP address
 - Gamespy server [`PRMasterServer`](https://github.com/PRMasterServer) available at your external IP address on TCP ports `29900`, `29901`, `28910`, and UDP ports `27900` and `29910` on your external IP address
 - `coredns` available on your external IP address on UDP port `53` on your external IP address
 - `traefik` (TLS-terminated reverse web proxy) available on port `80` and `443` on your external IP address
