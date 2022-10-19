@@ -10,7 +10,7 @@ class Importplayer
 		// Check for post data
 		if($_POST['action'] == 'import')
 		{
-			$this->Import( intval(trim($_POST['pid'])) );
+			$this->Import( trim($_POST['gamespyurl']), intval(trim($_POST['pid'])) );
 		}
 		else
 		{
@@ -20,14 +20,14 @@ class Importplayer
 		}
 	}
 	
-	public function Import($pid)
+	public function Import($gsURL, $pid)
 	{
 		// Load Stats Parser and Database class
 		$DB = Database::GetConnection();
 		$Parser = new Statsparser();
 		
 		// BF2Web URL
-		$gsURL = "http://bf2web.gamespy.com";
+		// $gsURL = "http://bf2web.gamespy.com";
 
 		// Get Player Info: Base (getplayerinfo.aspx query)
 		$playerinfoURL1 = $gsURL."/ASP/getplayerinfo.aspx?pid={$pid}&info=per*,cmb*,twsc,cpcp,cacp,dfcp,kila,heal,rviv,rsup,rpar,tgte,dkas,dsab,cdsc,rank,cmsc,kick,kill,deth,suic,ospm,klpm,klpr,dtpr,bksk,wdsk,bbrs,tcdr,ban,dtpm,lbtl,osaa,vrk,tsql,tsqm,tlwf,mvks,vmks,mvn*,vmr*,fkit,fmap,fveh,fwea,wtm-,wkl-,wdt-,wac-,wkd-,vtm-,vkl-,vdt-,vkd-,vkr-,atm-,awn-,alo-,abr-,ktm-,kkl-,kdt-,kkd-";

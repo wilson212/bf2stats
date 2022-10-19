@@ -10,12 +10,19 @@
 				<font color="red">Note:</font> During this test, Lots of data will be loaded into your database. If for any reason the import fails, you must go back and delete
 				the player data from the "Manage Players" menu.
 				<br /><br />
+				<font color="red">Note:</font> If you want to import a player from BF2Hub, change 'Gamespy URL' to bf2web.bf2hub.com
 			</p>
 		</div>
 		
 		<form id="importForm" class="mws-form" method="POST" action="?task=importplayer">
 			<input type="hidden" name="action" value="import" />
 			<div class="mws-form-inline">
+				<div class="mws-form-row">
+						<label>Gamespy URL:</label>
+						<div class="mws-form-item small">
+							<input type="text" class="mws-textinput required" name="gamespyurl" value="http://bf2web.gamespy.com"/>
+						</div>
+				</div>
 				<div class="mws-form-row">
 						<label>Player ID:</label>
 						<div class="mws-form-item small">
