@@ -304,7 +304,7 @@ class Player
 				
 				// Check to see if the player meets the requirments for the award
 				$query = "SELECT {$criteria[1]} AS `checkval` FROM {$criteria[0]} WHERE `id` = {$pid} AND {$where};";
-				$checkval = $DB->query( $query )->fetchColumn();
+				$checkval = $this->DB->query( $query )->fetchColumn();
 				if($checkval >= $criteria[2]) 
 				{
 					$chkcriteria = true;
