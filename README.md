@@ -59,6 +59,19 @@ docker volume rm bf2stats_bf2sclone-cache-volume
 docker volume rm bf2stats_db-volume
 ```
 
+## Release
+
+```sh
+# Bump version across docs and source code 
+MOST_RECENT_TAG=$( git --no-pager tag -l --sort=-version:refname | head -n1 ) # E.g. 1.0.0
+TAG=x.x.x # E.g. 1.0.1
+if [ -n "$MOST_RECENT_TAG" ]; then
+    git ls-files | grep -E '\.md|\.php|\.py' | while read -r l; do 
+        sed -i "s/$MOST_RECENT_TAG/$TAG/g" "$l"
+    done
+fi
+```
+
 ## FAQ
 
 ### Q: ASP installer never completes the first time

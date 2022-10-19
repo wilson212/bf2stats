@@ -44,13 +44,6 @@ class System
         $stmt = ($DB instanceof PDO) ? $DB->query("SELECT `dbver` FROM `_version`;") : false;
 		define('DB_VER', ($stmt == false) ? '0.0.0' : $stmt->fetchColumn());
 		
-		// Make sure config expected DB version is up to date
-		if(verCmp( DB_VER ) > verCmp( Config::Get('db_expected_ver') ))
-		{
-			Config::Set('db_expected_ver', DB_VER);
-			Config::Save();
-		}
-		
 		// Always set a post and get actions
 		if(!isset($_POST['action'])) $_POST['action'] = null;
 		if(!isset($_GET['action']))  $_GET['action'] = null;
