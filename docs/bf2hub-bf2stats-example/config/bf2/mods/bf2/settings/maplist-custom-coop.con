@@ -1,0 +1,24 @@
+; mods/bf2 coop
+maplist.append dalian_plant gpm_coop 16
+maplist.append daqing_oilfields gpm_coop 16
+maplist.append dragon_valley gpm_coop 16
+maplist.append fushe_pass gpm_coop 16
+maplist.append greatwall gpm_coop 16
+maplist.append gulf_of_oman gpm_coop 16
+maplist.append midnight_sun gpm_coop 16
+maplist.append operation_clean_sweep gpm_coop 16
+maplist.append operationharvest gpm_coop 16
+maplist.append operationroadrage gpm_coop 16
+maplist.append operationsmokescreen gpm_coop 16
+maplist.append road_to_jalalabad gpm_coop 16
+maplist.append sharqi_peninsula gpm_coop 16
+maplist.append songhua_stalemate gpm_coop 16
+maplist.append taraba_quarry gpm_coop 16
+maplist.append zatar_wetlands gpm_coop 16
+
+; mods/xpack coop
+maplist.append ghost_town gpm_coop 16
+maplist.append mass_destruction gpm_coop 16
+maplist.append night_flight gpm_coop 16
+maplist.append surge gpm_coop 16
+maplist.append warlord gpm_coop 16

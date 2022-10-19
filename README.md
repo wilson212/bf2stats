@@ -17,7 +17,9 @@ docker pull startersclan/bf2stats:2.3.1-bf2sclone-nginx
 docker pull startersclan/bf2stats:2.3.1-bf2sclone-php
 ```
 
-See [this](docs/full-bf2-stack-example) example showing how to deploy [Battlefield 2 1.5 server](https://github.com/startersclan/docker-bf2/), the [gamespy emulator](https://github.com/startersclan/PRMasterServer), and `bf2stats` using `docker-compose`.
+See [this](docs/full-bf2-stack-example) example showing how to deploy [Battlefield 2 1.5 server](https://github.com/startersclan/docker-bf2/), [PRMasterserver](https://github.com/startersclan/PRMasterServer) as the master server, and `bf2stats` as the stats web server, using `docker-compose`.
+
+See [this](docs/bf2hub-bf2stats-example) example showing how to deploy [Battlefield 2 1.5 server](https://github.com/startersclan/docker-bf2/), with BF2Hub as the master server and `bf2stats` as the stats web server, using `docker-compose`.
 
 ## Development
 
