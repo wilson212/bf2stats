@@ -176,10 +176,14 @@ class Importlogs
                 curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
                 curl_setopt($ch, CURLOPT_TIMEOUT, 5);
                 $result = curl_exec($ch);
+                $err = curl_error($ch);
                 if ($result) {
                     if(strpos($result, "$\tOK\t$") !== false) {
                         $total++;
                     }
+                }
+                if ($err) {
+                    ErrorLog("Failed to import log {$file[0]}{$file[1]}! Error: $err", -1);
                 }
                 // Close http connection, and sleep for 1 second to prevent an sql error that
                 // occurs in the player_history table (timestamp must be unique for each player)
@@ -188,10 +192,14 @@ class Importlogs
             }
             
             // Open the stats debug file and log processing start
-            ErrorLog("----- Import Logs Complete. Imported ". $total ." logs in ". formatTime( round(microtime(true) - $start_time) ) ." -----", -1);
+            ErrorLog("----- Import Logs Complete. Imported ". $total ." of $count logs in ". formatTime( round(microtime(true) - $start_time) ) ." -----", -1);
 
             // Success
-            echo json_encode( array('success' => true, 'type' => 'success', 'message' => "All System Snapshots Processed! Total logs imported: ". $total) );
+            if ($total == $count) {
+                echo json_encode( array('success' => true, 'type' => 'success', 'message' => "All System Snapshots Processed! Total logs imported: ". $total) );
+            }else {
+                echo json_encode( array('success' => false, 'type' => 'error', 'message' => "Only $total of $count System Snapshots Processed! Check the stats_debug.log (system/logs/stats_debug.log)") );
+            }
         }
     }
 }
