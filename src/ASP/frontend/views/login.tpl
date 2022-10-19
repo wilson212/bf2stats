@@ -10,7 +10,7 @@
 	<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no,maximum-scale=1" />
 
 	<!-- Required Stylesheets -->
-	<link rel="icon" type="image/png" href="frontend/images/bf2_icon.png">
+	<link rel="icon" type="image/png" href="frontend/images/icons/bf2.png">
 	<link rel="stylesheet" type="text/css" href="frontend/css/reset.css" media="screen" />
 	<link rel="stylesheet" type="text/css" href="frontend/css/text.css" media="screen" />
 	<link rel="stylesheet" type="text/css" href="frontend/css/fonts/ptsans/stylesheet.css" media="screen" />
