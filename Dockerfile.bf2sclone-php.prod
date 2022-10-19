@@ -26,3 +26,5 @@ RUN php -m
 COPY --from=build /src/bf2sclone /src/bf2sclone
 COPY ./config/bf2sclone/php/conf.d/php.ini /usr/local/etc/php/conf.d/php.ini
 COPY ./config/bf2sclone/php-fpm.d/www.conf /usr/local/etc/php-fpm.d/www.conf
+
+WORKDIR /src

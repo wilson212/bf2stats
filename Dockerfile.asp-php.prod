@@ -25,3 +25,5 @@ RUN php -m
 COPY --from=build /src/ASP /src/ASP
 COPY ./config/ASP/php/conf.d/php.ini /usr/local/etc/php/conf.d/php.ini
 COPY ./config/ASP/php-fpm.d/www.conf /usr/local/etc/php-fpm.d/www.conf
+
+WORKDIR /src

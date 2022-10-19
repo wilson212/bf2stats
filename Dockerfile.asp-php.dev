@@ -24,3 +24,5 @@ RUN { \
 
 RUN php -i
 RUN php -m
+
+WORKDIR /src
