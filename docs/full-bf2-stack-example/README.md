@@ -157,7 +157,7 @@ These one-liners may be handy for adminstration of the stack.
 # Start
 docker-compose up
 
-# If you are running the BF2 server, PRMasterServer, or traefik on host networking, you may need these iptables rules
+# Only if you are running the BF2 server, PRMasterServer, or traefik on host networking, you may need these iptables rules
 # BF2 server
 iptables -A INPUT -p udp -m udp -m conntrack --ctstate NEW --dport 16567 -j ACCEPT
 iptables -A INPUT -p udp -m udp -m conntrack --ctstate NEW --dport 29900 -j ACCEPT
@@ -173,12 +173,6 @@ iptables -A INPUT -p udp -m udp -m conntrack --ctstate NEW --dport 443 -j ACCEPT
 
 # Attach to the bf2 server console
 docker attach bf2stats_bf2_1
-
-# View bf2 server logs
-docker exec -it bf2stats_bf2_1 bash
-cd python/bf2/logs
-cat *.log
-exit
 
 # Copy logs from bf2 server to this folder
 docker cp bf2stats_bf2_1:/server/bf2/python/bf2/logs .
@@ -202,3 +196,64 @@ docker volume rm bf2stats_snapshots-volume
 docker volume rm bf2stats_bf2sclone-cache-volume
 docker volume rm bf2stats_db-volume
 ```
+
+## Background: Keeping Battlefield 2 working
+
+Problem: The Battlefield 2 client and server binaries are hardcoded with gamespy DNS records, e.g. `bf2web.gamespy.com`. Because gamespy has shut down, the DNS records no longer exist on public DNS servers. In order to keep the game's multiplayer working, we need:
+
+- A gamespy replacement - solved by `PRMasterServer`
+- DNS resolution for gamespy DNS records - solved by either by: `1.` hex patching the game binaries; `2.` spoofing DNS server responses; `3.` spoofing DNS records via `hosts` file
+
+This example opted for `2.` which is DNS spoofing via `coredns`, because it can be done on a single machine and multiple machine setups.
+
+### Option 1: Hex patching game binaries
+
+This is what [`bf2hub.com`](https://bf2hub.com) and many BF2 mods do.
+
+Pros:
+
+- Simple. Patch every client with the new binaries
+
+Cons:
+
+- Difficult to change to another gamespy server
+- Difficult to distribute because it requires installation on each client
+- Binaries may be patched with malicious code
+
+### Option 2: Spoof DNS at the DNS server
+
+Pros:
+
+- Most scalable. You configure the DNS server via `DHCP`, so that every client that connects to a `DHCP` server (e.g. router) are configured to use the DNS server. No client configuration needed
+- Easy to change to another gamespy server
+
+Cons:
+
+- Dangerous. The DNS server may be used as an attack vector against clients to steal cookies and direct clients to malicious websites.
+
+### Option 3: Use DNS records via `hosts` file
+
+Pros:
+
+- Safest. DNS records only apply to the local machine
+
+Cons:
+
+- Difficult to change to another gamespy server
+- Tedious to hand edit. See an example of a hosts file [here](./config/coredns/hosts)
+- Requires administrative privileges to update the machine's `hosts` file
+
+For clients:
+
+- The [`BF2statisticsClientLauncher.exe`](/Tools/Client%20Files) was made to do this
+- The [`BF2GamespyRedirector`](https://github.com/BF2Statistics/BF2GamespyRedirector) improves on `BF2statisticsClientLauncher.exe` by allowing clients to save IP addresses of their favourite gamespy servers, and easily switch between them. Read more [here](https://bf2statistics.com/threads/bf2statistics-v3-1-0-full-release.3010/)
+
+### Which is the best?
+
+For servers:
+
+- Servers environments should be stable, so `1.` or `2.` is preferred.
+
+For clients:
+
+- The best solution depends on one's setup. If one often needs to switch between gamespy servers, `3.` is best. If one doesn't want clients to have to install anything but wants things to "just work", use `2.`. If one prefers a single gamespy server run by a trustworthy community, use `1.`.
