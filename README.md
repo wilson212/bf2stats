@@ -24,7 +24,7 @@ See [this](docs/full-bf2-stack-example) example showing how to deploy [Battlefie
 ```sh
 # Start
 docker-compose up --build
-# ASP available at http://localhost:8081. Username: admin, password admin. See ./config/ASP/config.php config file
+# ASP available at http://localhost:8081/ASP. Username: admin, password admin. See ./config/ASP/config.php config file
 # bf2sclone available at http://localhost:8082.
 # phpmyadmin available at http://localhost:8083. Username: admin, password: admin. See ./config/ASP/config.php config file
 
