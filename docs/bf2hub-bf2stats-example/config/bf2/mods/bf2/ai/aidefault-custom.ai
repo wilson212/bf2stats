@@ -1,0 +1,21 @@
+echo *****************************************************************************************
+echo AIDefault.ai ****************************************************************************
+echo *****************************************************************************************
+
+aiSettings.setNSides 2
+aiSettings.setAutoSpawnBots 1
+
+rem Let's go with 63 bots! Hope your system holds up
+aiSettings.overrideMenuSettings 1
+aiSettings.setMaxNBots 63
+aiSettings.maxBotsIncludeHumans 0
+aiSettings.setBotSkill 1.0
+
+run BotNames.ai
+
+aiSettings.setInformationGridDimension 32
+
+
+run AIPathFinding.ai
+
+rem EOF

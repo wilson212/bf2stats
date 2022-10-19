@@ -17,69 +17,24 @@ services:
     networks:
       - gamespy-network
       - bf2-network
+    extra_hosts:
+      - battlefield2.available.gamespy.com:92.51.181.102 # bf2hub.com master server IP
+      - battlefield2.master.gamespy.com:92.51.181.102 # bf2hub.com master server IP
+      - battlefield2.ms14.gamespy.com:92.51.181.102 # bf2hub.com master server IP
+      - master.gamespy.com:92.51.181.102 # bf2hub.com master server IP
+      - motd.gamespy.com:92.51.181.102 # bf2hub.com master server IP
+      - gpsp.gamespy.com:92.51.181.102 # bf2hub.com master server IP
+      - gpcm.gamespy.com:92.51.181.102 # bf2hub.com master server IP
+      - gamespy.com:92.51.181.102 # bf2hub.com master server IP
+      # - bf2web.gamespy.com:192.168.1.100 # Our ASP web server IP. Use this if the ASP web server is running on a different host.
+      # - gamestats.gamespy.com:192.168.1.100 # Our ASP web server IP. Use this if the ASP web server is running on a different host.
+      # - eapusher.dice.se:192.168.1.100 # Our ASP web server IP. Use this if the ASP web server is running on a different host.
     depends_on:
       - asp-nginx
       - asp-php
     restart: unless-stopped
     tty: true
     stdin_open: true
-
-  # The gamespy server
-  prmasterserver:
-    image: startersclan/prmasterserver:v0.1.0
-    volumes:
-      - prmasterserver-volume:/data
-    ports:
-      - 29900:29900/tcp # Login server
-      - 29901:29901/tcp # Login server
-      - 28910:28910/tcp # Master server
-      - 27900:27900/udp # Master server
-      - 29910:29910/udp # CD key server
-    networks:
-      # Spoof all gamespy DNS for the gameserver connected to this network
-      gamespy-network:
-        aliases:
-          - eapusher.dice.se
-          - battlefield2.available.gamespy.com
-          - battlefield2.master.gamespy.com
-          - battlefield2.ms14.gamespy.com
-          - gamestats.gamespy.com
-          - master.gamespy.com
-          - motd.gamespy.com
-          - gpsp.gamespy.com
-          - gpcm.gamespy.com
-          - gamespy.com
-          - bf2web.gamespy.com
-    restart: unless-stopped
-
-  # A DNS server to spoof gamespy's DNS records for BF2 clients or servers
-  # Tips:
-  #   Clients should only use trusted DNS servers. This should only be used in a private network.
-  #   If there is a port conflict, the OS might already have a DNS server running on localhost, e.g. systemd-resolved or docker dns
-  #   To get around that, bind to your external interface's IP. For example:
-  #     ports:
-  #       - 192.168.1.100:53:53/udp
-  #   Test DNS records to ensure coredns responds with your machine's external IP address. For example:
-  #     nslookup  bf2web.gamespy.com 192.168.1.100
-  #   Response should be:
-  #     Server:  192.168.1.100
-  #     Address: 192.168.1.100#53
-  #
-  #     Name: bf2web.gamespy.com
-  #     Address: 192.168.1.100
-  #   Then configure BF2 client machines to use this machine's external IP as their primary DNS server.
-  coredns:
-    image: coredns/coredns:1.9.3
-    ports:
-      - 53:53/udp
-    volumes:
-      - ./config/coredns/Corefile:/Corefile:ro
-      - ./config/coredns/hosts:/hosts:ro
-    restart: unless-stopped
-    entrypoint:
-      - /coredns
-      - -conf
-      - /Corefile
 
   # The reverse proxy for our web containers
   # See https://github.com/traefik/traefik/tree/v2.7/docs/content/user-guides/docker-compose for some examples for enabling HTTPS using ACME
@@ -179,6 +134,9 @@ services:
       bf2-network:
         aliases:
           - asp.example.com
+          - bf2web.gamespy.com # Important! Spoof Gamespy DNS for the gameserver to reach our ASP server IP
+          - gamestats.gamespy.com # Spoof Gamespy DNS for the gameserver to reach our ASP server IP. Doesn't seem to be used by the gameserver, but spoof anyway.
+          - eapusher.dice.se  # Spoof Gamespy DNS for the gameserver to reach our ASP server IP. Doesn't seem to be used by the gameserver, but spoof anyway.
     depends_on:
       - init-container
       - asp-php
