@@ -76,10 +76,10 @@ class Testconfig
             $out .= "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Database Connection (".Config::Get('db_host')."): ".__PASS;
             
             // Check Database Version
-            if (DB_VER != Config::Get('db_expected_ver')) 
-                $out .= "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Database version (".Config::Get('db_expected_ver')."): ".__FAIL;
+            if (DB_VER != CODE_VER) 
+                $out .= "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Database version (".CODE_VER."): ".__FAIL;
             else 
-                $out .= "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Database version (".Config::Get('db_expected_ver')."): ".__PASS;
+                $out .= "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Database version (".CODE_VER."): ".__PASS;
         }
         else
         {

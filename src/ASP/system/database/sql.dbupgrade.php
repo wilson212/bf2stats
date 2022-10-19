@@ -4,7 +4,7 @@ $sqlupgrade = array();
 
 // <Text String>, <DB Version Introduced>, <Query String>
 
-$sqlupgrade[] = array('Clear Version Table', Config::Get('db_expected_ver'),
+$sqlupgrade[] = array('Clear Version Table', CODE_VER,
 	"DELETE FROM `_version`;");
 	
 $sqlupgrade[] = array('Alter Army Table', '1.3.0',
@@ -137,7 +137,7 @@ $sqlupgrade[] = array('Alter Player Table (Add `isbot` column)', '1.5.0',
 			CHANGE `id` `id` SMALLINT(4) UNSIGNED NOT NULL DEFAULT  '0'"); 
 */
 	
-$sqlupgrade[] = array('Update Version Table', Config::Get('db_expected_ver'),
-	"INSERT INTO `_version` VALUES ('". Config::Get('db_expected_ver') ."', ".time().");");
+$sqlupgrade[] = array('Update Version Table', CODE_VER,
+	"INSERT INTO `_version` VALUES ('". CODE_VER ."', ".time().");");
 
 ?>

@@ -15,7 +15,7 @@ class Upgradedb
 		else
 		{
 			// Db Version Compare
-			if(verCmp( DB_VER ) < verCmp( Config::Get('db_expected_ver') ))
+			if(verCmp( DB_VER ) < verCmp( CODE_VER ))
 			{
 				$button = 'Run Updates';
 				$disabled = '';

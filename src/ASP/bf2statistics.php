@@ -23,6 +23,8 @@
 | Define Constants
 | ---------------------------------------------------------------
 */
+    define('CODE_VER', '2.3.1');
+    define('CODE_VER_DATE', '2013-03-12');
 	define('TIME_START', microtime(1));
 	define('DS', DIRECTORY_SEPARATOR);
 	define('ROOT', dirname(__FILE__));
@@ -181,15 +183,15 @@
 	define('DB_VER', ($stmt == false) ? '0.0.0' : $stmt->fetchColumn());
 	
 	// Check Database Version... this is rather important!
-	if(DB_VER != Config::Get('db_expected_ver'))
+	if(DB_VER != CODE_VER)
 	{
-		$errmsg = "Database version expected: ". Config::Get('db_expected_ver') .", Found: ". DB_VER;
+		$errmsg = "Database version expected: ". CODE_VER .", Found: ". DB_VER;
 		ErrorLog($errmsg, 1);
 		die();
 	} 
 	else 
 	{
-		$errmsg = "Database version expected: ". Config::Get('db_expected_ver') .", Found: ". DB_VER;
+		$errmsg = "Database version expected: ". CODE_VER .", Found: ". DB_VER;
 		ErrorLog($errmsg, 3);
 	}
 
