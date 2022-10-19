@@ -60,6 +60,7 @@ include( ROOT . DS . 'search.inc.php' );
 /* LEADERBOARD AND HOME (as home includes leaderboard) */
 include( ROOT . DS . 'leaderboard.inc.php' );
 
+header('Cache-Control: private, no-cache, no-store, must-revalidate, s-maxage=0, max-age=0');
 
 /***************************************************************
  * PLAYERSTATS
