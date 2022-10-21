@@ -836,7 +836,7 @@ $template = '
 								$weapon = getUnlockByID($uid);
 								$template .=  '
 									<div class="unlock-inline" onmouseover="show_mine(this);" onmouseout="hide_mine(this);">
-											<a href="http://wiki.bf2s.com/weapons/unlocks/'.strtolower($weapon).'"><img src="'.$ROOT.'spacer.gif" style="background: url(\''.$ROOT.'game-images/unlocks/'.$unlocks[$uid]['state'] .'/'.$uid.'.png\');" width="115" height="33" alt="" /></a>
+											<a href="http://wiki.bf2s.com/weapons/unlocks/'.strtolower($weapon).'"><img src="'.$ROOT.'spacer.gif" style="background: url(\''.$ROOT.'game-images/unlocks/'.$unlocks[$uid] .'/'.$uid.'.png\');" width="115" height="33" alt="" /></a>
 											<div class="unlock-pop dir-left">
 												<img src="'.$ROOT.'spacer.gif" style="background: url(\''.$ROOT.'game-images/unlocks/full/'.$uid.'.jpg\');" width="128" height="128" alt="" />
 												<strong>Click for more about the '.$weapon.'</strong>

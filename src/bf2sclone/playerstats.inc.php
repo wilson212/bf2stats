@@ -762,7 +762,7 @@ function getNextRankInfo($PID)
 	$lines  = file( ROOT . DS . 'queries'. DS .'rank_points.list' );
 	foreach($lines as $key => $value)
 	{
-		$points[$key] = $value;
+		$points[$key] = trim($value);
 	}
 	unset($lines);
 
@@ -825,7 +825,7 @@ function getNextRankTime($score, $points_needed, $spm)
 function getNextRankDayCount($joined, $last, $score, $points_needed)
 {
 	$temp = $last - $joined;
-	$days = round(($temp / 86400), 0);
+	$days = $temp >= 86400 ? round(($temp / 86400), 0) : 1;
 
 	// Score Per Day
 	$spd = @round(($score / $days), 0);
