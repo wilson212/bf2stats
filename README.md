@@ -11,10 +11,10 @@ Although BF2Statistics [`3.1.0`](https://github.com/BF2Statistics/ASP) has been 
 ## Usage
 
 ```sh
-docker pull startersclan/bf2stats:2.3.2-asp-nginx
-docker pull startersclan/bf2stats:2.3.2-asp-php
-docker pull startersclan/bf2stats:2.3.2-bf2sclone-nginx
-docker pull startersclan/bf2stats:2.3.2-bf2sclone-php
+docker pull startersclan/bf2stats:2.3.3-asp-nginx
+docker pull startersclan/bf2stats:2.3.3-asp-php
+docker pull startersclan/bf2stats:2.3.3-bf2sclone-nginx
+docker pull startersclan/bf2stats:2.3.3-bf2sclone-php
 ```
 
 See [this](docs/full-bf2-stack-example) example showing how to deploy [Battlefield 2 1.5 server](https://github.com/startersclan/docker-bf2/), [PRMasterserver](https://github.com/startersclan/PRMasterServer) as the master server, and `bf2stats` as the stats web server, using `docker-compose`.
@@ -66,7 +66,7 @@ docker volume rm bf2stats_db-volume
 ```sh
 # Bump version across docs and source code 
 MOST_RECENT_TAG=$( git --no-pager tag -l --sort=-version:refname | head -n1 ) # E.g. 1.0.0
-TAG=x.x.x # E.g. 1.0.1
+TAG=2.3.3 # E.g. 1.0.1
 if [ -n "$MOST_RECENT_TAG" ]; then
     git ls-files | grep -E '\.md|\.php|\.py|\.ya?ml' | while read -r l; do 
         sed -i "s/\b$MOST_RECENT_TAG\b/$TAG/g" "$l"
