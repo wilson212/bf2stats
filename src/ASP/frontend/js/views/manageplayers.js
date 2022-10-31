@@ -69,6 +69,7 @@ $(document).ready(function() {
 		$('#player-clantag').attr('value', result.clantag );
 		$('#player-rank').val( result.rank );
 		$('#player-ban').val( result.permban );
+		$('#player-hidden').val( result.hidden );
 		
 		// Open the Modal Window
 		Modal.dialog("option", {

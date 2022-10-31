@@ -38,7 +38,7 @@ class Manageplayers
 		/* Array of database columns which should be read and sent back to DataTables. Use a space where
 		 * you want to insert a non-database field (for example a counter or static image)
 		 */
-		$aColumns = array( 'id', 'name', 'clantag', 'rank', 'score', 'country', 'permban' );
+		$aColumns = array( 'id', 'name', 'clantag', 'rank', 'score', 'country', 'permban', 'hidden' );
 		
 		/* Indexed column (used for fast and accurate table cardinality) */
 		$sIndexColumn = "id";
@@ -169,7 +169,7 @@ class Manageplayers
 		{
 			case "fetch":
 				// Get the player
-				$query = "SELECT `name`, `rank`, `permban`, `clantag` FROM `player` WHERE `id` = ". intval($pid);
+				$query = "SELECT `name`, `rank`, `permban`, `clantag`, `hidden` FROM `player` WHERE `id` = ". intval($pid);
 				$result = $DB->query( $query );
 				if(!($result instanceof PDOStatement) || !is_array(($row = $result->fetch())))
 				{
@@ -205,7 +205,8 @@ class Manageplayers
 					`availunlocks` = {$unlocks['availunlocks']}, 
 					`usedunlocks` = {$unlocks['usedunlocks']},				
 					`permban` = ". intval($_POST['permban']) .", 
-					`clantag` = ". $DB->quote($_POST['clantag']) ."
+					`clantag` = ". $DB->quote($_POST['clantag']) .",
+					`hidden` = ". $DB->quote($_POST['hidden']) ."
 					WHERE id = ". intval($pid);
 				if($DB->exec($query) === false)
 				{

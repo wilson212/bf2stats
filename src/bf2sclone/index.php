@@ -98,6 +98,10 @@ if($GO == "0" && $PID)
 	{
 		// Load Player Data
 		$player 		= getPlayerDataFromPID($PID); // receive player data
+		if (!$player) {
+			header("Location: /"); // Redirect to home, since there's no such player
+			exit();
+		}
 		$victims 		= getFavouriteVictims($PID); // receive victim data
 		$enemies 		= getFavouriteEnemies($PID); // receive enemie data
 		$armies 		= getArmyData($PID); // receive army data

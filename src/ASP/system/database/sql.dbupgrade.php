@@ -136,7 +136,11 @@ $sqlupgrade[] = array('Alter Player Table (Add `isbot` column)', '1.5.0',
 		"ALTER TABLE `mapinfo` 
 			CHANGE `id` `id` SMALLINT(4) UNSIGNED NOT NULL DEFAULT  '0'"); 
 */
-	
+
+$sqlupgrade[] = array('Alter Player Table (Add `hidden` column)', '2.4.0',
+"ALTER TABLE `player`
+	ADD COLUMN `hidden` int(6) unsigned NOT NULL default '0';");
+
 $sqlupgrade[] = array('Update Version Table', CODE_VER,
 	"INSERT INTO `_version` VALUES ('". CODE_VER ."', ".time().");");
 
