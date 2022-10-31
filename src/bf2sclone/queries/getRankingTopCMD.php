@@ -1,10 +1,10 @@
 
 <?php
 	$WHERE = '';
-	if (LEADERBOARD_HIDE_BOTS) {
+	if (RANKING_HIDE_BOTS) {
 		$WHERE .= ' AND isbot = 0';
 	}
-	if (LEADERBOARD_HIDE_HIDDEN_PLAYERS) {
+	if (RANKING_HIDE_HIDDEN_PLAYERS) {
 		$WHERE .= ' AND hidden = 0';
 	}
 
