@@ -13,6 +13,7 @@
 					<th>Score</th>
 					<th>Country</th>
 					<th>Permban</th>
+					<th>Hidden</th>
 					<th>Action</th>
 				</tr>
 			</thead>
@@ -80,6 +81,15 @@
 							<label>Perm Ban:</label>
 							<div class="mws-form-item large">
 								<select id="player-ban" name="permban">
+									<option value="0">No</option>
+									<option value="1">Yes</option>
+								</select>
+							</div>
+						</div>
+						<div class="mws-form-row">
+							<label>Hidden:</label>
+							<div class="mws-form-item large">
+								<select id="player-hidden" name="hidden">
 									<option value="0">No</option>
 									<option value="1">Yes</option>
 								</select>

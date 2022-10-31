@@ -83,7 +83,7 @@ else
 		"D\t" . time() . "\n" .
 		"H\tn\tpid\tnick\tscore\n";
 	
-	$query = "SELECT `id`, `name`, `score` FROM `player` WHERE `name` LIKE '%". substr($connection->quote($nick), 1, -1) ."%'";
+	$query = "SELECT `id`, `name`, `score` FROM `player` WHERE `name` LIKE '%". substr($connection->quote($nick), 1, -1) ."%' AND `hidden` = 0";
 	$result = $connection->query($query);
 	if($result instanceof PDOStatement)
 	{

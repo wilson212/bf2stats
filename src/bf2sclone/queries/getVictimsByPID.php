@@ -1,3 +1,11 @@
 <?php
-	$query = "SELECT victim, count FROM kills WHERE attacker = $PID ORDER BY count DESC LIMIT 11;";
+	$WHERE = '';
+	if (LEADERBOARD_HIDE_BOTS) {
+		$WHERE .= ' AND player.isbot = 0';
+	}
+	if (LEADERBOARD_HIDE_HIDDEN_PLAYERS) {
+		$WHERE .= ' AND player.hidden = 0';
+	}
+
+	$query = "SELECT victim, count FROM kills INNER JOIN player ON kills.victim = player.id WHERE attacker = $PID $WHERE ORDER BY count DESC LIMIT 11;";
 ?>
