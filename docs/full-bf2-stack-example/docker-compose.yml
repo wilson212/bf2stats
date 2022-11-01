@@ -1,8 +1,8 @@
 version: '2.2'
 services:
-  # Battlefield 2 1.5 server with bf2stats 2.4.0 python scripts
+  # Battlefield 2 1.5 server with bf2stats 2.4.1 python scripts
   bf2:
-    image: startersclan/docker-bf2:v1.5.3153.0-bf2stats-2.4.0
+    image: startersclan/docker-bf2:v1.5.3153.0-bf2stats-2.4.1
     volumes:
       - ./config/bf2/mods/bf2/ai/aidefault-custom.ai:/server/bf2/mods/bf2/ai/aidefault.ai:ro # Customize bots
       - ./config/bf2/mods/bf2/ai/aibehaviours-fixlookatwrapper.ai:/server/bf2/mods/bf2/ai/aibehaviours.ai:ro # LoopAtWrapper fix
@@ -154,7 +154,7 @@ services:
 
   # The gamespy ASP. The dashboard is available at https://asp.example.com/ASP
   asp-nginx:
-    image: startersclan/bf2stats:2.4.0-asp-nginx
+    image: startersclan/bf2stats:2.4.1-asp-nginx
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=${COMPOSE_PROJECT_NAME?err}_traefik-network"
@@ -185,7 +185,7 @@ services:
     restart: unless-stopped
 
   asp-php:
-    image: startersclan/bf2stats:2.4.0-asp-php
+    image: startersclan/bf2stats:2.4.1-asp-php
     volumes:
       - ./config/ASP/config.php:/src/ASP/system/config/config.php # Main config file. Must be writeable or else ASP will throw an exception. Customize only if needed
       # - ./config/ASP/php/conf.d/php.ini:/usr/local/etc/php/conf.d/php.ini:ro  # Customize only if needed
@@ -201,7 +201,7 @@ services:
 
   # The bf2sclone for viewing BFHQ on the web. It is available at https://bf2sclone.example.com
   bf2sclone-nginx:
-    image: startersclan/bf2stats:2.4.0-bf2sclone-nginx
+    image: startersclan/bf2stats:2.4.1-bf2sclone-nginx
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=${COMPOSE_PROJECT_NAME?err}_traefik-network"
@@ -227,7 +227,7 @@ services:
     restart: unless-stopped
 
   bf2sclone-php:
-    image: startersclan/bf2stats:2.4.0-bf2sclone-php
+    image: startersclan/bf2stats:2.4.1-bf2sclone-php
     volumes:
       - ./config/bf2sclone/config.inc.php:/src/bf2sclone/config.inc.php:ro  # Main config file. Customize as needed
       # - ./config/bf2sclone/php/conf.d/php.ini:/usr/local/etc/php/conf.d/php.ini:ro  # Customize only if needed
