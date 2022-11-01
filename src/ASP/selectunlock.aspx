@@ -83,28 +83,40 @@ else
     $pid = intval($pid);
     $id = intval($id);
 
-    // Update the unlock state of the chosen weapon
-	$query = "UPDATE `unlocks` SET `state` = 's' WHERE (`id` = {$pid}) AND (`kit` = {$id})";
-	$connection->exec($query);
-
-	// First, remove an available unlock
-	$result = $connection->query("SELECT `availunlocks` FROM `player` WHERE `id` = {$pid}");
+    // First, check for available unlocks
+    $availunlocks = 0;
+    $result = $connection->query("SELECT `availunlocks` FROM `player` WHERE `id` = {$pid}");
     if($result instanceof PDOStatement)
     {
-        $unlocks = $result->fetchColumn();
-        $unlocks -= 1;
-        // Update, removing 1 available unlock from the player
-        $connection->exec("UPDATE `player` SET `availunlocks` = {$unlocks} WHERE `id` = {$pid}");
+        $availunlocks = $result->fetchColumn();
     }
-    
-    // Add one to the used unlocks
-    $result = $connection->query("SELECT `usedunlocks` FROM `player` WHERE `id` = {$pid}");
-    if($result instanceof PDOStatement)
-    {
-        $used = $result->fetchColumn();
-        $used += 1;
-        // Update, adding 1 used unlock from the player
-        $connection->exec("UPDATE `player` SET `usedunlocks` = {$used} WHERE `id` = {$pid}");
+
+    if ($availunlocks > 0) {
+        // Update the unlock state of the chosen weapon
+        $query = "UPDATE `unlocks` SET `state` = 's' WHERE (`id` = {$pid}) AND (`kit` = {$id})";
+        $connection->exec($query);
+
+        // First, remove an available unlock
+        $unlocks = $result->fetchColumn();
+        $availunlocks -= 1;
+        // Update, removing 1 available unlock from the player
+        $connection->exec("UPDATE `player` SET `availunlocks` = {$availunlocks} WHERE `id` = {$pid}");
+
+        // Add one to the used unlocks
+        $result = $connection->query("SELECT `usedunlocks` FROM `player` WHERE `id` = {$pid}");
+        if($result instanceof PDOStatement)
+        {
+            $used = $result->fetchColumn();
+            $used += 1;
+            // Update, adding 1 used unlock from the player
+            $connection->exec("UPDATE `player` SET `usedunlocks` = {$used} WHERE `id` = {$pid}");
+        }
+    }else {
+        $out = "E\nH\tasof\terr\n" . 
+            "D\t" . time() . "\tPlayer has no available unlocks\n";
+        $num = strlen(preg_replace('/[\t\n]/', '', $out));
+        $out .= "$\t$num\t$";
+        die($out);
     }
     
     echo "O\nOK";
