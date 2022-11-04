@@ -23,6 +23,10 @@ See [this](docs/bf2hub-bf2stats-example) example showing how to deploy [Battlefi
 
 ## Development
 
+- Install `docker` and `docker-compose`
+- Install `vscode` for development. Install `vscode` extensions [`PHP Intelephense`](https://marketplace.visualstudio.com/items?itemName=bmewburn.vscode-intelephense-client) for intellisense, and [xdebug](https://marketplace.visualstudio.com/items?itemName=xdebug.php-debug) and for `php` debugging.
+- To start `php` debugging, press `F5` in `vscode`. Set breakpoints in code, and whenever a page is loaded, `vscode` shows hit breakpoints. To stop debugging, press `shift+F5`.
+
 ```sh
 # Start
 docker-compose up --build
