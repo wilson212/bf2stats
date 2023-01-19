@@ -10,7 +10,7 @@ $DBPASSWORD = 'admin';
 $TITLE = 'BF2S Clone';
 
 // Refresh time in seconds for stats
-define ('RANKING_REFRESH_TIME', 600); // -> default: 600 seconds (10 minutes)
+define ('RANKING_REFRESH_TIME', 0); // -> default: 600 seconds (10 minutes)
 
 // Whether to hide bots from rankings
 define ('RANKING_HIDE_BOTS', false);
