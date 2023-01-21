@@ -51,7 +51,7 @@ def http_get(host, port = 80, document = "/"):
 			if "Content-Length" in headers:
 				content_length = headers["Content-Length"]
 				body = http.read()
-			elif headers["Transfer-Encoding"] == "chunked":
+			elif "Transfer-Encoding" in headers and headers["Transfer-Encoding"] == "chunked":
 				while 1:
 					chunk_length = int(http.readline(), 16)
 					if chunk_length != 0:
@@ -59,6 +59,10 @@ def http_get(host, port = 80, document = "/"):
 					http.readline() # CRLF
 					if chunk_length == 0:
 						break
+			else:
+				# No Content-Length nor Transfer-Encoding header. Read until EOF
+				body = http.read()
+
 			http.shutdown() # be nice, tell the http server we're done sending the request
 			http.close() # all done
 			return body
@@ -123,7 +127,7 @@ def http_postSnapshot(host, port = 80, document = "/", snapshot = ""):
 			if "Content-Length" in headers:
 				content_length = headers["Content-Length"]
 				body = http.read()
-			elif headers["Transfer-Encoding"] == "chunked":
+			elif "Transfer-Encoding" in headers and headers["Transfer-Encoding"] == "chunked":
 				while 1:
 					chunk_length = int(http.readline(), 16)
 					if chunk_length != 0:
@@ -131,6 +135,10 @@ def http_postSnapshot(host, port = 80, document = "/", snapshot = ""):
 					http.readline() # CRLF
 					if chunk_length == 0:
 						break
+			else:
+				# No Content-Length nor Transfer-Encoding header. Read until EOF
+				body = http.read()
+
 			http.shutdown() # be nice, tell the http server we're done sending the request
 			http.close() # all done
 			return body
