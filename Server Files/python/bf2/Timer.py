@@ -12,7 +12,7 @@ class Timer:
 		host.timer_created(self)
 
 	def __del__(self):
-		print "Timer object destroyed (rc 0)"
+		print "timer object destroyed (rc 0)"
 
 	def destroy(self):
 		host.timer_destroy(self)

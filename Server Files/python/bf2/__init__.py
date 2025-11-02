@@ -1,9 +1,7 @@
 import host
 import sys
 
-from time import localtime, strftime
 from bf2.Timer import Timer
-from BF2StatisticsConfig import debug_enable, debug_log_path
 
 class GameStatus:
 	Playing = 1
@@ -19,14 +17,8 @@ triggerManager = None
 gameLogic = None
 serverSettings = None
 
-# ------------------------------------------------------------------------------
-# omero 2005-11-19
-# ------------------------------------------------------------------------------
-# CONFIGURATION SECTION
-# ------------------------------------------------------------------------------
-# To enable/disable printing of debug messages in (all) python modules
-# ------------------------------------------------------------------------------
-g_debug = debug_enable
+g_debug = 0
+
 
 # set up singletons
 import bf2.PlayerManager
@@ -77,33 +69,9 @@ class fake_stream2:
 
 def init_module():
 	# set up stdout and stderr to map to the host's logging function
-	# ---------------------------------------------------		
 	sys.stdout = fake_stream('stdout')
 	sys.stderr = fake_stream('stderr')
-	
-	# omero, 2005-11-19
-	# comment out the above lines and
-	# uncomment the following for python looging to gui
-	# ---------------------------------------------------
-	# NOTE 1: Requires that gui_log.pyw is present in
-	#         <gameserver installation path>/python/bf2
-	#
-	# NOTE 2: gui_log.pyw MUST be started
-	#         BEFORE gameserver
-	# ---------------------------------------------------
-	#import gui_log
-	
-	
-	# Added by Chump - for bf2statistics stats
-	logtime = str(strftime("%Y%m%d", localtime()))
-	log = file(debug_log_path + '/bf2game_' + logtime + '.log', 'a')
-	sys.stdout = log
-	sys.stderr = log
-	
-	print "=============================================="
-	print " BF2 Logging Started: %s" % str(strftime("%x %X", localtime()))
-	print "=============================================="
-	
+
 	import game.scoringCommon
 	game.scoringCommon.init()
 	
@@ -121,30 +89,30 @@ def init_module():
 	else:
 		bf2.stats.endofround.init()
 
-# Added by Chump - for bf2statistics stats (and de-indenting)
-	#if not gameLogic.isAIGame():
-	try:
-		import bf2.stats.snapshot
-	except ImportError:
-		print "Snapshot module not found."
-	else:
-		bf2.stats.snapshot.init()
 
-	try:
-		import bf2.stats.medals
-	except ImportError:
-		print "Medal awarding module not found."
-	else:
-		bf2.stats.medals.init()
+	if not gameLogic.isAIGame():
+	
+		try:
+			import bf2.stats.snapshot
+		except ImportError:
+			print "Snapshot module not found."
+		else:
+			bf2.stats.snapshot.init()
+		
+		try:
+			import bf2.stats.rank
+		except ImportError:
+			print "Rank awarding module not found."
+		else:
+			bf2.stats.rank.init()
 
-# Added by Chump - for bf2statistics stats
-	#try:
-	#	import bf2.stats.rank
-	#except ImportError:
-	#	print "Rank awarding module not found."
-	#else:
-	#	bf2.stats.rank.init()
-
+		try:
+			import bf2.stats.medals
+		except ImportError:
+			print "Medal awarding module not found."
+		else:
+			bf2.stats.medals.init()
+		
 	try:
 		import bf2.stats.unlocks
 	except ImportError:
@@ -158,11 +126,4 @@ def init_module():
 		print "Fragalyzer log module not found."
 	else:
 		bf2.stats.fragalyzer_log.init()
-	
-	try:
-		import bf2.ClanManager
-	except ImportError:
-		print "Clan Manager module not found."
-	else:
-		bf2.ClanManager.init()
 	

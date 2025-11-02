@@ -120,7 +120,7 @@ namespace System
 
     // Read snapshot data from input
     $rawdata = file_get_contents('php://input');
-    if ($rawdata === '' || $rawdata === '0' || $rawdata === false)
+    if (empty($rawdata))
     {
         $errmsg = "SNAPSHOT Data NOT found!";
         $LogWriter->logError($errmsg);

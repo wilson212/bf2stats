@@ -76,9 +76,9 @@ def enable():
 
 	host.registerHandler('PlayerConnect', onPlayerConnect, 1)
 
-	#host.registerHandler('DeployGrapplingHook', onDeployGrapplingHook)
-	#host.registerHandler('DeployZipLine', onDeployZipLine)
-	#host.registerHandler('DeployTactical', onDeployTactical)
+	host.registerHandler('DeployGrapplingHook', onDeployGrapplingHook)
+	host.registerHandler('DeployZipLine', onDeployZipLine)
+	host.registerHandler('DeployTactical', onDeployTactical)
 	
 	# Connect already connected players if reinitializing
 	for p in bf2.playerManager.getPlayers():
@@ -180,6 +180,7 @@ def onGameStatusChanged(status):
 def getPosStr(orgPos):
 	worldSize = bf2.gameLogic.getWorldSize();
 	scale = [512.0 / worldSize[0], 1, 512.0 / worldSize[1]]
+#	scale = [1, 1, 1]
 	pos = [orgPos[0] * scale[0], orgPos[1] * scale[1], orgPos[2] * scale[2]]
 	res = str(fpformat.fix(pos[0], 3)) + "," + str(fpformat.fix(pos[1], 3)) + "," + str(fpformat.fix(pos[2], 3))
 	return res
@@ -239,7 +240,6 @@ def onDeployTactical(player):
 #*********************************************************
 #*********************************************************
 #*********************************************************
-
 def onEnterVehicle(player, vehicle, freeSoldier = False):
 	if player == None: return
 	rootVehicle = bf2.objectManager.getRootParent(vehicle)

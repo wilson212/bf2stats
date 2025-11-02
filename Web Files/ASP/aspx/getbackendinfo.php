@@ -33,6 +33,20 @@ defined("BF2_ADMIN") || die("No Direct Access");
 // Connect to the database
 $connection = Database::GetConnection("stats");
 
+$isRanked = false;
+if (Request::IsLocalHost())
+{
+    $serverIp = $_SERVER['SERVER_ADDR'];
+    $stmt = $connection->query("SELECT EXISTS(SELECT * FROM `stats_provider_auth_ip` WHERE `address` IN ('{$serverIp}', '127.0.0.1', '::1') LIMIT 1)", \PDO::FETCH_NUM);
+    $isRanked = $stmt->fetch()[0] == '1';
+}
+else
+{
+    $ipAddr = Request::ClientIp();
+    $stmt = $connection->query("SELECT EXISTS(SELECT * FROM `stats_provider_auth_ip` WHERE `address`='{$ipAddr}' LIMIT 1)", \PDO::FETCH_NUM);
+    $isRanked = $stmt->fetch()[0] == '1';
+}
+
 // Check file cache for cached response?
 $item = null;
 $expireTime = Config::Get('stats_aspx_cache_time');
@@ -40,7 +54,7 @@ if ($expireTime > 0)
 {
     // Fetch cached response
     $cache = CacheManager::GetInstance('FileCache');
-    $item = $cache->getItem('getbackendinfo.aspx');
+    $item = $cache->getItem("getbackendinfo{$isRanked}.aspx");
     $response = $item->get();
 
     // Check if response is empty (expired)
@@ -54,10 +68,6 @@ if ($expireTime > 0)
 
 // Prepare response
 $Response = new AspResponse();
-
-$ipAddr = Request::ClientIp();
-$stmt = $connection->query("SELECT EXISTS(SELECT * FROM `stats_provider_auth_ip` WHERE `address`='{$ipAddr}' LIMIT 1)", \PDO::FETCH_NUM);
-$isRanked = $stmt->fetch()[0] == '1';
 
 if ($isRanked)
 {

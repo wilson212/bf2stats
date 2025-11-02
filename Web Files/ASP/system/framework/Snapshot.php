@@ -962,7 +962,17 @@ class Snapshot extends GameResult
                 $valid = true;
                 break;
             }
-        }
+
+            // allow localhost "alias"
+            if ($row['address'] == "127.0.0.1" || $row['address'] == "::1")
+            {
+                if ($this->serverIp == $_SERVER['SERVER_ADDR'])
+                {
+                    $valid = true;
+                    break;
+                }
+            }
+        } 
 
         // Is this a valid server IP?
         if (!$valid)

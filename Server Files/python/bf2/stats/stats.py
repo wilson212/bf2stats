@@ -4,27 +4,6 @@ import fpformat
 from constants import *
 from bf2 import g_debug
 
-#omero, 2006-04-13
-from bf2.BF2StatisticsConfig import pm_ai_player_addr, debug_fraglog_enable, stats_ai_score_mod_enable, stats_ai_score_multiplier
-
-#omero, 2006-04-13
-#assign the bots an ip
-def fixPlayerAddress(player):
-	if player.isAIPlayer():
-		return pm_ai_player_addr
-	else:
-		return player.getAddress()
-
-
-#omero, 2006-05-01
-#borrowed from fragalizer_log.py module	
-def getPosStr(orgPos):
-	worldSize = bf2.gameLogic.getWorldSize();
-	scale = [512.0 / worldSize[0], 1, 512.0 / worldSize[1]]
-	pos = [orgPos[0] * scale[0], orgPos[1] * scale[1], orgPos[2] * scale[2]]
-	res = str(fpformat.fix(pos[0], 3)) + "," + str(fpformat.fix(pos[1], 3)) + "," + str(fpformat.fix(pos[2], 3))
-	return res
-
 
 	
 roundArmies = [None, None, None]
@@ -48,6 +27,7 @@ def setPlayerConnectionOrderIterator(value):
 	playerConnectionOrderIterator = value
 
 
+
 sessionPlayerStatsMap = {}
 def getStatsMap():
 	global sessionPlayerStatsMap
@@ -66,7 +46,7 @@ def init():
 
 	host.registerGameStatusHandler(onGameStatusChanged)
 	
-	print "Persistant stats module initialized."
+	if g_debug: print "Persistant stats module initialized."
 	
 	
 
@@ -84,10 +64,10 @@ def onGameStatusChanged(status):
 		print "Reset orderiterator to %d based on highest pid kept" % playerConnectionOrderIterator
 
 		# Reconnect players
-		if len(sessionPlayerStatsMap) == 0:
-			print "Reloading players"
-			for p in bf2.playerManager.getPlayers():
-				onPlayerConnect(p)
+		#if len(sessionPlayerStatsMap) == 0:
+			#print("Reloading players");
+		for p in bf2.playerManager.getPlayers():
+			onPlayerConnect(p)
 	
 		global army
 		roundArmies[1] = getArmy(bf2.gameLogic.getTeamName(1))
@@ -107,10 +87,10 @@ def onGameStatusChanged(status):
 		host.registerHandler('PlayerBanned', onPlayerBanned)
 		host.registerHandler('PlayerKicked', onPlayerKicked)
 		host.registerHandler('PlayerSpawn', onPlayerSpawn)
-		#host.registerHandler('DeployGrapplingHook', onDeployGrapplingHook)
-		#host.registerHandler('DeployZipLine', onDeployZipLine)
-		#host.registerHandler('DeployTactical', onDeployTactical)
-		
+		host.registerHandler('DeployGrapplingHook', onDeployGrapplingHook)
+		host.registerHandler('DeployZipLine', onDeployZipLine)
+		host.registerHandler('DeployTactical', onDeployTactical)
+
 		for s in sessionPlayerStatsMap.itervalues():
 			s.reset()
 
@@ -123,8 +103,6 @@ def onGameStatusChanged(status):
 		# stats have all been cleared enable next end of round stats
 		setSendEndOfRoundStats( True )
 
-# Added by Chump - for fragalyzer
-		if debug_fraglog_enable: bf2.stats.fragalyzer_log.enable()
 
 	elif status == bf2.GameStatus.EndGame:
 
@@ -138,15 +116,19 @@ def onGameStatusChanged(status):
 			# show end-of-round information
 			setSendEndOfRoundStats( False )
 			bf2.stats.endofround.invoke()
-		
-# Added by Chump - for bf2statistics stats
+
 		# if not ranked, clean out stats vectors
-		#if not host.ss_getParam('ranked'):
-		#	playerConnectionOrderIterator = 0
-		#	sessionPlayerStatsMap.clear()
+		if not host.ss_getParam('ranked'):
+			playerConnectionOrderIterator = 0
+			sessionPlayerStatsMap.clear()
+			if( (host.ss_getParam('gameMode') == "gpm_coop") or (host.ss_getParam('gameMode') == "sp1") ):
+   					for p in bf2.playerManager.getPlayers():
+   						if not p.isAIPlayer():
+   							onPlayerConnect(p)
 
 
-
+	
+	
 def onReset(data):
 	for s in sessionPlayerStatsMap.itervalues():
 		s.reset()
@@ -154,9 +136,9 @@ def onReset(data):
 	for p in bf2.playerManager.getPlayers():
 		p.stats.reinit(p)
 		p.stats.wasHereAtStart = 1
-
-
-
+	
+	
+	
 class PlayerStat: 
 	def __init__(self, player):
 		self.profileId = player.getProfileId()
@@ -170,9 +152,7 @@ class PlayerStat:
 
 	def reinit(self, player):
 		self.name = player.getName()
-		#omero, 2006-04-13
-		#self.ipaddr = player.getAddress()
-		self.ipaddr = fixPlayerAddress(player)
+		self.ipaddr = player.getAddress()
 		self.localScore = player.score		
 	
 	def reset(self):
@@ -245,6 +225,8 @@ class PlayerStat:
 			self.timeAsArmy[a] = 0
 			
 		self.currentWeaponType = NUM_WEAPON_TYPES
+		self.lastWeaponType = NUM_WEAPON_TYPES
+		self.lastVehicleType = NUM_VEHICLE_TYPES
 
 	def __getattr__(self, name):
 		if name in self.__dict__: return self.__dict__[name]
@@ -281,8 +263,7 @@ class PlayerStat:
 	# when same player rejoins server
 	def reconnect(self, player):
 		self.connectAt = date()
-		#self.ipaddr = player.getAddress()
-		self.ipaddr = fixPlayerAddress(player)
+		self.ipaddr = player.getAddress()
 		
 		bf2.playerManager.disableScoreEvents()
 		
@@ -305,15 +286,6 @@ class PlayerStat:
 		
 	# calculate final stats values for this player (disconnected or end of round)
 	def finalize(self, player):
-	
-		###	Ai Score Modifier By Wilson212	###
-		if stats_ai_score_mod_enable == 1:
-			if g_debug: print "Ai Score Multiplier Enabled. Setting mulitplier at ", stats_ai_score_multiplier
-		else:
-			if g_debug: print "Ai Score Multiplier Disabled, No score adjustments made"
-		
-		## END SCORE MODIFIER SCRIPT ##
-	
 		self.copyPlayerData(player)
 		
 		if self.currentWeaponType != NUM_WEAPON_TYPES:
@@ -324,10 +296,8 @@ class PlayerStat:
 		stopInSquad(player)
 		stopAsSql(player)
 		stopAsCmd(player)
-
-# Added by Chump - for bf2statistics stats
-		#if self.wasHereAtStart == 1 and self.wasHereAtEnd == 1:
-		if self.wasHereAtEnd == 1:
+		
+		if self.wasHereAtStart == 1 and self.wasHereAtEnd == 1:
 			self.complete = 1
 			
 		# sum up vehicles & kits
@@ -341,28 +311,13 @@ class PlayerStat:
 		for v in player.stats.weapons.itervalues():
 			if v.enterAt != 0: v.exit(player)
 					
-	# copy data to player-stats, as player might not be available after this
+	# copy data to player-stats, as player might not be awailable after this
 	def copyPlayerData(self, player):
 		self.timeOnLine += date() - self.connectAt
-		
-		#############################################
-		# 		Ai Score Modifier By Wilson212		#
-		#############################################
-		
-		### If we have Bot double score enabled ###
-		if stats_ai_score_mod_enable == 1:		
-			if player.isAIPlayer():
-				if g_debug: print "Player %s is a BOT, multiplying Score. Old score = %d" % (player.getName(), player.score.score)					
-				player.score.score = (player.score.score * stats_ai_score_multiplier)
-				if g_debug: print "New score for %s = %d applied." % (player.getName(), player.score.score)					
-			else:
-				if g_debug: print "Player is Human, score untouched"
-		
-		### End Bot Score Doubling ###
 
 		self.localScore = player.score
 		
-		self.score 		= player.score.score
+		self.score 	= player.score.score
 		self.cmdScore 	= player.score.cmdScore	
 		self.teamScore 	= player.score.rplScore
 		self.skillScore = player.score.skillScore
@@ -372,23 +327,22 @@ class PlayerStat:
 		if self.teamScore < 0: 	self.teamScore = 0
 		if self.skillScore < 0: self.skillScore = 0
 				
-		self.kills 		= player.score.kills
+		self.kills 	= player.score.kills
 		self.teamkills 	= player.score.TKs
 		self.deaths 	= player.score.deaths
 
 		self.rank = player.score.rank
 		self.army = roundArmies[player.getTeam()]
 		self.team = player.getTeam()
-
-# Added by Chump - for bf2statistics stats (plus de-indenting)
-		#if host.ss_getParam('ranked'):
-		if hasattr(player, 'medals'):
-			self.medals = player.medals
-		else:
-			if g_debug: print "Player had no medal stats. pid=", player.index
+		
+		if host.ss_getParam('ranked'):
+			if hasattr(player, 'medals'):
+				self.medals = player.medals
+			else:
+				if g_debug: print "Player had no medal stats. pid=", player.index
 
 			
-
+	
 class ObjectStat: 
 	def __init__(self, type):
 		self.reset()
@@ -407,13 +361,12 @@ class ObjectStat:
 		self.bulletsHit = 0
 		self.bulletsHitTemp = 0
 		self.enterAt = 0
-		self.enterScore = 0
+		self.enterScore = 0	
 		self.deployed = 0
 		
 	def enter(self, player):
 		self.enterAt = date()
 		self.enterScore = player.score.score
-		if g_debug: print "STATS ObjectStat: %s Enter type=%s --- enterAt:%s score:%d" % (player.getName(), self.type, self.enterAt, self.enterScore) 
 	
 	def exit(self, player):
 		if self.enterAt == 0: return
@@ -421,8 +374,7 @@ class ObjectStat:
 		self.enterAt = 0
 		
 		self.score += player.score.score - self.enterScore
-		self.enterScore = 0
-		if g_debug: print "STATS ObjectStat: %s Exit type=%s --- timeInObject:%s score:%d" % (player.getName(), self.type, time, self.score) 
+		self.enterScore = 0 
 		
 	def __getattr__(self, name):
 		if name in self.__dict__: return self.__dict__[name]
@@ -501,13 +453,13 @@ def onPlayerConnect(player):
 	connectingProfileId = player.getProfileId()
 	for stats in sessionPlayerStatsMap.itervalues():
 		if connectingProfileId > 0 and connectingProfileId == stats.profileId:
-			print "Found old player record, profileId ", str(stats.profileId)
+			print "Found old player record, profileId ", stats.profileId
 			player.stats = stats
 			player.stats.reconnect(player)
 	
 	if not player.stats:
 	
-		print "Creating new record for player profileId ", str(connectingProfileId)
+		print "Creating new record for player profileId ", connectingProfileId
 		
 		# add stats record
 		global playerConnectionOrderIterator
@@ -517,7 +469,7 @@ def onPlayerConnect(player):
 		
 		sessionPlayerStatsMap[id] = newPlayerStats
 		player.stats = sessionPlayerStatsMap[id]
-		
+			
 		player.stats.connectionOrderNr = playerConnectionOrderIterator
 		playerConnectionOrderIterator += 1
 		
@@ -529,27 +481,28 @@ def onPlayerDisconnect(player):
 	finalizePlayer(player)
 
 
+
 #*********************************************************
 #  XPACK SPECIFIC
 #*********************************************************
 def onDeployGrapplingHook(player):
 	if player == None: return
 	
-	if g_debug: print "STATS.py:  Deployed Grappling hook"
+	if g_debug: print "PYTHONSCRIPT:  Deployed Grappling hook"
 	player.stats.weapons[WEAPON_TYPE_GRAPPLINGHOOK].deployed += 1
 	return
 	
 def onDeployZipLine(player):
 	if player == None: return
 	
-	if g_debug: print "STATS.py:  Deployed Zipline"
+	if g_debug: print "PYTHONSCRIPT:  Deployed Zipline"
 	player.stats.weapons[WEAPON_TYPE_ZIPLINE].deployed += 1
 	return
 	
 def onDeployTactical(player):
 	if player == None: return
 	
-	if g_debug: print "STATS.py:  Deployed Tactical"
+	if g_debug: print "PYTHONSCRIPT:  Deployed Tactical"
 	player.stats.weapons[WEAPON_TYPE_TACTICAL].deployed += 1
 	return
 	
@@ -560,13 +513,12 @@ def onDeployTactical(player):
 def onEnterVehicle(player, vehicle, freeSoldier = False):
 
 	if player == None: return
-	
+
 	vehicleType = getVehicleType(vehicle.templateName)
 	if vehicleType != VEHICLE_TYPE_SOLDIER:
 		rootVehicle = bf2.objectManager.getRootParent(vehicle)
 		vehicleType = getVehicleType(rootVehicle.templateName)
-	else:
-		rootVehicle = vehicle
+	else: rootVehicle = vehicle
 	
 	if vehicleType != VEHICLE_TYPE_SOLDIER:
 		for w in player.stats.weapons.itervalues():
@@ -590,9 +542,8 @@ def onEnterVehicle(player, vehicle, freeSoldier = False):
 	
 	collectBulletsFired(player)
 	
-	if g_debug: 		
-		pos = getPosStr(vehicle.getPosition())
-		print "STATS onEnterVehicle:  Enter vehicle=%s type=%s Pos=%s" % ( rootVehicle.templateName, vehicleType, pos )
+
+
 
 def onExitVehicle(player, vehicle):
 	
@@ -620,13 +571,10 @@ def onExitVehicle(player, vehicle):
 
 	collectBulletsFired(player)
 	
-	pos = getPosStr(vehicle.getPosition())
-	if g_debug: print "STATS onExitVehicle:  Exit vehicle=%s type=%s Pos=%s" % ( rootVehicle.templateName, vehicleType, pos ) 
 
 
 def onPlayerSpawn(player, soldier):
-	if g_debug: print "STATS onPlayerSpawn %s" % ( player.getName() )
-	
+
 	startSpawned(player)
 	if player.getSquadId() != 0: startInSquad(player)
 	if player.isSquadLeader(): startAsSql(player)		
@@ -634,17 +582,15 @@ def onPlayerSpawn(player, soldier):
 
 	onEnterVehicle(player, soldier)
 	player.soldier = soldier
+		
 	
-	
-def onPickupKit(player, kit):
-	if g_debug: print "STATS onPickupKit %s kit=%s " % ( player.getName(), kit.templateName )
 
+def onPickupKit(player, kit):
 	kitType = getKitType(kit.templateName)
 
 	if not kitType in player.stats.kits:
 		player.stats.kits[kitType] = KitStat()
 
-	if g_debug: print "STATS onPickupKit %s triggering --> player.stats.kits[kitType].enter(player)" % ( player.getName() )
 	player.stats.kits[kitType].enter(player)
 	player.stats.lastKitType = kitType
 	
@@ -655,11 +601,7 @@ def onPickupKit(player, kit):
 
 	
 def onDropKit(player, kit):
-	if g_debug: print "STATS onDropKit %s kit=%s " % ( player.getName(), kit.templateName )
-	
 	kitType = getKitType(kit.templateName)
-	
-	if g_debug: print "STATS onDropKit %s triggering --> player.stats.kits[kitType].exit(player)" % ( player.getName() )
 	player.stats.kits[kitType].exit(player)
 	
 	for w in player.stats.weapons.itervalues():
@@ -670,24 +612,19 @@ def onDropKit(player, kit):
 
 
 def onPlayerChangeWeapon(player, oldWeapon, newWeapon):
-	if g_debug: print "STATS onPlayerChangeWeapon %s " % ( player.getName() )
-	
 	if oldWeapon:
 		oldWeaponType = getWeaponType(oldWeapon.templateName)
-		
-		if g_debug: print "STATS onPlayerChangeWeapon %s oldWeapon=%s triggering --> player.stats.weapons[oldWeaponType].exit(player) " % ( player.getName(), oldWeapon.templateName )
 		player.stats.weapons[oldWeaponType].exit(player)
 		
 	if newWeapon:
 		newWeaponType = getWeaponType(newWeapon.templateName)
-		
-		if g_debug: print "STATS onPlayerChangeWeapon %s newWeapon=%s triggering --> player.stats.weapons[newWeaponType].exit(player) " % ( player.getName(), newWeapon.templateName )
 		player.stats.weapons[newWeaponType].enter(player)
 		player.stats.lastWeaponType = newWeaponType
 
 		
 
 def onPlayerKilled(victim, attacker, weapon, assists, object):
+
 	# check if killed by vehicle in motion
 	killedByEmptyVehicle = False
 	if attacker == None and weapon == None and object != None:
@@ -695,83 +632,9 @@ def onPlayerKilled(victim, attacker, weapon, assists, object):
 			attacker = bf2.playerManager.getPlayerByIndex(object.lastDrivingPlayerIndex)
 			killedByEmptyVehicle = True
 
-	#omero,2006-05-01
-	#known informations
-	#This is only for debug info, so lets not do anything unless
-	#  we are actually debugging. ;)
-	if g_debug:
-		vctm_name=victim.getName()
-		vctm_vehv=victim.getVehicle()
-		vctm_veht=getVehicleType(vctm_vehv.templateName)
-		if vctm_veht != VEHICLE_TYPE_SOLDIER:
-			vctm_vehr=bf2.objectManager.getRootParent(vctm_vehv)
-			vctm_vehn=str(vctm_vehr.templateName)
-			vctm_veht=getVehicleType(vctm_vehn)
-		else:
-			vctm_vehr=vctm_vehv
-			vctm_vehn=str(vctm_vehr.templateName)
-			vctm_veht=getVehicleType(vctm_vehn)
-	
-		atkr_name='None'
-		atkr_vehn='None'
-		atkr_veht='None'
-		if attacker and not killedByEmptyVehicle:
-			atkr_name=attacker.getName()
-			atkr_vehv=attacker.getVehicle()
-			atkr_veht=getVehicleType(atkr_vehv.templateName)
-			if atkr_veht != VEHICLE_TYPE_SOLDIER:
-				atkr_vehr=bf2.objectManager.getRootParent(atkr_vehv)
-				atkr_vehn=str(atkr_vehr.templateName)
-				atkr_veht=getVehicleType(atkr_vehn)
-			else:
-				atkr_vehr=atkr_vehv
-				atkr_vehn=str(atkr_vehr.templateName)
-				atkr_veht=getVehicleType(atkr_vehn)
-		
-		if attacker and killedByEmptyVehicle:
-			atkr_name=attacker.getName()
-			atkr_vehn=object.templateName
-			atkr_veht=getVehicleType(atkr_vehn)
-			
-			
-		if attacker == None and object != None:
-			if g_debug: print "STATS onPlayerKilled %s (maybe) killed by ARTILLERY" % ( victim.getName() )
-		
-		if attacker == None and weapon == None and object != None:
-			if g_debug: print "STATS onPlayerKilled %s (maybe) killed by EMPTYMOVINGVEHICLE" % ( victim.getName() )
-	
-		
-		if victim and attacker:
-			if victim.getName() == attacker.getName():
-				if g_debug: print "STATS onPlayerKilled %s killed by SUICIDE!" % ( victim.getName() )
-	
-			if victim.getTeam() == attacker.getTeam():
-				if g_debug: print "STATS onPlayerKilled %s killed by MATES!" % ( victim.getName() )
-		
-		
-		if weapon == None and object != None:
-			if g_debug: print "STATS onPlayerKilled no weapon but object=" + object.templateName
-						
-		if weapon:
-			if g_debug: print "STATS onPlayerKilled weapon=%s" %( weapon.templateName )
-	
-		if object:
-			if g_debug: print "STATS onPlayerKilled object=%s" % ( object.templateName )
-		
-		wepn_name='None'
-		if weapon:
-			wepn_name=weapon.templateName
-		
-		elif object:
-			wepn_name=object.templateName
-		
-		else:
-			if g_debug: print "STATS onPlayerKilled no weapon nor object"
-
-			
 	# killed by enemy
 	if attacker != None:
-	
+
 		# no kill stats for teamkills / suicides!
 		if attacker.getTeam() != victim.getTeam():
 	
@@ -797,13 +660,13 @@ def onPlayerKilled(victim, attacker, weapon, assists, object):
 			# weapon stats
 			if weapon != None:
 				weaponType = getWeaponType(weapon.templateName)
-				
+	
 				if attacker != None:
 					attacker.stats.weapons[weaponType].kills += 1
 
 				if victim != None:
 					victim.stats.weapons[weaponType].killedBy += 1
-					
+			
 			# vehicle stats
 			vehicleType = None
 			if killedByEmptyVehicle:
@@ -842,9 +705,6 @@ def onPlayerKilled(victim, attacker, weapon, assists, object):
 				attacker.stats.kits[kitType].kills += 1
 	
 	# death stats are handled in onPlayerDeath.
-	
-	#omero, 2006-05-01
-	if g_debug: print "STATS onPlayerKilled vctm=%s atkr=%s wepn=%s atkr_vehn=%s atkr_veht=%s" % ( vctm_name, atkr_name, wepn_name, atkr_vehn, atkr_veht )
 
 	collectBulletsFired(attacker)
 
@@ -855,15 +715,12 @@ def onPlayerDeath(victim, vehicle):
 	# vehicle is already exited, as this happens before actual death. That doesnt stop us from dying in it.
 	rootVehicle = bf2.objectManager.getRootParent(vehicle)
 	vehicleType = getVehicleType(rootVehicle.templateName)
-	
-	if g_debug: print "STATS onPlayerDeath %s rootVehicle=%s" % ( victim.getName(), rootVehicle.templateName )
 
 	stopSpawned(victim)
 	stopInSquad(victim)
 	stopAsSql(victim)
 	stopAsCmd(victim)
 		
-	if g_debug: print "STATS onPlayerDeath %s triggering ---> onExitVehicle(victim, victim.soldier)" % ( victim.getName() )
 	onExitVehicle(victim, victim.soldier)
 	finalizeBulletsFired(victim)
 	clearBulletsFired(victim)
@@ -942,10 +799,6 @@ def collectBulletsFired(player):
 
 
 def clearBulletsFired(player):
-
-# Added by Chump - for fragalyzer
-	#bf2.stats.fragalyzer_log.dumpAccuracy(player)
-
 	bulletsFired = player.score.bulletsFiredAndClear
 	bulletsHit = player.score.bulletsGivingDamageAndClear
 
@@ -975,7 +828,6 @@ def finalizeBulletsFired(player):
 def startSpawned(player): 
 	player.stats.spawnedAt = date()
 	player.stats.spawnedTeam = player.getTeam()
-	
 def startInSquad(player): player.stats.joinedSquadAt = date()
 def startAsSql(player): player.stats.becameSqlAt = date()
 def startAsCmd(player): player.stats.becameCmdAt = date()
@@ -986,53 +838,31 @@ def stopSpawned(player):
 	time = player.stats.timePlayed
 	player.stats.spawnedAt = 0
 	player.stats.spawnedTeam = 3
-
 def stopInSquad(player): 
 	time = player.stats.timeInSquad
 	player.stats.joinedSquadAt = 0
-
 def stopAsSql(player): 
 	time = player.stats.timeAsSql
 	player.stats.becameSqlAt = 0
-
 def stopAsCmd(player): 
 	time = player.stats.timeAsCmd
 	player.stats.becameCmdAt = 0
 	
 	
+	
 def onChangedCommander(team, oldCmd, newCmd):
 	if newCmd and newCmd.stats.spawnedAt != 0: startAsCmd(newCmd)
 	if oldCmd: stopAsCmd(oldCmd)
-	
-	if g_debug: print "STATS onChangeCommander team=%s oldCmd=%s newCmd=%s" % ( team, oldCmd.getName(), newCmd.getName() )
 
+
+	
 def onChangedSquadLeader(squad, oldSql, newSql):
 	if newSql and newSql.stats.spawnedAt != 0: startAsSql(newSql)
 	if oldSql: stopAsSql(oldSql)
-	
-	#This is only for debug info, so lets not do anything unless
-	#  we are actually debugging. ;)
-	if g_debug:
-		osql_name = 'None'
-		oteam = 'None'
-		nsql_name = 'None'
-		nteam = 'None'
-	
-		if oldSql != None:
-			osql_name = oldSql.getName()
-			oteam = oldSql.getTeam()
-		
-		if newSql != None:
-			nsql_name = newSql.getName()
-			nteam = newSql.getTeam()
-		
-		if g_debug: print "STATS onChangeSquadLeader squad=%s oteam=%s oldSql=%s nteam=%s newSql=%s" % ( squad, oteam, osql_name, nteam, nsql_name )
+
 
 	
 def onPlayerChangedSquad(player, oldSquad, newSquad):
-
-	if g_debug: print "STATS onChangeSquad %s oldSqd=%s newSqd=%s" % ( player.getName(), oldSquad, newSquad )
-	
 	if oldSquad == newSquad:
 		return
 
@@ -1049,7 +879,7 @@ def onPlayerChangedSquad(player, oldSquad, newSquad):
 def onPlayerBanned(player, time, type):
 	
 	# dont count round bans
-	if type == 2: return
+	if type == 2: return 
 	
 	player.stats.timesBanned += 1
 	

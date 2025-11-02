@@ -1,14 +1,5 @@
 
 import host
-import string
-from time import time
-from bf2 import g_debug
-
-
-# Import Config Data
-from bf2.BF2StatisticsConfig import http_backend_addr, http_backend_port, pm_backend_pid_manager, pm_local_pid_txt_file
-# Use MiniClient
-from bf2.stats.miniclient import miniclient, http_get
 
 # ingame scoremanager link
 ingameScores = ('deaths','kills','TKs','score','skillScore','rplScore','cmdScore','fracScore','rank','firstPlace','secondPlace','thirdPlace',
@@ -66,12 +57,8 @@ class PlayerScore:
 
 class Player:
 	def __init__(self, index):
-		print "Player Manager module initialized"
 		self.index = index
 		self.score = PlayerScore(index)
-		self.profileid = 0
-		self.GlobalUpdateTime = 0
-				
 
 	def isValid(self): return host.pmgr_isIndexValid(self.index)
 	def isRemote(self): return host.pmgr_p_get("remote", self.index)
@@ -79,83 +66,7 @@ class Player:
 	def isAlive(self): return host.pmgr_p_get("alive", self.index)
 	def isManDown(self): return host.pmgr_p_get("mandown", self.index)
 	def isConnected(self): return host.pmgr_p_get("connected", self.index)
-
-
-# Added by Chump - for bf2statistics stats
-# ------------------------------------------------------------------------------
-# omero 2006-03-31
-# ------------------------------------------------------------------------------
-# using pm_local_pid_txt_file imported from BF2StatisticsConfig module
-# for reading Nick/pID mappings.
-# ------------------------------------------------------------------------------
-# omero, 2006-04-13
-# ------------------------------------------------------------------------------
-# todo:
-#
-# try:
-# 	<get highest pid from db> via some gethighestpid.aspx
-#		<parse response from backend>
-#		<assign new pid>
-#	exept:
-#		<raise failure exception>
-#
-# the above method will have the advantage of not relying on a text file.
-# must provide a pid_base_value if db's player table is empty.
-# ------------------------------------------------------------------------------
-	def getProfileId(self):
-		pid = self.profileid
-		if not host.pmgr_p_get("ai", self.index) and pid == 0:	# Don't bother doing this if player is 'bot
-			pid = int(host.pmgr_p_get("profileid", self.index))
-			self.profileid = pid
-		
-		if pid == 0:
-			if pm_backend_pid_manager == 1:	# Try Backend playerID first - idea by ArmEagle
-				if g_debug: print "Retrieving Profile ID (%s) via HTTP/1.1 miniclient" % str(host.pmgr_p_get("name", self.index))
-				
-				# URL for retrieving player ID via internal miniclient
-				player_nick = string.replace(str(host.pmgr_p_get("name", self.index)), ' ', '%20')
-				asp_playerid = '/ASP/getplayerid.aspx?nick=' + player_nick
-				if g_debug: print "URI: %s" % (asp_playerid)
-				
-				# Fetch Data
-				data = http_get( http_backend_addr, http_backend_port, asp_playerid )
-				
-				if data and data[0] == 'O':
-					if g_debug: print "Received PID data is VALID, length %d" % int(len(data))
-					datalines = data.splitlines()
-					pidval = datalines[2].split('\t')
-					pid = int(pidval[1])
-				else:
-					print "Received PID data is INVALID, length %d" % int(len(data))
-			
-			# Use PID.TXT to find PlayerID
-			if pid == 0:	# Backend check is disabled or failed
-				if g_debug: print "Retrieving Profile ID (%s) via PID file" % str(host.pmgr_p_get("name", self.index))
-				try:
-					fh = file(pm_local_pid_txt_file, 'rb')
-					line = fh.readlines()
-					fh.close()
-					count = 0
-					while count < len(line):
-						if line[count].rstrip() == host.pmgr_p_get("name", self.index):
-							pid = int(line[count + 1].rstrip())
-							break
-						count += 2
-					# create a new PID - idea by FiberLetalis
-					if pid == 0:
-						if g_debug: print "New player, creating Profile ID..."
-						new_pid = int(line[count - 1].rstrip()) + 1
-						fh = file(pm_local_pid_txt_file, 'ab')
-						fh.write('\r\n' + host.pmgr_p_get("name", self.index) + '\r\n' + str(new_pid))
-						fh.close()
-						pid = new_pid
-				except IOError:
-					print 'PID file not found!'
-			
-			self.profileid = pid
-			return pid
-		else:
-			return pid
+	def getProfileId(self): return host.pmgr_p_get("profileid", self.index)
 
 	def isFlagHolder(self): return host.pmgr_p_get("fholder", self.index)
 
@@ -188,12 +99,6 @@ class Player:
 	
 	def setIsInsideCP(self, val): return host.pmgr_p_set("isInsideCP", self.index, val)
 	def getIsInsideCP(self): return host.pmgr_p_get("isInsideCP", self.index)
-	
-	# Functions used to stop STATS "update storm"
-	def setGlobalUpdateTime(self): 
-		self.GlobalUpdateTime = time()
-		return self.GlobalUpdateTime
-	def getGlobalUpdateTime(self): return (time() - self.GlobalUpdateTime)
 	
 class PlayerManager:
 	def __init__(self):

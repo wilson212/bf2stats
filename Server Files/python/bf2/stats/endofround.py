@@ -8,17 +8,9 @@ from bf2.stats.stats import getStatsMap
 
 
 def init():
-	host.registerHandler('ConsoleSendCommand', onSendCommand)
 	if g_debug: print "End of round module initialized."
 
 
-def onSendCommand(command, args):
-	#if g_debug: print "command:", command, " args:", args
-	if string.lower(command) == "eor":
-		for p in bf2.playerManager.getPlayers():
-			bf2.stats.stats.finalizePlayer(p)
-
-		invoke()
 
 def invoke():
 	if g_debug: print "Invoked end-of-round data-send"

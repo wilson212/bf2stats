@@ -67,6 +67,4 @@ class ServerSettings:
 	def getUseGlobalRank(self): return host.ss_getParam('globRank')
 	def getUseGlobalUnlocks(self): return host.ss_getParam('globUnlocks')
 	
-	def getServerConfig(self, variableName):
-		return host.rcon_invoke(variableName).strip()
 	

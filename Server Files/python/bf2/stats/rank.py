@@ -3,58 +3,21 @@
 import host
 import bf2.PlayerManager
 import bf2.Timer
-from bf2.stats.constants import *
+from constants import *
 from bf2 import g_debug
 
 
 
 def init():
-	# Events
-	host.registerHandler('ConsoleSendCommand', onSendCommand)
-
 	if bf2.serverSettings.getUseGlobalRank():
 		host.registerHandler('PlayerConnect', onPlayerConnect, 1)
 		host.registerHandler('PlayerStatsResponse', onStatsResponse, 1)
-
-	host.registerGameStatusHandler(onGameStatusChanged)
 	
 	# Connect already connected players if reinitializing
 	for p in bf2.playerManager.getPlayers():
 		onPlayerConnect(p)
 
 	if g_debug: print "Rank module initialized"
-
-		
-def onSendCommand(command, args):
-	if command == "giverank":
-		pId = int(args[0])
-		rank = int(args[1])
-		
-		player = bf2.playerManager.getPlayerByIndex(pId)
-		awardRank(player, rank)
-	
-	#jlo: temp for laedre! remove!
-	elif command == "setname":
-		pId = int(args[0])
-		name = args[1]
-		player = bf2.playerManager.getPlayerByIndex(pId)
-		player.setName(name)
-
-def onGameStatusChanged(status):
-	if status == bf2.GameStatus.Playing:
-		#updateTimer = bf2.Timer(onUpdate, 20)
-		#updateTimer.setRecurring(20)
-		pass
-	else:
-		if g_debug: print "Destroyed timer"
-		#updateTimer.destroy()
-
-
-def onUpdate(data):
-	#if g_debug: print "update rank"
-	for p in bf2.playerManager.getPlayers():
-		if p.isAlive():
-			checkRank(p)
 
 
 
@@ -100,13 +63,3 @@ def onStatsResponse(succeeded, player, stats):
 		if g_debug: print "Player %s Rank:%s" % (player.index, int(value))
 		player.score.rank = int(value)
 		player.stats.rank = int(value)
-		
-		
-		
-		
-
-
-
-
-
-

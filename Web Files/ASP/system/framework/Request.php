@@ -292,7 +292,8 @@ class Request
      */
     public static function IsLocalHost()
     {
-        return in_array(Request::ClientIp(), array('127.0.0.1', '::1'));
+        $clientIp = Request::ClientIp();
+        return in_array($clientIp, array('127.0.0.1', '::1')) || $_SERVER['SERVER_ADDR'] == $clientIp;
     }
 
     /**
