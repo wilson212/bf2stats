@@ -56,7 +56,7 @@ class DbConnection extends PDO
                 return true;
             }
 
-            throw e;
+            throw $e;
         }
     }
 
@@ -72,7 +72,7 @@ class DbConnection extends PDO
                 return true;
             }
 
-            throw e;
+            throw $e;
         }
     }
 

@@ -41,4 +41,5 @@ else
 {
     // Do nothing for now
     $Response->writeLine("OK");
+    $Response->send();
 }

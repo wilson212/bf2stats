@@ -34,8 +34,14 @@ class Security
     public static function Login($username, $password): bool
     {
         // Check if the username and password matches the config
-        if ($username == Config::Get('admin_user') && $password == Config::Get('admin_pass'))
+        $configuredPassword = (string)Config::Get('admin_pass');
+        if (is_string($username) && is_string($password)
+            && $configuredPassword !== '' && $configuredPassword !== 'admin'
+            && hash_equals((string)Config::Get('admin_user'), $username)
+            && hash_equals($configuredPassword, $password))
         {
+            session_regenerate_id(true);
+            unset($_SESSION['csrfToken']);
             // Start Session, set session variables
             $_SESSION['adminAuth'] = sha1(Config::Get('admin_user') . ':' . Config::Get('admin_pass'));
             $_SESSION['adminTime'] = time();
@@ -62,12 +68,10 @@ class Security
             return;
         }
 
-        // Reset Session Values
-        $_SESSION['adminAuth'] = '';
-        $_SESSION['adminTime'] = 0;
-
-        // If session exists, un register all variables that exist and destroy session
-        session_destroy();
+        // Retain a fresh anonymous session so the next login form's CSRF token
+        // can be persisted immediately after logout.
+        $_SESSION = [];
+        session_regenerate_id(true);
     }
 
     public static function IsValidSession(): bool
@@ -78,12 +82,13 @@ class Security
         }
 
         // If the password set is wrong
-        if ($_SESSION['adminAuth'] != sha1(Config::Get('admin_user') . ':' . Config::Get('admin_pass'))) {
+        if (!is_string($_SESSION['adminAuth']) || !hash_equals(
+            sha1(Config::Get('admin_user') . ':' . Config::Get('admin_pass')), $_SESSION['adminAuth'])) {
             return false;
         }
 
         // If the session time is expired
-        if ($_SESSION['adminTime'] < time() - (30 * 60)) {
+        if (!isset($_SESSION['adminTime']) || $_SESSION['adminTime'] < time() - (30 * 60)) {
             return false;
         }
 
@@ -103,7 +108,27 @@ class Security
         $hosts = Config::Get('admin_hosts');
         return IPAddress::IsInCIDR($ip, $hosts);
     }
+
+    public static function CsrfToken(): string
+    {
+        if (empty($_SESSION['csrfToken'])) {
+            $_SESSION['csrfToken'] = bin2hex(random_bytes(32));
+        }
+        return $_SESSION['csrfToken'];
+    }
+
+    public static function IsValidCsrfToken($token): bool
+    {
+        return is_string($token) && isset($_SESSION['csrfToken'])
+            && hash_equals($_SESSION['csrfToken'], $token);
+    }
 }
 
-// This sends a persistent cookie that lasts an hour.
-session_start(['cookie_lifetime' => Security::SESSION_COOKIE_LIFETIME]);
+session_start([
+    'use_strict_mode' => true,
+    'use_only_cookies' => true,
+    'cookie_lifetime' => Security::SESSION_COOKIE_LIFETIME,
+    'cookie_httponly' => true,
+    'cookie_secure' => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
+    'cookie_samesite' => 'Strict'
+]);

@@ -77,10 +77,10 @@ else
                 $name = $row['name'];
 
                 // Determine Earned Unlocks due to Rank
-                $totalPlayerUnlockCount = getUnlockCountByRank($rank);
+                $totalPlayerUnlockCount = Unlocks::countByRank($rank);
 
                 // Determine Bonus Unlocks due to Kit Badges
-                $totalPlayerUnlockCount += getBonusUnlockCountByBadges($pid, $rank, $connection);
+                $totalPlayerUnlockCount += Unlocks::countByBadges($pid, $rank, $connection);
 
                 // Player used unlocks
                 $usedCount = 0;
@@ -94,12 +94,14 @@ else
                 }
 
                 // Get all unlock requirements
-                $unlockChecks = new Dictionary();
+                $unlockChecks = [];
                 $result = $connection->query("SELECT `parent_id`, `child_id` FROM `unlock_requirement`");
                 while ($row = $result->fetch())
                 {
-                    $unlockChecks->add($row['parent_id'], $row['child_id']);
+                    $unlockChecks[] = $row;
                 }
+
+                $selected = [];
 
                 // Get players current unlocks
                 $query = "SELECT unlock_id FROM `player_unlock` WHERE `player_id`={$pid} ORDER BY `unlock_id` ASC";
@@ -108,15 +110,18 @@ else
                 {
                     $usedCount++;
                     $unlockStatus[$row['unlock_id']] = 's';
+                    $selected[(int)$row['unlock_id']] = true;
                 }
 
                 // Check unlock requirements
-                foreach ($unlockChecks as $required => $want)
+                foreach ($unlockChecks as $requirement)
                 {
+                    $required = $requirement['parent_id'];
+                    $want = $requirement['child_id'];
                     // Need to remove unlocks that require other unlocks to
                     // be selected, otherwise BF2 will offer the unlock regardless
                     // if the required unlock has been selected
-                    if ($unlockStatus[$required] != 's')
+                    if (!isset($selected[(int)$required]) && !isset($selected[(int)$want]))
                     {
                         $unlockStatus->remove($want);
                     }
@@ -172,97 +177,4 @@ else
             $Response->send();
             break;
     }
-}
-
-/**
- * This method returns the number of unlocks due to rank
- *
- * @param int $rank The players current rank
- *
- * @return int The amount of unlocks due to rank
- */
-function getUnlockCountByRank($rank): int
-{
-    // Determine Earned Unlocks due to Rank
-    if ($rank >= 9)
-    {
-        return 7;
-    }
-    elseif ($rank >= 7)
-    {
-        return 6;
-    }
-    elseif ($rank >= 6)
-    {
-        return 5;
-    }
-    elseif ($rank >= 5)
-    {
-        return 4;
-    }
-    elseif ($rank >= 4)
-    {
-        return 3;
-    }
-    elseif ($rank >= 3)
-    {
-        return 2;
-    }
-    elseif ($rank >= 2)
-    {
-        return 1;
-    }
-    else
-    {
-        return 0;
-    }
-}
-
-/**
- * This method returns the amount of bonus unlocks due to
- * earned badges
- *
- * @param int $pid The player ID
- * @param int $rank The players rank
- * @param DbConnection $connection
- */
-function getBonusUnlockCountByBadges($pid, $rank, $connection): int
-{
-    // Check if Minimum Rank Unlocks obtained
-    if ($rank < Config::Get('game_unlocks_bonus_min')) {
-        return 0;
-    }
-
-    // Are bonus Unlocks available?
-    $level = (int)Config::Get('game_unlocks_bonus');
-    if ($level == 0) {
-        return 0;
-    }
-
-    // Define Kit Badges Array
-    $kitbadges = [
-        1031119,        // Assault
-        1031120,        // Anti-tank
-        1031109,        // Sniper
-        1031115,        // Spec-Ops
-        1031121,        // Support
-        1031105,        // Engineer
-        1031113         // Medic
-    ];
-
-    // Count number of kit badges obtained
-    $checkawds = implode(",", $kitbadges);
-    $query = <<<SQL
--- Using DISTINCT here to ensure we never return more than 7 unlock points based on badges
- -- Without DISTINCT, we'd return up to 14 points ($level = 2 and player has all level 2 + 3 badges)
-SELECT COUNT(DISTINCT `award_id`) AS `count` 
-FROM `player_award` 
-WHERE `player_id` = $pid 
-  AND (
-    `award_id` IN ($checkawds) 
-      AND `level` >= $level
-  );
-SQL;
-
-    return (int)$connection->query($query)->fetchColumn(0);
 }

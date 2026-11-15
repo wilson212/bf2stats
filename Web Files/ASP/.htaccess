@@ -1,3 +1,9 @@
+# Startup warnings occur before PHP can call ini_set(), corrupting GameSpy
+# responses and preventing correct HTTP statuses (for example oversized POSTs).
+<IfModule php_module>
+    php_flag display_errors Off
+</IfModule>
+
 <IfModule mod_rewrite.c>
     Options +FollowSymlinks
 
@@ -6,6 +12,10 @@
 
     # Tell PHP that the mod_rewrite module is ENABLED.
     SetEnv HTTP_MOD_REWRITE On
+
+    # Private data must be denied before the public asset extension allowlist.
+    RewriteRule ^system(?:/|$) - [R=403,L,NC]
+    RewriteRule (^|/)\. - [R=403,L]
 
     # We don't want to pass calls to css, script, and image files to the index,
     # whether they exist or not. So quit right here, and allow direct access

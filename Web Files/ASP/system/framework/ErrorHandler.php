@@ -121,7 +121,7 @@ class ErrorHandler
     /**
      * Logs a detailed and recursive exception to the asp_debug.log file
      */
-    public static function LogException(Exception $e): void
+    public static function LogException(Throwable $e): void
     {
         $log = LogWriter::Instance('Asp');
         if ($log instanceof LogWriter)
@@ -160,7 +160,7 @@ class ErrorHandler
                             $ex::class
                         )
                     );
-                } while ($ex = $e->getPrevious());
+                } while ($ex = $ex->getPrevious());
             }
         }
     }
@@ -178,6 +178,18 @@ class ErrorHandler
      */
     protected static function DisplayError($code, $message, $file, $line, $exception = false)
     {
+        if (!filter_var(ini_get('display_errors'), FILTER_VALIDATE_BOOLEAN)) {
+            error_log("{$message} in {$file}:{$line}");
+            if ($exception instanceof Throwable || in_array($code, [E_ERROR, E_USER_ERROR, E_RECOVERABLE_ERROR], true)) {
+                if (ob_get_length()) {
+                    ob_clean();
+                }
+                http_response_code(500);
+                header('Content-Type: text/plain; charset=utf-8');
+                exit('Internal Server Error');
+            }
+            return;
+        }
         // Clear out the current output buffer
         if (ob_get_length() != 0) {
             ob_clean();
@@ -185,7 +197,7 @@ class ErrorHandler
 
         // Define variables
         $isAjax = Request::IsAjax();
-        $isException = ($exception instanceof Exception);
+        $isException = ($exception instanceof Throwable);
         $level = ($isException) ? $code : self::ErrorLevelToText($code);
 
         // If ajax, then we create a json encoded error

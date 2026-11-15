@@ -66,8 +66,18 @@ class System
         ini_set('zlib.output_compression', '0');
         ini_set("display_errors", "0");
 
+        foreach (array_merge($_GET, $_POST) as $value) {
+            if (!is_scalar($value)) {
+                $response = new AspResponse();
+                $response->responseError(true, 107);
+                $response->writeHeaderLine('asof', 'err');
+                $response->writeDataLine(time(), 'Invalid Syntax!');
+                $response->send();
+            }
+        }
+
         // Check user-agent
-        if (Config::Get('stats_strict_api') == 1 && trim((string) $_SERVER['HTTP_USER_AGENT']) !== "GameSpyHTTP/1.0") {
+        if (Config::Get('stats_strict_api') == 1 && trim((string) ($_SERVER['HTTP_USER_AGENT'] ?? '')) !== "GameSpyHTTP/1.0") {
             header('HTTP/1.1 403 Forbidden');
             echo "<h1>403 Forbidden</h1>";
             echo "You are not authorised to access this page.";
@@ -124,7 +134,7 @@ class System
             /** @noinspection PhpIncludeInspection */
             include $file;
         }
-        catch (Exception $e)
+        catch (\Throwable $e)
         {
             // Create ASP log file instance
             try
@@ -171,12 +181,22 @@ class System
             $_GET['action'] = '';
         }
 
+        // Validate unsafe HTTP methods, including login, before dispatching them.
+        if (!in_array(Request::Method(), ['GET', 'HEAD'], true)
+            && !Security::IsValidCsrfToken($_SERVER['HTTP_X_CSRF_TOKEN'] ?? $_POST['csrf_token'] ?? null))
+        {
+            http_response_code(403);
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'message' => 'Invalid CSRF token. Refresh the page and try again.']);
+            return;
+        }
+
         // Check for login / logout requests
         if ($_POST['action'] == 'login' && isset($_POST['username']) && isset($_POST['password']))
         {
             Security::Login($_POST['username'], $_POST['password']);
         }
-        elseif ($_POST['action'] == 'logout' || $_GET['action'] == 'logout')
+        elseif ($_POST['action'] == 'logout')
         {
             Security::Logout();
         }
@@ -184,27 +204,19 @@ class System
         // Check and see if the user is logged in
         if (!Security::IsValidSession())
         {
-            if ($isLocalHost)
+            // Loopback connections can originate from reverse proxies. Always
+            // require credentials, even when the peer passes the IP allowlist.
+            if (Request::IsAjax())
             {
-                // allow localhost to bypass login
-                Security::Login(Config::Get('admin_user'), Config::Get('admin_pass'));
+                $message = "Login session has expired! Please refresh the page and login again.";
+                echo json_encode(['success' => false, 'message' => $message, 'error' => $message]);
             }
             else
             {
-                // Check for an ajax request, and answer accordingly
-                if (Request::IsAjax())
-                {
-                    // Respond in a commonly expected format for this admin panel and DataTables
-                    $message = "Login session has expired! Please refresh the page and login again.";
-                    echo json_encode(['success' => false, 'message' => $message, 'error' => $message]);
-                }
-                else
-                {
-                    $view = new View('login');
-                    $view->render(false);
-                }
-                return;
+                $view = new View('login');
+                $view->render(false);
             }
+            return;
         }
 
         // Create the required log writer for the ASP
@@ -279,6 +291,12 @@ class System
      */
     public static function LoadModule($name, $action, array $params): void
     {
+        if (!preg_match('/^[a-z][a-z0-9]*$/iD', $name)
+            || !preg_match('/^[a-z][a-z0-9]*$/iD', $action)
+            || strtolower($name) === 'devtest') {
+            http_response_code(404);
+            return;
+        }
         // Process the task by making sure the module exists
         $modNMame = strtolower($name);
         $className = ucfirst($name);
@@ -337,6 +355,14 @@ class System
         // Create a reflection of the controller method
         $method = new ReflectionMethod($controller, $action);
 
+        // Direct URLs such as /players/postDelete must not bypass the HTTP
+        // method check (and therefore the CSRF check above).
+        if (str_starts_with(strtolower($action), 'post') && !Request::IsPost()) {
+            http_response_code(405);
+            header('Allow: POST');
+            return;
+        }
+
         // If the method is not public, then we don't allow URL access!
         if (!$method->isPublic()) {
             die("Method \"{$action}\" is not a public method, and cannot be called via URL.");
@@ -349,7 +375,7 @@ class System
     /**
      * Logs a detailed and recursive exception to the asp_debug.log file
      */
-    public static function LogException(Exception $e): void
+    public static function LogException(\Throwable $e): void
     {
         ErrorHandler::LogException($e);
     }

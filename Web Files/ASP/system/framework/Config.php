@@ -120,30 +120,16 @@ class Config
         // Get each of the new set variables
         foreach (self::$data as $key => $val)
         {
-            // If the value is numeric, then put in a "clean" value
-            if (is_numeric($val))
-            {
-                $cfg .= "\$$key = " . $val . ";\n";
+            if (!preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*$/D', $key)) {
+                throw new Exception('Invalid configuration key');
             }
-
-            // Check for array values (admin_hosts, game_hosts, and stats_local_pids)
-            elseif ($key == 'admin_hosts' || $key == 'game_hosts' || $key == 'stats_local_pids' || $key == 'battlespy_weapons')
-            {
-                $val_r = (is_array($val)) ? $val : explode("\n", (string) $val);
-                $val_s = "";
-                foreach ($val_r as $item)
-                {
-                    $val_s .=  (is_int($item)) ? "{$item}," : "'" . trim((string) $item) . "',";
-                }
-
-                $cfg .= "\$$key = array(" . substr($val_s, 0, -1) . ");\n";
+            if (in_array($key, ['admin_hosts', 'game_hosts', 'stats_local_pids', 'battlespy_weapons'], true)
+                && !is_array($val)) {
+                $val = array_map('trim', explode("\n", (string)$val));
             }
-
-            // If the value is not numeric or an array, then we need to put the new value in quotes
-            else
-            {
-                $cfg .= "\$$key = '" . addslashes((string) $val) . "';\n";
-            }
+            // Preserve numeric passwords (including leading zeroes), and escape
+            // array elements as PHP literals rather than executable source.
+            $cfg .= '$' . $key . ' = ' . var_export($val, true) . ";\n";
         }
 
         // Copy the current config file for backup

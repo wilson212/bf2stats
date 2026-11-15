@@ -91,6 +91,25 @@ class Snapshot extends GameResult
      */
     public function __construct(Dictionary $snapshotData)
     {
+        // Reject malformed containers before casting fields or touching the DB.
+        foreach (['serverIp', 'version', 'authId', 'authToken', 'serverName', 'gamePort',
+            'queryPort', 'mapName', 'mapId', 'mapStart', 'mapEnd', 'gameMode', 'mod',
+            'pc', 'winner', 'ra1', 'rs1', 'ra2', 'rs2'] as $key) {
+            if (!is_scalar($snapshotData[$key])) {
+                throw new Exception('Invalid snapshot field: ' . $key);
+            }
+        }
+        if (!is_string($snapshotData['authToken'])
+            || !filter_var($snapshotData['serverIp'], FILTER_VALIDATE_IP)
+            || !is_array($snapshotData['players']) || count($snapshotData['players']) > 256) {
+            throw new Exception('Invalid snapshot server or player data');
+        }
+        foreach ($snapshotData['players'] as $player) {
+            if (!is_array($player)) {
+                throw new Exception('Invalid snapshot player');
+            }
+        }
+
         // Store ip address as we will need this later
         $this->serverIp = $snapshotData['serverIp'];
 
@@ -151,14 +170,6 @@ class Snapshot extends GameResult
             }
             else {
                 throw new Exception("Invalid map received (Unknown Map ID): ". $this->mapName, 99);
-            }
-        }
-        else
-        {
-            $result = $connection->query("SELECT COUNT(id) FROM `map` WHERE `id` = ". $this->mapId);
-            if (($id = (int)$result->fetchColumn(0)) == 0)
-            {
-                $connection->insert('map', ['id' => $this->mapId, 'name' => $this->mapName, 'displayname' => $this->mapName]);
             }
         }
 
@@ -316,6 +327,13 @@ class Snapshot extends GameResult
 
             // Wrap in a transaction to speed things up
             $connection->beginTransaction();
+
+            // Parsing an unauthenticated snapshot must never write to the DB.
+            // Register new maps only after authorization, inside this transaction.
+            $result = $connection->query("SELECT COUNT(id) FROM `map` WHERE `id` = " . $this->mapId);
+            if ((int)$result->fetchColumn() === 0) {
+                $connection->insert('map', ['id' => $this->mapId, 'name' => $this->mapName, 'displayname' => $this->mapName]);
+            }
 
             // Define variables
             $start = microtime(true);
@@ -929,9 +947,9 @@ class Snapshot extends GameResult
         // Check the Auth Token
         $result = $connection->query("SELECT * FROM `stats_provider` WHERE `id`={$this->providerId}");
         $provider = $result->fetch();
-        if ($this->authToken !== $provider['auth_token'])
+        if (!$provider || !hash_equals((string)$provider['auth_token'], $this->authToken))
         {
-            $this->logWriter->logDebug("Invalid AuthToken passed! [AuthId: {$this->authId}, AuthToken: {$this->authToken}]");
+            $this->logWriter->logDebug("Invalid AuthToken passed! [AuthId: {$this->authId}]");
             throw new SecurityException("Invalid Auth Token found in Snapshot data", 1);
         }
 
