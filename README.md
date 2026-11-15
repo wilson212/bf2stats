@@ -1,6 +1,6 @@
 # BF2Stats
 
-BF2Stats 4.0.1 provides the statistics backend and server scripts used with [OpenBF2](https://github.com/kr4uzi/OpenBF2). The database schema remains 4.0.0. Run the game server in official ranked mode; statistics use the native GameSpy connection.
+BF2Stats 4.0.1 provides the statistics backend and server scripts used with [OpenBF2](https://github.com/kr4uzi/OpenBF2). The database schema remains 4.0.0. Run the game server in official ranked mode for statistics submission; statistics use the native GameSpy connection. The rank script also supports [loading saved ranks on unranked Internet servers](#rank-display-on-unranked-servers).
 
 See [release notes](RELEASE_NOTES.md) for fixes, upgrade requirements and compatibility limits.
 
@@ -21,6 +21,20 @@ Use HTTPS for the admin panel. With a reverse proxy, configure trusted address r
 Set `display_errors=Off` and `log_errors=On` in PHP's server configuration, including PHP-FPM deployments. The supplied `.htaccess` also disables displayed startup errors under mod_php so they cannot corrupt GameSpy responses.
 
 Keep existing configuration, provider credentials and runtime data during upgrades. The v2 migration is a command-line maintenance tool; back up and test it on copies of your databases first.
+
+## Rank display on unranked servers
+
+`python/bf2/stats/rank.py` deliberately uses `getUseGlobalUnlocks()` to enable rank requests because `getUseGlobalRank()` always returns false on unranked servers. After deploying the Python overlay and restarting the game server, human players can load their saved backend rank with:
+
+```text
+sv.ranked 0
+sv.internet 1
+sv.useGlobalUnlocks 1
+```
+
+Rank loading follows global unlock availability on both ranked and unranked servers; `sv.useGlobalRank` no longer controls this script. On unranked servers, `sv.internet 1` is still required. AI players are excluded by `player.isAIPlayer()`; human profile IDs below or equal to 2000 are no longer excluded.
+
+This only loads existing ranks. It does not enable statistics submission, medals or promotions on unranked servers, and it does not change the vanilla startup code that skips the rank module in AI games. The server must already be configured to reach the statistics backend. Verify rank display with a human account that has a saved rank; this behavior still needs in-game validation.
 
 ## Checks
 

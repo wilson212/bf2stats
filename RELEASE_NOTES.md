@@ -9,6 +9,8 @@ Backend security and compatibility fixes for OpenBF2. Database schema remains 4.
 - Send the missing `createplayer.aspx` success response using the existing GameSpy framing.
 - Reject malformed/oversized snapshots, avoid database writes during unauthenticated parsing, and keep tokens and exception traces out of responses.
 - Protect private files before applying the public asset allowlist, preserve transaction exceptions, and restrict the v2 migration script to CLI.
+- Use `player.isAIPlayer()` to skip AI rank requests, allowing human accounts with profile IDs below or equal to 2000 to load their ranks.
+- Load saved ranks on unranked Internet servers by using `getUseGlobalUnlocks()` in the rank script. Rank loading now follows global unlock availability instead of `sv.useGlobalRank`. See [deployment instructions](README.md#rank-display-on-unranked-servers); this does not enable statistics submission or progression on unranked servers.
 
 ## Upgrade
 

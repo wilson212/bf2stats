@@ -8,8 +8,12 @@ from bf2 import g_debug
 
 
 
+# Compatibility workaround: this module requests ranks, not unlocks.
+# The server's getUseGlobalRank() always returns false on unranked servers,
+# so we deliberately misuse getUseGlobalUnlocks() for both checks below.
+# Rank loading therefore follows global unlock availability, not sv.useGlobalRank.
 def init():
-	if bf2.serverSettings.getUseGlobalRank():
+	if bf2.serverSettings.getUseGlobalUnlocks():
 		host.registerHandler('PlayerConnect', onPlayerConnect, 1)
 		host.registerHandler('PlayerStatsResponse', onStatsResponse, 1)
 	
@@ -29,11 +33,11 @@ def onPlayerConnect(player):
 		player.score.rank = 0
 	
 	# request rank
-	if bf2.serverSettings.getUseGlobalRank():
-		if player.getProfileId() > 2000:		
+	if bf2.serverSettings.getUseGlobalUnlocks():
+		if not player.isAIPlayer():
 			success = host.pers_plrRequestStats(player.index, 1, "&info=rank")
 		else:
-			if g_debug: print "Player %d had no profile id, can't request rank" % player.index
+			if g_debug: print "Player %d is an AI player, skipping rank request" % player.index
 		
 	
 	if g_debug: print "Added player %d to rank checking" % (player.index)
