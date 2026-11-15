@@ -31,6 +31,18 @@
 #
 # Wilson212, 2012-02-02
 #  + Improved custom medals data loading
+#
+# Wilson212, 2015-02-17
+#  + Fixed a typo
+#  + Fixed a bug loading xpack medal data from the Control Center
+#  + createGlobalKeyString() removed, globalKeyString is now static (as it should be), since
+#      the ASP stats server requires the keystring to be static
+#  + Reverted to original Xpack medal checking as it was in the official python files
+#	   Mods that will use SF medals are defined in the Bf2StatisticsConfig.py as "medals_xpack_mods"
+# Krauzi, 2025-08-15
+#  + removed http calls (using gamespy emulator services)
+#  + removed rank setting (this is already happens in rank.py)
+#  + removed xpack medal check - mods must define their medals in medal_data_<mod>.py
 # ------------------------------------------------------------------------------
 
 import host
@@ -40,133 +52,25 @@ import os
 
 from bf2 import g_debug
 
-from bf2.stats.constants import *
-from bf2.BF2StatisticsConfig import http_backend_addr, http_backend_port, medals_custom_data, medals_force_keystring
-from bf2.stats.miniclient import miniclient, http_get
+from constants import *
 
-
-# Import relevant medals data (BF2, Xpack, or Custom)
-running_mod = str(host.sgl_getModDirectory())
-if ( running_mod.lower() == 'mods/xpack' ):
-	from bf2.stats.medal_data_xpack import *
+# Import mod specific medals data
+modDirectory = host.sgl_getModDirectory()
+if modDirectory == "mods/bf2":
+	from medal_data import *
+elif modDirectory == "mods/xpack":
+	from medal_data_xpack import *
 else:
-	if (medals_custom_data != ''):
-		try:
-			exec 'from bf2.stats.medal_data_' + str(medals_custom_data) + ' import *'
-		except:
-			print "Custom Medals Data Pack (%s) *NOT* found or is corrupt!" % (str(medals_custom_data))
-			# Use defualt medals_data instead
-			from bf2.stats.medal_data import *
-		else:
-			print "Custom Medals Data Pack (%s) loaded." % (str(medals_custom_data))
+	try:
+		exec "from modal_data_" + modDirectory[len("mods/"):] + " import *"
+	except:
+		print "failed to load medal data for %s" % (modDirectory)
+		from medal_data import *
 	else:
-		from bf2.stats.medal_data import *
+		print "loaded medal data for %s" % (modDirectory)
 
 # Get Player Stats Data
-from bf2.stats.stats import getStatsMap, getPlayerConnectionOrderIterator, setPlayerConnectionOrderIterator
-
-
-
-# ------------------------------------------------------------------------------
-# mimics onPlayerStatsResponse()
-# ------------------------------------------------------------------------------
-def attachPlayerStats(player,stats):
-
-	if not player: 
-		if g_debug: print "No player for STATS response? Aborting..."
-		return
-
-	if g_debug: print "Processing STATS response for player %d, size %d." % (player.index, len(stats))
-		
-	# add medal values
-	for key in globalKeysNeeded:
-		if not key in stats:
-			if g_debug: print "Key %s not found in stats response" % key
-			
-		else:
-			value = stats[key]
-			if value == "":
-				if g_debug: print "No value for stats key %s." % key
-			else:
-				if g_debug: print "Key %s has value %d" % ( key, int(stats[key]) )
-				player.medals.globalKeys[key] = int(stats[key])
-	
-	# add rank
-	if not 'rank' in stats:
-		if g_debug: print "Key %s not found in stats response" % 'rank'
-	
-	else:
-		value = stats['rank']
-						
-		if value == "":
-			print "No value for rank."
-			rank = 0
-
-		else:
-			try:
-				print "Found GSI rank %s for player %d" % (str(value), player.index)
-				rank = int(value)
-			except:
-				print "Could not convert rank %s to int." % value
-				rank = 0
-				
-		if g_debug: print "Setting GSI rank %d for player %d" % (rank, player.index)
-
-		player.score.rank = rank
-		player.stats.rank = rank
-
-# omero 2006-02-27
-# ------------------------------------------------------------------------------
-# mimics onPlayerAwardsResponse()
-# ------------------------------------------------------------------------------
-def attachPlayerAwards(player, awards):
-
-	if not player: 
-		if g_debug: print "No player for awards response."
-		return
-
-	if g_debug: print "Processing AWARDS response for player %d, size %d." % (player.index, len(awards))
-
-	for medalKey in awards:
-		
-		# distinguish between 4 types of medal-entry:
-		# 1. Regular medal with key like '123456', with only one level and can only be gotten once
-		# 2. Medal with simple key like '123456', can be gotten multiple times, where criteria is changed depending on previous level
-		# 3. Medal with simple key like '123456', can be gotten multiple times regardless of previous level, but only once per round
-		# 4. Badge with key like '123456_1', that has individual medal entries per level
-		
-		item = getMedalEntry(medalKey)
-		if item:
-		
-			# some medals are not kept, and can be gotten regardless of previous level. ex: purple heart
-			keep = item[2] != 0
-			if keep:
-				# case 1, 2
-				player.medals.gsiMedals[medalKey] = int(awards[medalKey])
-				player.medals.roundMedals[medalKey] = int(awards[medalKey])
-			else:
-				# case 3
-				pass
-			
-		else:
-			# case 4: badge with individual per-level criterias,
-			# skip placement medals
-			if ( awards[medalKey] > 0 ):
-					
-				medalKey += '_' + str(awards[medalKey])
-				
-			item = getMedalEntry(medalKey)	
-			
-			if item:
-				player.medals.gsiMedals[medalKey] = 1
-				player.medals.roundMedals[medalKey] = 1
-			else:
-				print "Medal", medalKey,"not found in medal data."
-	
-	
-	#print "Player GSI medals:", player.medals.gsiMedals
-	#print "Player round medals:", player.medals.roundMedals
-
+from stats import getStatsMap, getPlayerConnectionOrderIterator, setPlayerConnectionOrderIterator
 
 
 sessionPlayerMedalMap = {}
@@ -178,58 +82,20 @@ def setMedalMap(map):
 	global sessionPlayerMedalMap
 	sessionPlayerMedalMap = map
 
-globalKeyString = ""
+# The global key string used by servers to fetch stats from the ASP Backend
+globalKeyString = "&info=rank,ktm-,dfcp,rpar,vtm-,bksk,scor,wdsk,wkl-,heal,dsab,cdsc,tsql,tsqm,wins,vkl-,twsc,time,kill,rsup,tcdr,de-,vac-"
 g_lastPlayerChecked = 0
 
 def init():
-	# Events
-# Added by Chump - for bf2statistics stats
-#	if not host.ss_getParam('ranked'): return
-	
-	host.registerHandler('PlayerConnect', onPlayerConnect, 1)
-	host.registerHandler('PlayerDisconnect', onPlayerDisconnect, 1)
-	host.registerHandler('PlayerStatsResponse', onStatsResponse, 1)
-	host.registerHandler('PlayerAwardsResponse', onAwardsResponse, 1)
-	host.registerGameStatusHandler(onGameStatusChanged)
+	# If stats are disabled, quit
+	if host.ss_getParam("ranked"):
+		host.registerHandler('PlayerConnect', onPlayerConnect, 1)
+		host.registerHandler('PlayerDisconnect', onPlayerDisconnect, 1)
+		host.registerHandler('PlayerStatsResponse', onStatsResponse, 1)
+		host.registerHandler('PlayerAwardsResponse', onAwardsResponse, 1)
+		host.registerGameStatusHandler(onGameStatusChanged)
 
-		
-	print "Medal awarding module initialized"
-
-	global globalKeyString
-	globalKeyString = createGlobalKeyString(globalKeysNeeded)
-	print "Global key string: ", globalKeyString
-	
-# create the stats query string in gamespy format
-def createGlobalKeyString(keymap):
-
-	# Determine if the config enables force Keystring
-	if medals_force_keystring == 0:
-		keystring = "&info=rank,"
-		usedKeys = {}
-		for k in keymap:
-			# strip number trailing '-' in key, as gamespy doesnt allow per-vehicle/weapon/kit key-getting. 
-			f = k.find('-')
-			if f != -1:
-				k = k[:f+1]
-			
-			if not k in usedKeys:
-				keystring = keystring + k + ","
-				usedKeys[k] = 1
-		
-		# put vac- at the end of string, compensating for gamespy bug
-		if keystring.find('vac-'):
-			keystring = keystring.replace('vac-,', '') + 'vac-,'
-		
-		# remove last comma
-		if len(k) > 0:			
-			keystring = keystring[:len(keystring)-1]
-			
-	else:
-		print "Forcing Global Keystring"
-		keystring = "&info=rank,ktm-,dfcp,rpar,vtm-,bksk,scor,wdsk,wkl-,heal,dsab,cdsc,tsql,tsqm,wins,vkl-,twsc,time,kill,rsup,tcdr,vac-"
-		
-	return keystring
-
+		print "Medal awarding module initialized"
 
 
 updateTimer = None
@@ -254,16 +120,16 @@ def onGameStatusChanged(status):
 		global g_lastPlayerChecked
 		g_lastPlayerChecked = 0
 	
-	
 	elif status == bf2.GameStatus.EndGame:
+		print " ---------------- END OF GAME ----------------"
 		givePositionalMedals(True, bf2.gameLogic.getWinner())
 		
-		# produce snapshot
-		bf2.stats.snapshot.invoke()
-			
-		if g_debug: print "Destroyed timer"
+		# produce final snapshot
+		bf2.stats.snapshot.invoke(True)
+		
 		if updateTimer:
 			updateTimer.destroy()
+			updateTimer = None
 
 
 
@@ -290,14 +156,12 @@ def onPlayerConnect(player):
 		player.score.rank = 0
 
 		# Added by Chump - for bf2statistics stats
-		#if g_debug: print "Added player %d to medal checking" % (player.index)
 		if g_debug: print "Added player %d, %s (%s) to medal/rank checking" % ( player.index, player.getName(), str(player.getProfileId()) )
 
 	else:
 		player.score.rank = player.stats.rank
 
 		# Added by Chump - for bf2statistics stats
-		#if g_debug: print "Readded player %d to medal checking" % (player.index)
 		if g_debug: print "Readded player %d to medal/rank checking" % player.index
 		
 		# This code is used to reduce the "request storm" generated at the start of a round. 
@@ -309,110 +173,42 @@ def onPlayerConnect(player):
 			if player.stats.timeOnLine < 30:
 				reconnect = False
 
-	if player.getProfileId() > 2000 and not reconnect:
-		if g_debug: print "Getting Stats..."
+	if not player.isAIPlayer():
+		print "Getting STATS for player %s (%s)..."  % ( player.getName(), str(player.getProfileId()) )
 		# get persistant stats from gamespy
 
 		# Added by Chump - for bf2statistics stats (plus de-indenting)
-		#if host.ss_getParam('ranked'):
 		player.score.rank = player.stats.rank
 		
-		# STATS
-		success = False
-		if not player.isAIPlayer():
-			if g_debug: print "Requesting player STATS"
-			success = host.pers_plrRequestStats(player.index, 1, globalKeyString)
+		if host.pers_plrRequestStats(player.index, 1, globalKeyString):
+			if g_debug: print "Successfully requested STATS via GameSpy"
+		else:
+			print "Failed to request STATS via GameSpy"
 		
-		# Player is either AI or Offline, so we will manually get STATS
-		if not success:
-			if g_debug: print "Retrieving player STATS via HTTP/1.1 miniclient"
-			
-			# URL for retrieving player's awards and stats records via internal miniclient
-			asp_playerinfo = '/ASP/getplayerinfo.aspx?pid=' + str(player.getProfileId()) + globalKeyString
-			
-			# Fetch Data
-			data = http_get( http_backend_addr, http_backend_port, asp_playerinfo )
-			
-			if data and data[0] == 'O':
-				print "Received STATS data is VALID, length %d" % int(len(data))
-				
-				stats = {}
-				datalines = data.splitlines()
-				keys = datalines[3].split('\t')
-				vals = datalines[4].split('\t')
-				
-				if (len(keys) == len(vals)):
-					if g_debug:	print "Assembling STATS dictionary with %d keys" % int(len(keys))
-					
-					for idx in range(1,len(keys)):
-						stats[keys[idx]] = vals[idx]
-					
-				# eventually reattach persistent stats records to this player
-				attachPlayerStats(player,stats)
-			
-			else:
-				print "ERROR: Received STATS data is NOT VALID, length %d" % int(len(data))
-			
-		# AWARDS
-		success = False
-		if not player.isAIPlayer():
-			if g_debug: print "Requesting player AWARDS"
-			success = host.pers_plrRequestAwards(player.index, 1, "")
-		
-		# Player is either AI or Offline, so we will manually get AWARDS
-		if not success:
-			if g_debug: print "Retrieving player AWARDS via HTTP/1.1 miniclient"
-			
-			# URL for retrieving player's awards and stats records via internal miniclient
-			asp_awardsinfo = '/ASP/getawardsinfo.aspx?pid=' + str(player.getProfileId())
-			
-			# Fetch Data
-			data = http_get( http_backend_addr, http_backend_port, asp_awardsinfo )
-			
-			if data and data[0] == 'O':
-				print "Received AWARDS data is VALID, lenght %d" % int(len(data))
-				
-				awards = {}
-				datalines = data.splitlines()
-				skip = True
-				for dataline in datalines:
-					# the first dataline retrieved only contains pid and nick,
-					# do nothing and mark the skip flag to false.
-					# all subsequent datalines will be processed normally
-					if dataline[0] == 'D' and skip:
-						skip = False
-						
-					elif dataline[0] == 'D':
-						items = dataline.split('\t')
-						medalkey = items[1]
-						medallev = items[2]
-						awards[medalkey] = medallev
-				
-				# eventually reattach persistent awards records to this player
-				attachPlayerAwards(player,awards)
-			
-			else:
-				print "ERROR: Received AWARDS data is NOT VALID, length %d" % int(len(data))
+		if host.pers_plrRequestAwards(player.index, 1, ""):
+			if g_debug: print "Successfully requested AWARDS via GameSpy"
+		else:
+			print "Failed to request AWARDS via GameSpy"
 			
 		# Record STATS update time
 		player.setGlobalUpdateTime()
 
 
 def onPlayerDisconnect(player):
-	pass
+	bf2.stats.snapshot.invoke()
+	return
 
 class MedalSet:
 	def __init__(self):
 		self.gsiMedals = {}
 		self.roundMedals = {}
 		self.globalKeys = {}
-		
+	
 		
 	def connect(self, reconnect):
 
 		if not reconnect:
 			# omero, 2006-03-14
-			#if g_debug: print "getting medals from gamespy"
 			if g_debug: print "Will retrieve medals from GSI..."
 			
 			# init position medals
@@ -444,7 +240,6 @@ class MedalSet:
 			if g_debug: print "Found Medal (%s:%s)" % (id, key)
 			
 			if '_' in medal[0]:
-				
 				# do special level calculation on badges, as they are sent as one key, but received as several
 				if id in self.roundMedals:
 					if not key in medalKeys:
@@ -464,7 +259,6 @@ class MedalSet:
 		
 		
 			else:
-			
 				# regular medals
 				if id in self.roundMedals:
 					medalKeys[key] = self.roundMedals[id]
@@ -478,7 +272,6 @@ class MedalSet:
 		for key in medalKeys:
 			if key in prevKeys:
 				if prevKeys[key] >= medalKeys[key]:
-
 					# already had this medal, no need to send in snapshot
 					removeList += [key]
 		
@@ -490,20 +283,18 @@ class MedalSet:
 		elif self.placeMedalThisRound == 2:
 			medalKeys['ers'] = 1
 		elif self.placeMedalThisRound == 3:
-			medalKeys['erb'] = 1
-			
+			medalKeys['erb'] = 1	
 		
 		keyvals = []
 		for k in medalKeys:
-			keyvals.append ("\\".join((k, str(medalKeys[k]))))
+			keyvals.append ('{"id":"' + str(k) + '","level":' + str(medalKeys[k]) + '}')
 				
-		return "\\".join(keyvals)
+		return ",".join(keyvals)
 
 
 
 def givePositionalMedals(endOfRound, winningTeam):
 	if endOfRound:
-	
 		# give medals for position
 		sortedPlayers = []
 		
@@ -565,21 +356,23 @@ def checkMedals(player):
 	if not player.isAlive():
 		return
 
-	#WARNING: This will be VERY noisy.	
-	#if g_debug: print "Player %d roundmedals: %s" % ( player.index, player.medals.roundMedals )
 	for medal in medal_data:
 		
 		# check that player does not already have this medal this round
 		id = medal[0]
-		if id in player.medals.roundMedals:
-			#WARNING: This will be VERY noisy.
-			#if g_debug: print "Medal %s found in player roundMedals" % id
-			
-			# if medal has multiple-times criteria, criterias have been changed and level should already match. no need to exit then.
-			if medal[2] != 2:
-				#WARNING: This will be VERY noisy.
-				#if g_debug: print "Medal %s cannot be earned multiple times" % id
-				continue
+		
+		# 2025/08/25 krauzi: removed xpack check as the imported medals are mod specific already
+		#if its an xpack award, skip it if we are not playing SF
+		#if not allow_xpack_medals:
+		#	if id[1:3] == "26":
+		#		continue
+		
+		# determine if player already has award
+		player_has_award = id in player.medals.roundMedals
+		
+		# If medal does not have multiple-times criteria, and player has it already, skip
+		if player_has_award and medal[2] != 2:
+			continue
 			
 		# check if criteria was met
 		checkCriteria = medal[3]
@@ -594,9 +387,8 @@ def checkMedals(player):
 			idStr = idStr[:idStr.find('_')]
 
 			awardMedal(player, int(idStr), newLevel)
-			
 		else:		
-			if id in player.medals.roundMedals:
+			if player_has_award:
 				newLevel = player.medals.roundMedals[id] + 1	
 
 			awardMedal(player, int(idStr), 0)
@@ -641,57 +433,39 @@ def onStatsResponse(succeeded, player, stats):
 			playerIndex = "unknown"
 		else:
 			playerIndex = player.index
-		if g_debug: print "Stats request failed for player ", playerIndex, ": ", stats
+		print "onStatsResponse -> Stats request FAILED for player ", playerIndex, ": ", stats
 		return
 
 	if not player: 
-		if g_debug: print "No player for stats response."
+		if g_debug: print "onStatsResponse -> No player for stats response."
 		return
 
-	if g_debug: print "Stats response received for player %d, size %d." % (player.index, len(stats))
-
 	if "<html>" in stats:
-		print "The stats response seems wrong:"
+		print "onStatsResponse -> The stats response seems wrong:"
 		print stats
 		print "<end-of-stats>"
 		return
+		
+	if stats and stats[0] == 'O':
+		print "onStatsResponse -> Stats response received for player %d size %d." % (player.index, len(stats))
 	
-	# add medal values
-	for key in globalKeysNeeded:
-		if not key in stats:
-			if g_debug: print "Key %s not found in stats response" % key
-		else:
-			value = host.pers_getStatsKeyVal(key)
-			if value == "":
-				print "No value for stats key %s." % key
-			else:
+		data = {}
+		datalines = stats.splitlines()
+		keys = datalines[3].split('\t')
+		vals = datalines[4].split('\t')
+		
+		if (len(keys) == len(vals)):
+			#if g_debug:	
+			print "Assembling STATS dictionary with %d keys" % int(len(keys))
 			
-				try:
-					player.medals.globalKeys[key] = int(value)
-					if g_debug: print "Key %s has value %d" % ( key, int(value) )
-				except:
-					print "Could not convert value: %s of key %s: to int." % (host.pers_getStatsKeyVal(key), key)
+			for idx in range(1,len(keys)):
+				data[keys[idx]] = vals[idx]
 			
-	#print stats
-	
-	# add rank
-	if not 'rank' in stats:
-		if g_debug: print "Key %s not found in stats response" % 'rank'
+		# eventually reattach persistent stats records to this player
+		attachPlayerStats(player, data)
+		
 	else:
-		rank = 0
-		value = host.pers_getStatsKeyVal('rank')
-		if value == "":
-			print "No value for rank."
-		else:
-			try:
-				rank = int(value)
-			except:
-				print "Could not convert rank %s to int." % value
-				
-		print "Setting GSI rank %d for player %d" % (rank, player.index)
-
-		player.score.rank = rank
-		player.stats.rank = rank
+		print "onStatsResponse -> Stats response received for player %d is NOT VALID! size %d" % (int(player.index), int(len(stats)))
 	
 	
 
@@ -727,24 +501,22 @@ def onAwardsResponse(succeeded, player, awards):
 		else:
 			playerIndex = player.index
 		
-		print "Medal request failed for player ", playerIndex, ": ", stats
+		print "onAwardsResponse -> Medal request failed for player ", playerIndex, ": ", stats
 		return
 		
-	if g_debug: print "Awards response received: ", awards
+	if g_debug: print "onAwardsResponse -> Awards response received: ", awards
 	
 	if not player: 
-		if g_debug: print "No player for medal response."
+		print "onAwardsResponse -> No player for medal response."
 		return
 		
 	for a in awards:
 		medalKey = str(a[0])
-		
 		# distinguish between 4 types of medal-entry:
 		# 1. Regular medal with key like '123456', with only one level and can only be gotten once
 		# 2. Medal with simple key like '123456', can be gotten multiple times, where criteria is changed depending on previous level
 		# 3. Medal with simple key like '123456', can be gotten multiple times regardless of previous level, but only once per round
 		# 4. Badge with key like '123456_1', that has individual medal entries per level
-		
 		item = getMedalEntry(medalKey)
 		if item:
 		
@@ -769,7 +541,6 @@ def onAwardsResponse(succeeded, player, awards):
 				player.medals.gsiMedals[medalKey] = 1
 				player.medals.roundMedals[medalKey] = 1
 			else:
-				print "Medal", medalKey,"not found in medal data."
+				print "onAwardsResponse -> Medal", medalKey,"not found in medal data."
 	
-	print "Player medals:", player.medals.gsiMedals
-
+	print "onAwardsResponse -> Player medals:", player.medals.gsiMedals

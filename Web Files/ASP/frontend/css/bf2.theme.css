@@ -1,0 +1,98 @@
+body,
+#mws-container
+{
+	background-image:url('../images/core/bg/carbon.png');
+}
+
+#mws-sidebar,
+#mws-sidebar-bg,
+#mws-header,
+.mws-panel .mws-panel-header,
+#mws-login,
+#mws-login .mws-login-lock,
+.ui-accordion .ui-accordion-header,
+.ui-tabs .ui-tabs-nav,
+.ui-datepicker,
+.fc-event-skin,
+.ui-dialog .ui-dialog-titlebar,
+.jGrowl .jGrowl-notification, .jGrowl .jGrowl-closer,
+#mws-user-tools .mws-dropdown-menu .mws-dropdown-box,
+#mws-user-tools .mws-dropdown-menu.open .mws-dropdown-trigger
+{
+	background-color:#35353a;
+}
+
+#mws-header
+{
+	border-color:#ed1427;
+}
+
+div#title {
+	text-align:center;
+	font-family: Verdana, serif;
+	font-variant: small-caps;
+	font-size: 30px;
+	font-weight: bold;
+	margin-top: 15px;
+	color:#ed1427;
+	text-shadow:0 0 6px rgba(17, 17, 17, 0.5);
+}
+
+a {
+	color:#ed1427;
+}
+
+div#dbver {
+	text-align:center;
+	font-family: Verdana, serif;
+	font-size: 10px;
+	font-weight: bold;
+	margin: 5px 0;
+	color:#ed1427;
+	text-shadow:0 0 6px rgba(17, 17, 17, 0.5);
+}
+
+.mws-panel .mws-panel-header span,
+#mws-navigation ul li.active a,
+#mws-navigation ul li.active span,
+#mws-user-tools #mws-username,
+#mws-navigation ul li .mws-nav-tooltip,
+#mws-user-tools #mws-user-info #mws-user-functions #mws-username,
+.ui-dialog .ui-dialog-title,
+.ui-state-default,
+.ui-state-active,
+.ui-state-hover,
+.ui-state-focus,
+.ui-state-default a,
+.ui-state-active a,
+.ui-state-hover a,
+.ui-state-focus a
+{
+	color:#ed1427;
+	text-shadow:0 0 6px rgba(17, 17, 17, 0.5);
+}
+
+#mws-searchbox .mws-search-submit,
+.mws-panel .mws-panel-header .mws-collapse-button span,
+.dataTables_wrapper .dataTables_paginate .paginate_button.current,
+.mws-table tbody tr.odd:hover td,
+.mws-table tbody tr.even:hover td,
+.ui-slider-horizontal .ui-slider-range,
+.ui-slider-vertical .ui-slider-range,
+.ui-progressbar .ui-progressbar-value,
+.ui-datepicker td.ui-datepicker-current-day,
+.ui-datepicker .ui-datepicker-prev,
+.ui-datepicker .ui-datepicker-next,
+.ui-accordion-header .ui-accordion-header-icon,
+.ui-dialog-titlebar-close
+{
+	background-color:#ed1427;
+}
+a.black-link:link {
+	color: #000000;
+}
+
+a.black-link:visited {
+	color: #000000;
+	text-decoration: underline;
+}

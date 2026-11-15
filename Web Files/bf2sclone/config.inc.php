@@ -3,8 +3,8 @@
 // Database connection information
 $DBIP = 'localhost';
 $DBNAME = 'bf2stats';
-$DBLOGIN = 'admin';
-$DBPASSWORD = 'admin';
+$DBLOGIN = 'bf2stats';
+$DBPASSWORD = 'bf2stats';
 
 // Leader board title
 $TITLE = 'BF2s Clone';
@@ -22,10 +22,10 @@ define ('LEADERBOARD_COUNT', 25);
 
 
 // Determine our http hostname, and site directory
-$host = rtrim($_SERVER['HTTP_HOST'], '/');
-$site_dir = dirname( $_SERVER['PHP_SELF'] );
+$host = rtrim((string) $_SERVER['HTTP_HOST'], '/');
+$site_dir = dirname( (string) $_SERVER['PHP_SELF'] );
 $site_url = str_replace('//', '/', $host .'/'. $site_dir);
-while(strpos($site_url, '//') !== FALSE) $site_url = str_replace('//', '/', $site_url);
+while(str_contains($site_url, '//')) $site_url = str_replace('//', '/', $site_url);
 
 // Root url to bf2sclone
 $ROOT = str_replace( '\\', '', 'http://' . rtrim($site_url, '/') .'/' );
@@ -37,6 +37,6 @@ $DOMAIN = preg_replace('@^(http(s)?)://@i', '', $host);
 unset($host, $site_dir, $site_url);
 
 // Setup the database connection
-$link = mysql_connect($DBIP, $DBLOGIN, $DBPASSWORD) or die('Could not connect: ' . mysql_error());
-mysql_select_db($DBNAME) or die('Could not select database');
+$link = mysqli_connect($DBIP, $DBLOGIN, $DBPASSWORD, $DBNAME) or die('Could not connect: ' . mysqli_connect_error());
+define('$link', $link);
 ?>

@@ -45,7 +45,7 @@ $template = '
 					</tr>';
 
 				
-					foreach ($rankings as $key => $value)
+					foreach ($rankings as $value)
 					{
 						$template .= '
 						<tr>
@@ -59,7 +59,7 @@ $template = '
 									<tr>
 										<td rowspan="2"><img src="'.$ROOT.'game-images/ranks/icon/rank_'.$value['data'][$i]['rank'].'.gif" alt="'.getRankByID($value['data'][$i]['rank']).'"></td>
 										<td><a href="'.$ROOT.'?pid='.$value['data'][$i]['id'].'">'.$value['data'][$i]['name'].'</a> </td>
-										<td rowspan="2"><img src="'.$ROOT.'game-images/flags/'.strtoupper($value['data'][$i]['country']).'.png" alt="Country: '.getCountryByCode($value['data'][$i]['country']).'" width="16" height="12" /></td>
+										<td rowspan="2"><img src="'.$ROOT.'game-images/flags/'.strtoupper((string) $value['data'][$i]['country']).'.png" alt="Country: '.getCountryByCode($value['data'][$i]['country']).'" width="16" height="12" /></td>
 									</tr>
 									<tr>
 										<td>'.$value['data'][$i]['value'].'</td>

@@ -22,6 +22,9 @@
 #   06/10/10 - Removed Combat scores, they now calculate in bf2statistics.php
 #   06/10/10 - Added return
 #   06/10/10 - Corrected Teamwork keys
+#
+#   3/10/18 v2.0 - Converted to snapshot to JSON format
+#   12/12/25 v3.0 - Using Official Ranking System (gamespy snapshot sending)
 #  
 #################################################
 
@@ -29,132 +32,122 @@
 #     DO NOT EDIT ANYTHING BELOW THIS LINE!
 #################################################
 
-# ------------------------------------------------------------------------------
-# omero 2006-03-31
-# ------------------------------------------------------------------------------
-# Settings now imported from bf2.BF2StatisticsConfig module, see below.
-
-#HOST = '192.168.13.141'						# webserver listening ip address
-#PORT = 80					                # webserver listening http port
-#PATH = '/ASP/bf2statistics.php'		# webserver path to script, relative to rootdir
-#PREFIX = ''				                # log file prefix
-
 import host
 import bf2.PlayerManager
+import bf2.Timer
 import fpformat
 from constants import *
 from bf2 import g_debug
-from bf2.stats.stats import getStatsMap, setStatsMap, getPlayerConnectionOrderIterator, setPlayerConnectionOrderIterator, roundArmies
-from bf2.stats.medals import getMedalMap, setMedalMap
+from stats import getStatsMap, setStatsMap, getPlayerConnectionOrderIterator, setPlayerConnectionOrderIterator, roundArmies
+from medals import getMedalMap, setMedalMap
 
 # ------------------------------------------------------------------------------
 # omero 2006-03-31
 # ------------------------------------------------------------------------------
-from bf2.BF2StatisticsConfig import snapshot_logging, snapshot_log_path_sent, snapshot_log_path_unsent, http_backend_addr, http_backend_port, http_backend_asp, http_central_enable, http_central_addr, http_central_port, http_central_asp, snapshot_prefix
-from bf2.stats.miniclient import miniclient, http_postSnapshot
+#from bf2.BF2StatisticsConfig import *
+#from bf2.stats.miniclient import miniclient, http_postSnapshot
 
 # Added by Chump - for bf2statistics stats
 from time import time, localtime, strftime
+snapshotTimer = None
 
-# omero, 2006-03-31
-# the following is no longer necessary
 #import socket
+#http_backend_addr = socket.gethostbyname("BF2Web.gamespy.com")
 
 map_start = 0
+stats_auth_id = None
+stats_auth_token = None
+g_debug = True
+
+from bf2 import serverSettings
+def getServerConfig(variableName):
+	return host.rcon_invoke(variableName).strip() 
+serverSettings.getServerConfig = getServerConfig
+
 
 def init():
-	print "Snapshot module initialized"
+	global testTimer
+	initMessage = "Snapshot module initialized"
+	if host.ss_getParam("ranked"):
+		global stats_auth_id, stats_auth_token
+		f = None
+		try:
+			f = open("python/bf2/stats/providerID.sec", "r")
+			stats_auth_id, stats_auth_token = f.readline().split()
+			if stats_auth_id and stats_auth_token and host.ss_getParam("hosted"):
+				initMessage += " (Authorized Ranking provider)"
+			
+		finally:
+			if f: f.close()
 
-# Added by Chump - for bf2statistics stats
-	host.registerGameStatusHandler(onChangeGameStatus)
+		# Added by Chump - for bf2statistics stats
+		host.registerGameStatusHandler(onChangeGameStatus)
+		host.registerHandler('PlayerConnect', onPlayerConnect, 1)
 	
-	
+	print initMessage
+
+
+def onPlayerConnect(player):
+	player.stats.isAIPlayer = player.isAIPlayer()
+
+
 # Added by Chump - for bf2statistics stats
 def onChangeGameStatus(status):
 	global map_start
 	if status == bf2.GameStatus.Playing:
+		if map_start == 0:
+			host.pers_gamespyStatsNewGame()
 		map_start = time()
 
-def invoke():
 
-# Added by Chump - for bf2statistics stats
-	#host.pers_gamespyStatsNewGame()
-	
-	snapshot_start = host.timer_getWallTime()
-	
-	if g_debug: print "Gathering SNAPSHOT Data"
-	snapShot = getSnapShot()
-
-	# Send snapshot to Backend Server
-	print "Sending SNAPSHOT to backend: %s" % str(http_backend_addr)
-	SNAP_SEND = 0
-
+def invoke(final = False):
+	if not final:
+		# there is a bug in the bf2 server implementation:
+		# the underlying c++ method (dice::hfe::StatsManager::sendSnapshot) checks the gamemode as follows
+		# if (dice::hfe::compareIgnoreCase(game->getCurrentMapGameMode(), "gpm_coop")) return 0;
+		#
+		# this should have been the following instead
+		# if (dice::hfe::equalsIgnoreCase(game->getCurrentMapGameMode(), "gpm_coop")) return 0;
+		#
+		# I assume, that the snapshot sending is only enabled when ranked gamemode is enabled (which itself
+		# checks for gpm_coop as well - and starting a ranked server with gpm_coop is not possible).
+		# this means that no snapshots are sent using the sendSnapshot.
+		#
+		# We can however call dice::hfe::StatsManager::sendFinal - which interestingly enough doesn't
+		# check for the gamemode at all...
+		return
 	
 	# -------------------------------------------------------------------
 	# Attempt to send snapshot
 	# -------------------------------------------------------------------
 	try:
-		backend_response = http_postSnapshot( http_backend_addr, http_backend_port, http_backend_asp, snapShot )
-		SNAP_SEND = 1
+		snapshot_start = time()	
+		if g_debug: print "Gathering SNAPSHOT Data"
+		snapShot = getSnapShot()
+		
+		
+		elapsedTime = time() - snapshot_start
+		ms = elapsedTime * 1000
+		print "SNAPSHOT Data generated in %d ms" % ms
+
+		if final:
+			global map_start
+			host.pers_gamespyStatsSendSnapshotFinal(snapShot)
+			host.pers_gamespyStatsEndGame()
+			map_start = 0
+		else:
+			host.pers_gamespyStatsSendSnapshotUpdate(snapShot)
+
+		
+		# Log snapshot timing
+		elapsedTime = time() - snapshot_start
+		ms = elapsedTime * 1000
+		print "SNAPSHOT Processing Time: %d ms" % ms
 		
 	except Exception, e:
-		SNAP_SEND = 0
+		snapshot_sent = 0
 		print "An error occurred while sending SNAPSHOT to backend: %s" % str(e)
-		
-	
-	# -------------------------------------------------------------------
-	# If SNAPSHOT logging is enabled, then log the snapshot
-	# -------------------------------------------------------------------	
-	if SNAP_SEND == 0 and snapshot_logging > 0:
-		log_time = str(strftime("%Y%m%d_%H%M", localtime()))
-		snaplog_title = snapshot_log_path_unsent + "/" + snapshot_prefix + "-" + bf2.gameLogic.getMapName() + "_" + log_time + ".txt"
-		print "Logging snapshot for manual processing..."
-		print "SNAPSHOT log file: %s" % snaplog_title
-		snap_log = file(snaplog_title, 'a')
-		
-		try:
-			snap_log.write(snapShot)
-			snap_log.close()
-		
-		except Exception, e:
-			print "Cannot write to SNAPSHOT log file! Reason: %s" % str(e)
-			print "Printing Snapshot as last resort manual processing: ", snapShot
-			
-	elif SNAP_SEND == 1 and snapshot_logging == 1:
-		log_time = str(strftime("%Y%m%d_%H%M", localtime()))
-		snaplog_title = snapshot_log_path_sent + "/" + snapshot_prefix + "-" + bf2.gameLogic.getMapName() + "_" + log_time + ".txt"
-		print "SNAPSHOT log file: %s" % snaplog_title
-		snap_log = file(snaplog_title, 'a')
-		
-		try:
-			snap_log.write(snapShot)
-			snap_log.close()
-		
-		except Exception, e:
-			print "Cannot write to SNAPSHOT log file! Reason: %s" % str(e)
-			print "Printing Snapshot as last resort manual processing: ", snapShot
-	
-	else:
-		print "Printing Snapshot: ", snapShot
-			
-
-	# Send Snapshot to Central Backend Server
-	if http_central_enable == 1 or http_central_enable == 2:
-		print "Sending SNAPSHOT to Central Backend: %s" % str(http_central_addr)
-		
-		#Append CDB Setting so backened knows what to do with this
-		snapShotCDB = snapShot + '\\cdb_update\\' + http_central_enable
-		
-		try:
-			backend_response = http_postSnapshot( http_central_addr, http_central_port, http_central_asp, snapShotCDB )
-			
-		except Exception, e:
-			print "An error occurred while sending SNAPSHOT to Central Backend: %s" % str(e)
-		
-	
-	print "SNAPSHOT Processing Time: %d" % (host.timer_getWallTime() - snapshot_start)
-
-
+		if g_debug: sayAll("An error occurred while sending stats data to backend: %s" % str(e))
 # ------------------------------------------------------------------------------
 # omero 2006-03-31
 # ------------------------------------------------------------------------------
@@ -237,59 +230,74 @@ def cleanoutMedalsVector():
 		if g_debug: print "Removed player %d from medals." % pid
 		del medalMap[pid]
 
-	
+
+def json_escape_string(s):
+	def escape_char(c):
+		if c == '"':
+			return r'\"'
+		elif c == '\\':
+			return r'\\'
+		elif c == '\b':
+			return r'\b'
+		elif c == '\f':
+			return r'\f'
+		elif c == '\n':
+			return r'\n'
+		elif c == '\r':
+			return r'\r'
+		elif c == '\t':
+			return r'\t'
+		elif ord(c) < 0x20:
+			return '\\u%04x' % ord(c)
+		else:
+			return c
+
+	res = ""
+	for c in s:
+		res += escape_char(c)
+	return res
+
 	
 def getSnapShot():
 	print "Assembling snapshot"
-
-# Added by Chump - for bf2statistics stats
-	#snapShot = "\\"
-	#global PREFIX, map_start
-	
 	global map_start
-	snapShot = snapshot_prefix + '\\' + bf2.gameLogic.getMapName() + '\\'
-	snapShot += 'gameport\\' + str(bf2.serverSettings.getServerConfig('sv.serverPort')) + '\\'
-	snapShot += 'queryport\\' + str(bf2.serverSettings.getServerConfig('sv.gameSpyPort')) + '\\'
-	snapShot += 'mapstart\\' + str(map_start) + '\\mapend\\' + str(time()) + '\\'
-	snapShot += 'win\\' + str(bf2.gameLogic.getWinner()) + '\\'
-
 	statsMap = getStatsMap()
 	
 	# ----------------------------------------------------------------------------
-	# omero 2006-04-10
+	# Wilson212 2016-06-24
 	# ----------------------------------------------------------------------------
-	# this will be used for detecting which mod is running and
-	# set standardKeys['v'] accordingly
-	# defaults to 'bf2'
+	# Changed standardKeys['v'] from mod, to python version!
+	# standardKeys['m'] is now for mod name
 	#
 	running_mod = str(host.sgl_getModDirectory())
-	if ( running_mod.lower() == 'mods/bf2' ):
-		v_value = 'bf2'
-	elif ( running_mod.lower() == 'mods/bf2sp64' ):
-		v_value = 'bf2sp64'
-	elif ( running_mod.lower() == 'mods/xpack' ):
-		v_value = 'xpack'
-	elif ( running_mod.lower() == 'mods/poe2' ):
-		v_value = 'poe2'
-	elif ( running_mod.lower() == 'mods/aix2' ):
-		v_value = 'aix2'
-	else:
-		v_value = 'bf2'
+	running_mod = running_mod.lower().replace("mods/", "")
 	
-	if g_debug: print 'Running MOD: %s' % (str(v_value))
+	if g_debug: print 'Running MOD: %s' % running_mod
+
+	gameMode = bf2.serverSettings.getGameMode()
+	gameModeId = getGameModeId(gameMode)
+	if gameMode == "gpm_coop" and gameModeId == UNKNOWN_GAMEMODE:
+		# untouched constants.py doesn't handle coop
+		gameModeId = 2
 	
 	standardKeys = [
-
-# Added by Chump - for bf2statistics stats
-			("gm",		getGameModeId(bf2.serverSettings.getGameMode())),
-
-			("m",		getMapId(bf2.serverSettings.getMapName())),
-
-# Added by Chump - for bf2statistics stats
-			("v",		str(v_value)),
-
-			("pc",		len(statsMap)),
-			]
+		("authId",		json_escape_string(str(stats_auth_id))),
+		("authToken",	json_escape_string(str(stats_auth_token))),
+		("serverName",	json_escape_string(str(bf2.serverSettings.getServerConfig('sv.serverName')))),
+		("gamePort",	str(bf2.serverSettings.getServerConfig('sv.serverPort'))),
+		("queryPort",	str(bf2.serverSettings.getServerConfig('sv.gameSpyPort'))),
+		("mapId",		str(getMapId(bf2.serverSettings.getMapName()))),
+		("mapName",		str(bf2.gameLogic.getMapName())),
+		("mapStart",	str(map_start)),
+		("mapEnd",		str(time())),
+		("winner",		str(bf2.gameLogic.getWinner())),
+		("gameMode",	str(gameModeId)),
+		("mod",			str(running_mod)),
+		("version",		"3.1"),
+		("pc",			len(statsMap)),
+	]
+	
+	if g_debug: print 'Finished Pre-Compile SNAPSHOT'
 
 	# only send rwa key if there was a winner
 	winner = bf2.gameLogic.getWinner()
@@ -300,55 +308,36 @@ def getSnapShot():
 	if g_debug: print "Army 1 (%s) Score: %s" % (str(roundArmies[1]), str(bf2.gameLogic.getTickets(1)))
 	if g_debug: print "Army 2 (%s) Score: %s" % (str(roundArmies[2]), str(bf2.gameLogic.getTickets(2)))
 	standardKeys += [
-			("ra1", str(roundArmies[1])),
-			("rs1", str(bf2.gameLogic.getTickets(1))),
-			("ra2", str(roundArmies[2])),
-			("rs2", str(bf2.gameLogic.getTickets(2))),
-			]
+		("ra1", str(roundArmies[1])),
+		("rs1", str(bf2.gameLogic.getTickets(1))),
+		("ra2", str(roundArmies[2])),
+		("rs2", str(bf2.gameLogic.getTickets(2))),
+    ]
 	
 	standardKeys += [("rst2", str(bf2.gameLogic.getTickets(2)))]
 	
 	stdKeyVals = []
 	for k in standardKeys:
-		stdKeyVals.append ("\\".join((k[0], str(k[1]))))
+		stdKeyVals.append (":".join(( '"' + str(k[0]) + '"', '"' + str(k[1]) + '"')))
 
-	snapShot += "\\".join(stdKeyVals)
+	snapShot = "{"
+	snapShot += ",".join(stdKeyVals)
 
 	if g_debug: print 'Snapshot Pre-processing complete: %s' % (str(snapShot))
 	
-	playerSnapShots = ""
+	playerSnapShots = []
 	if g_debug: print 'Num clients to base snap on: %d' % (len(statsMap))
 	for sp in statsMap.itervalues():
 		if g_debug: print 'Processing PID: %s' % (str(sp.profileId))
-		playerSnapShot = getPlayerSnapshot(sp)
+		playerSnap = getPlayerSnapshot(sp)
+		if len(playerSnap) > 0:
+			playerSnapShots.append (playerSnap)
 
-# Added by Chump - for bf2statistics stats
-		playerSnapShots += playerSnapShot
-		# remove zero vals
-		#zeroAllowedKeys = ('pid', 'a', 'mvns', 'mvks', 'vmns', 'vmks')
-		#transformedSnapShot = ""
-		#i = 0
-		#while i < len(playerSnapShot):
-		#	i += 1
-		#	key = ""
-		#	while playerSnapShot[i] != "\\":
-		#		key += playerSnapShot[i]
-		#		i += 1
-		#	i += 1
-		#	value = ""
-		#	while i < len(playerSnapShot) and playerSnapShot[i] != "\\":
-		#		value += playerSnapShot[i]
-		#		i += 1
-		#	if value != "0" or key[:key.find('_')] in zeroAllowedKeys:
-		#		keyVal = "\\" + key + "\\" + value
-		#		transformedSnapShot += keyVal
-		#if len(transformedSnapShot) > 0:
-		#	playerSnapShots += transformedSnapShot
 	print "Doing Player SNAPSHOTS"
-	snapShot += playerSnapShots
+	snapShot += ',"players":[' + ",".join(playerSnapShots) + ']'
 	
-	# Add EOF marker for validation
-	snapShot += "\\EOF\\1"
+	# Add EOF marker for validation 
+	snapShot += "}"
 	
 	return snapShot
 
@@ -361,337 +350,165 @@ def getPlayerSnapshot(playerStat):
 		return ""
 		
 	playerKeys = 	[
-			
-			# main keys 
-			("pID", 	playerStat.profileId),
 
-# Added by Chump - for bf2statistics stats
-			("name",	playerStat.name),
-
-			("t",		playerStat.team),
-			("a",		playerStat.army),
-			("ctime",	int(playerStat.timePlayed)),
-			("c",		playerStat.complete),
-			("ip",		playerStat.ipaddr),
-			
-			# score keys
-			("rs",		playerStat.score),
-			("cs",		playerStat.cmdScore),
-			#("ss", 	playerStat.skillScore),
-			("ts",		playerStat.teamScore),
-
-# Added by Chump - for bf2statistics stats
-			("kills",	playerStat.kills),
-			("deaths",	playerStat.deaths),
-
-# Added by Chump - for bf2statistics stats
-			("cpc",		playerStat.localScore.cpCaptures + playerStat.localScore.cpNeutralizes),
-			("cpa",		playerStat.localScore.cpAssists + playerStat.localScore.cpNeutralizeAssists),
-			#("cpc",		playerStat.localScore.cpCaptures),
-			#("cpn",		playerStat.localScore.cpNeutralizes),
-			#("cpa",		playerStat.localScore.cpAssists),
-			#("cpna",	playerStat.localScore.cpNeutralizeAssists),
-
-			("cpd",		playerStat.localScore.cpDefends),
-			("ka",		playerStat.localScore.damageAssists),
-			("he",		playerStat.localScore.heals),
-			("rev",		playerStat.localScore.revives),
-			("rsp",		playerStat.localScore.ammos),
-			("rep",		playerStat.localScore.repairs),
-			("tre",		playerStat.localScore.targetAssists),
-
-# Added by Chump - for bf2statistics stats
-			("drs",		playerStat.localScore.driverSpecials + playerStat.localScore.driverAssists),
-			#("drs",		playerStat.localScore.driverSpecials),
-			#("dra",		playerStat.localScore.driverAssists),
-			#("pa",		playerStat.localScore.passengerAssists),
-
-			("tmkl",	playerStat.teamkills),
-			("tmdg",	playerStat.localScore.teamDamages),
-			("tmvd",	playerStat.localScore.teamVehicleDamages),
-			("su",		playerStat.localScore.suicides),
-			("ks",		playerStat.longestKillStreak),
-			("ds",		playerStat.longestDeathStreak),
-			("rank",	playerStat.rank),
-			("ban",		playerStat.timesBanned),
-			("kck",		playerStat.timesKicked),		
-			
-			# time keys
-			("tco",		int(playerStat.timeAsCmd)),
-			("tsl",		int(playerStat.timeAsSql)),
-			("tsm",		int(playerStat.timeInSquad - playerStat.timeAsSql)),
-			("tlw",		int(playerStat.timePlayed - playerStat.timeAsCmd - playerStat.timeInSquad)),
-			
-			("ta0",		int(playerStat.timeAsArmy[ARMY_USA])),
-			("ta1",		int(playerStat.timeAsArmy[ARMY_MEC])),
-			("ta2", 	int(playerStat.timeAsArmy[ARMY_CHINESE])),
-			#XPack1 Stuff
-			("ta3", 	int(playerStat.timeAsArmy[ARMY_SEALS])),
-			("ta4", 	int(playerStat.timeAsArmy[ARMY_SAS])),
-			("ta5", 	int(playerStat.timeAsArmy[ARMY_SPETZNAS])),
-			("ta6", 	int(playerStat.timeAsArmy[ARMY_MECSF])),
-			("ta7", 	int(playerStat.timeAsArmy[ARMY_REBELS])),
-			("ta8", 	int(playerStat.timeAsArmy[ARMY_INSURGENTS])),
-			#EF Booster Pack Stuff
-			("ta9", 	int(playerStat.timeAsArmy[ARMY_EURO])),
-			#POE2 Stuff
-			("ta10", 	int(playerStat.timeAsArmy[ARMY_GER])),
-			("ta11", 	int(playerStat.timeAsArmy[ARMY_UKR])),
-			#AIX
-			("ta12",     int(playerStat.timeAsArmy[ARMY_UN])),
-			#CANADIAN FORCES
-			("ta13",     int(playerStat.timeAsArmy[ARMY_CANADIAN])),
-
-
-			
-			]
+		# main keys 
+		("pID", 	playerStat.profileId),
+		("name",	json_escape_string(playerStat.name)),
+		("t",		playerStat.team),
+		("a",		playerStat.army),
+		("ctime",	int(playerStat.timePlayed)),
+		("c",		playerStat.complete),
+		("ip",		playerStat.ipaddr),
+		("ai",		playerStat.isAIPlayer),
+		
+		# score keys
+		("rs",		playerStat.score),
+		("cs",		playerStat.cmdScore),
+		("ss", 		playerStat.skillScore),
+		("ts",		playerStat.teamScore),
+		("kills",	playerStat.kills),
+		("deaths",	playerStat.deaths),
+		("cpc",		playerStat.localScore.cpCaptures),
+		("cpn",		playerStat.localScore.cpNeutralizes),
+		("cpa",		playerStat.localScore.cpAssists),
+		("cpna",	playerStat.localScore.cpNeutralizeAssists),
+		("cpd",		playerStat.localScore.cpDefends),
+		("ka",		playerStat.localScore.damageAssists),
+		("he",		playerStat.localScore.heals),
+		("rev",		playerStat.localScore.revives),
+		("rsp",		playerStat.localScore.ammos),
+		("rep",		playerStat.localScore.repairs),
+		("tre",		playerStat.localScore.targetAssists),
+		("drs",		playerStat.localScore.driverSpecials + playerStat.localScore.driverAssists),
+		#("drs",	playerStat.localScore.driverSpecials),		// Processed in backend
+		#("dra",	playerStat.localScore.driverAssists),		// Processed in backend
+		#("pa",		playerStat.localScore.passengerAssists),	// Processed in backend
+		
+		# Additional player stats
+		("tmkl",	playerStat.teamkills),
+		("tmdg",	playerStat.localScore.teamDamages),
+		("tmvd",	playerStat.localScore.teamVehicleDamages),
+		("su",		playerStat.localScore.suicides),
+		("ks",		playerStat.longestKillStreak),
+		("ds",		playerStat.longestDeathStreak),
+		("rank",	playerStat.rank),
+		("ban",		playerStat.timesBanned),
+		("kck",		playerStat.timesKicked),		
+		
+		# time keys
+		("tco",		int(playerStat.timeAsCmd)),
+		("tsl",		int(playerStat.timeAsSql)),
+		("tsm",		int(playerStat.timeInSquad - playerStat.timeAsSql)),
+		("tlw",		int(playerStat.timePlayed - playerStat.timeAsCmd - playerStat.timeInSquad)),
+		("tvp", 	str(int(playerStat.vehicles[VEHICLE_TYPE_PARACHUTE].timeInObject)) )
+		
+	]
 	
-	# victims / victimizers
+	# Combine current keys into player snapshot
+	keyvals = []
+	for k in playerKeys:
+		keyvals.append (":".join(( '"' + str(k[0]) + '"', '"' + str(k[1]) + '"')))
+
+	playerSnapShot = ",".join(keyvals)
+	
+	# army time
+	keyvals = []
+	for index in range(NUM_ARMIES):
+		aTime = int(playerStat.timeAsArmy[index])
+		if aTime > 0:
+			keyvals.append ('{"id":' + str(index) + ',"time":' + str(aTime) + '}')
+			
+	armySnapShot = '"armyData":[' + ",".join(keyvals) + ']'
+	
+	# victims
+	keyvals = []
 	statsMap = getStatsMap()
 
 	for p in playerStat.killedPlayer:
 		if not p in statsMap:
 			if g_debug: print "killedplayer_id victim connorder: ", playerStat.killedPlayer[p], " wasnt in statsmap!"
 		else:
-			playerKeys.append(("mvns", str(statsMap[p].profileId)))
-			playerKeys.append(("mvks", str(playerStat.killedPlayer[p])))
-
-# Added by Chump - for bf2statistics stats
-	#for p in playerStat.killedByPlayer:
-	#	if not p in statsMap:
-	#		if g_debug: print "killedBYplayer_id victim connorder: ", playerStat.killedByPlayer[p], " wasnt in statsmap!"
-	#	else:
-	#		playerKeys.append(("vmns", str(statsMap[p].profileId)))
-	#		playerKeys.append(("vmks", str(playerStat.killedByPlayer[p])))
-
-	keyvals = []
-	for k in playerKeys:
-		keyvals.append ("\\".join((k[0], str(k[1]))))
-
-	playerSnapShot = "\\".join(keyvals)
+			keyvals.append ('{"id":' + str(statsMap[p].profileId) + ',"count":' + str(playerStat.killedPlayer[p]) + '}')
+			
+	victimSnapShot = '"victims":[' +",".join(keyvals) + ']'
 	
 	# medals
-	medalsSnapShot = ""
+	medalsSnapShot = '"awards":['
 	if playerStat.medals:
 		if g_debug: print "Medals Found (%s), Processing Medals Snapshot" % (playerStat.profileId)
-		medalsSnapShot = playerStat.medals.getSnapShot()
+		medalsSnapShot += playerStat.medals.getSnapShot()
+		
+	medalsSnapShot = medalsSnapShot + ']'
 	
-	# vehicles
-	vehicleKeys = 	[
-			("tv0",		int(playerStat.vehicles[VEHICLE_TYPE_ARMOR].timeInObject)),
-			("tv1",		int(playerStat.vehicles[VEHICLE_TYPE_AVIATOR].timeInObject)),
-			("tv2",		int(playerStat.vehicles[VEHICLE_TYPE_AIRDEFENSE].timeInObject)),
-			("tv3",		int(playerStat.vehicles[VEHICLE_TYPE_HELICOPTER].timeInObject)),
-			("tv4",		int(playerStat.vehicles[VEHICLE_TYPE_TRANSPORT].timeInObject)),
-			("tv5",		int(playerStat.vehicles[VEHICLE_TYPE_ARTILLERY].timeInObject)),
-			("tv6",		int(playerStat.vehicles[VEHICLE_TYPE_GRNDDEFENSE].timeInObject)),
-			("tvp",		int(playerStat.vehicles[VEHICLE_TYPE_PARACHUTE].timeInObject)),
-
-			# Added by Chump - these do not register with onEnterVehicle()
-			# XPack1 Stuff
-			#("tnv",		int(playerStat.vehicles[VEHICLE_TYPE_NIGHTVISION].timeInObject)),
-			#("tgm",		int(playerStat.vehicles[VEHICLE_TYPE_GASMASK].timeInObject)),
-			
-			("kv0",		playerStat.vehicles[VEHICLE_TYPE_ARMOR].kills),
-			("kv1",		playerStat.vehicles[VEHICLE_TYPE_AVIATOR].kills),
-			("kv2",		playerStat.vehicles[VEHICLE_TYPE_AIRDEFENSE].kills),
-			("kv3",		playerStat.vehicles[VEHICLE_TYPE_HELICOPTER].kills),
-			("kv4",		playerStat.vehicles[VEHICLE_TYPE_TRANSPORT].kills),
-			("kv5",		playerStat.vehicles[VEHICLE_TYPE_ARTILLERY].kills),
-			("kv6",		playerStat.vehicles[VEHICLE_TYPE_GRNDDEFENSE].kills),
-			
-			("bv0",		playerStat.vehicles[VEHICLE_TYPE_ARMOR].deaths),
-			("bv1",		playerStat.vehicles[VEHICLE_TYPE_AVIATOR].deaths),
-			("bv2",		playerStat.vehicles[VEHICLE_TYPE_AIRDEFENSE].deaths),
-			("bv3",		playerStat.vehicles[VEHICLE_TYPE_HELICOPTER].deaths),
-			("bv4",		playerStat.vehicles[VEHICLE_TYPE_TRANSPORT].deaths),
-			("bv5",		playerStat.vehicles[VEHICLE_TYPE_ARTILLERY].deaths),
-			("bv6",		playerStat.vehicles[VEHICLE_TYPE_GRNDDEFENSE].deaths),
-
-			("kvr0",	playerStat.vehicles[VEHICLE_TYPE_ARMOR].roadKills),
-			("kvr1",	playerStat.vehicles[VEHICLE_TYPE_AVIATOR].roadKills),
-			("kvr2",	playerStat.vehicles[VEHICLE_TYPE_AIRDEFENSE].roadKills),
-			("kvr3",	playerStat.vehicles[VEHICLE_TYPE_HELICOPTER].roadKills),
-			("kvr4",	playerStat.vehicles[VEHICLE_TYPE_TRANSPORT].roadKills),
-			("kvr5",	playerStat.vehicles[VEHICLE_TYPE_ARTILLERY].roadKills),
-			("kvr6",	playerStat.vehicles[VEHICLE_TYPE_GRNDDEFENSE].roadKills),
-
-			]
-
+	# vehicles - Backend does not care about VEHICLE_TYPE_[SOLDIER, NIGHTVISION, or GASMASK]
+	# NOTE: VEHICLE_TYPE_NIGHTVISION and VEHICLE_TYPE_GASMASK do not register with onEnterVehicle()
 	vehkeyvals = []
-	for k in vehicleKeys:
-		#if k[1] == 0: continue
-		vehkeyvals.append ("\\".join((k[0], str(k[1]))))
+	for i in range(7):
+		index = str(i)
+		v = playerStat.vehicles[i]
+		vTime = int(v.timeInObject)
+		if vTime > 0:
+			keyvals = []
+			keyvals.append ('"id":' + str(i))
+			keyvals.append ('"time":' + str(vTime))
+			keyvals.append ('"score":' + str(v.score))
+			keyvals.append ('"kills":' + str(v.kills))
+			keyvals.append ('"deaths":' + str(v.deaths))
+			keyvals.append ('"roadkills":' + str(v.roadKills))
+			vehkeyvals.append ('{' +  ",".join(keyvals) + '}')
 
-	vehicleSnapShot = "\\".join(vehkeyvals)
+	vehicleSnapShot = '"vehicleData":[' + ",".join(vehkeyvals) + ']'
 	
 	# kits
-	kitKeys = 	[
-			("tk0",		int(playerStat.kits[KIT_TYPE_AT].timeInObject)),
-			("tk1",		int(playerStat.kits[KIT_TYPE_ASSAULT].timeInObject)),
-			("tk2",		int(playerStat.kits[KIT_TYPE_ENGINEER].timeInObject)),
-			("tk3",		int(playerStat.kits[KIT_TYPE_MEDIC].timeInObject)),
-			("tk4",		int(playerStat.kits[KIT_TYPE_SPECOPS].timeInObject)),
-			("tk5",		int(playerStat.kits[KIT_TYPE_SUPPORT].timeInObject)),
-			("tk6",		int(playerStat.kits[KIT_TYPE_SNIPER].timeInObject)),
-			
-			("kk0",		playerStat.kits[KIT_TYPE_AT].kills),
-			("kk1",		playerStat.kits[KIT_TYPE_ASSAULT].kills),
-			("kk2",		playerStat.kits[KIT_TYPE_ENGINEER].kills),
-			("kk3",		playerStat.kits[KIT_TYPE_MEDIC].kills),
-			("kk4",		playerStat.kits[KIT_TYPE_SPECOPS].kills),
-			("kk5",		playerStat.kits[KIT_TYPE_SUPPORT].kills),
-			("kk6",		playerStat.kits[KIT_TYPE_SNIPER].kills),
-			
-			("dk0",		playerStat.kits[KIT_TYPE_AT].deaths),
-			("dk1",		playerStat.kits[KIT_TYPE_ASSAULT].deaths),
-			("dk2",		playerStat.kits[KIT_TYPE_ENGINEER].deaths),
-			("dk3",		playerStat.kits[KIT_TYPE_MEDIC].deaths),
-			("dk4",		playerStat.kits[KIT_TYPE_SPECOPS].deaths),
-			("dk5",		playerStat.kits[KIT_TYPE_SUPPORT].deaths),
-			("dk6",		playerStat.kits[KIT_TYPE_SNIPER].deaths),
-			]
-
 	kitkeyvals = []
-	for k in kitKeys:
-		kitkeyvals.append ("\\".join((k[0], str(k[1]))))
+	for i in range(NUM_KIT_TYPES):
+		index = str(i)
+		k = playerStat.kits[i]
+		kTime = int(k.timeInObject)
+		if kTime > 0:
+			keyvals = []
+			keyvals.append ('"id":' + str(i))
+			keyvals.append ('"time":' + str(kTime))
+			keyvals.append ('"score":' + str(k.score))
+			keyvals.append ('"kills":' + str(k.kills))
+			keyvals.append ('"deaths":' + str(k.deaths))
+			kitkeyvals.append ('{' +  ",".join(keyvals) + '}')
 
-	kitSnapShot = "\\".join(kitkeyvals)
-		
+	kitSnapShot = '"kitData":[' + ",".join(kitkeyvals) + ']'
+	
 	# weapons
-	weaponKeys = 	[
-			("tw0",		int(playerStat.weapons[WEAPON_TYPE_ASSAULT].timeInObject)),
-			("tw1",		int(playerStat.weapons[WEAPON_TYPE_ASSAULTGRN].timeInObject)),
-			("tw2",		int(playerStat.weapons[WEAPON_TYPE_CARBINE].timeInObject)),
-			("tw3",		int(playerStat.weapons[WEAPON_TYPE_LMG].timeInObject)),
-			("tw4",		int(playerStat.weapons[WEAPON_TYPE_SNIPER].timeInObject)),
-			("tw5",		int(playerStat.weapons[WEAPON_TYPE_PISTOL].timeInObject)),
-			("tw6",		int(playerStat.weapons[WEAPON_TYPE_ATAA].timeInObject)),
-			("tw7",		int(playerStat.weapons[WEAPON_TYPE_SMG].timeInObject)),
-			("tw8",		int(playerStat.weapons[WEAPON_TYPE_SHOTGUN].timeInObject)),
-			("te0",		int(playerStat.weapons[WEAPON_TYPE_KNIFE].timeInObject)),
-			("te1",		int(playerStat.weapons[WEAPON_TYPE_C4].timeInObject)),
-			("te3",		int(playerStat.weapons[WEAPON_TYPE_HANDGRENADE].timeInObject)),
-			("te2",		int(playerStat.weapons[WEAPON_TYPE_CLAYMORE].timeInObject)),
-			("te4",		int(playerStat.weapons[WEAPON_TYPE_SHOCKPAD].timeInObject)),
-			("te5",		int(playerStat.weapons[WEAPON_TYPE_ATMINE].timeInObject)),
-			# XPack1 Stuff
-			("te6",		int(playerStat.weapons[WEAPON_TYPE_TACTICAL].timeInObject)),
-			("te7",		int(playerStat.weapons[WEAPON_TYPE_GRAPPLINGHOOK].timeInObject)),
-			("te8",		int(playerStat.weapons[WEAPON_TYPE_ZIPLINE].timeInObject)),
-			
-			("kw0",		playerStat.weapons[WEAPON_TYPE_ASSAULT].kills),
-			("kw1",		playerStat.weapons[WEAPON_TYPE_ASSAULTGRN].kills),
-			("kw2",		playerStat.weapons[WEAPON_TYPE_CARBINE].kills),
-			("kw3",		playerStat.weapons[WEAPON_TYPE_LMG].kills),
-			("kw4",		playerStat.weapons[WEAPON_TYPE_SNIPER].kills),
-			("kw5",		playerStat.weapons[WEAPON_TYPE_PISTOL].kills),
-			("kw6",		playerStat.weapons[WEAPON_TYPE_ATAA].kills),
-			("kw7",		playerStat.weapons[WEAPON_TYPE_SMG].kills),
-			("kw8",		playerStat.weapons[WEAPON_TYPE_SHOTGUN].kills),
-			("ke0",		playerStat.weapons[WEAPON_TYPE_KNIFE].kills),
-			("ke1",		playerStat.weapons[WEAPON_TYPE_C4].kills),
-			("ke3",		playerStat.weapons[WEAPON_TYPE_HANDGRENADE].kills),
-			("ke2",		playerStat.weapons[WEAPON_TYPE_CLAYMORE].kills),
-			("ke4",		playerStat.weapons[WEAPON_TYPE_SHOCKPAD].kills),
-			("ke5",		playerStat.weapons[WEAPON_TYPE_ATMINE].kills),
-
-			("bw0",		playerStat.weapons[WEAPON_TYPE_ASSAULT].deaths),
-			("bw1",		playerStat.weapons[WEAPON_TYPE_ASSAULTGRN].deaths),
-			("bw2",		playerStat.weapons[WEAPON_TYPE_CARBINE].deaths),
-			("bw3",		playerStat.weapons[WEAPON_TYPE_LMG].deaths),
-			("bw4",		playerStat.weapons[WEAPON_TYPE_SNIPER].deaths),
-			("bw5",		playerStat.weapons[WEAPON_TYPE_PISTOL].deaths),
-			("bw6",		playerStat.weapons[WEAPON_TYPE_ATAA].deaths),
-			("bw7",		playerStat.weapons[WEAPON_TYPE_SMG].deaths),
-			("bw8",		playerStat.weapons[WEAPON_TYPE_SHOTGUN].deaths),
-			("be0",		playerStat.weapons[WEAPON_TYPE_KNIFE].deaths),
-			("be1",		playerStat.weapons[WEAPON_TYPE_C4].deaths),
-			("be3",		playerStat.weapons[WEAPON_TYPE_HANDGRENADE].deaths),
-			("be2",		playerStat.weapons[WEAPON_TYPE_CLAYMORE].deaths),
-			("be4",		playerStat.weapons[WEAPON_TYPE_SHOCKPAD].deaths),
-			("be5",		playerStat.weapons[WEAPON_TYPE_ATMINE].deaths),
-			# XPack1 Stuff
-			("be8",		playerStat.weapons[WEAPON_TYPE_ZIPLINE].deaths),
-			("be9",		playerStat.weapons[WEAPON_TYPE_GRAPPLINGHOOK].deaths),
-
-			# XPack1 Stuff
-			("de6",		playerStat.weapons[WEAPON_TYPE_TACTICAL].deployed),
-			("de7",		playerStat.weapons[WEAPON_TYPE_GRAPPLINGHOOK].deployed),
-			("de8",		playerStat.weapons[WEAPON_TYPE_ZIPLINE].deployed),
-			
-			("sw0",		playerStat.weapons[WEAPON_TYPE_ASSAULT].bulletsFired),
-			("sw1",		playerStat.weapons[WEAPON_TYPE_ASSAULTGRN].bulletsFired),
-			("sw2",		playerStat.weapons[WEAPON_TYPE_CARBINE].bulletsFired),
-			("sw3",		playerStat.weapons[WEAPON_TYPE_LMG].bulletsFired),
-			("sw4",		playerStat.weapons[WEAPON_TYPE_SNIPER].bulletsFired),
-			("sw5",		playerStat.weapons[WEAPON_TYPE_PISTOL].bulletsFired),
-			("sw6",		playerStat.weapons[WEAPON_TYPE_ATAA].bulletsFired),
-			("sw7",		playerStat.weapons[WEAPON_TYPE_SMG].bulletsFired),
-			("sw8",		playerStat.weapons[WEAPON_TYPE_SHOTGUN].bulletsFired),
-			
-			("se0",		playerStat.weapons[WEAPON_TYPE_KNIFE].bulletsFired),
-			("se1",		playerStat.weapons[WEAPON_TYPE_C4].bulletsFired),
-			("se2",		playerStat.weapons[WEAPON_TYPE_CLAYMORE].bulletsFired),
-			("se3",		playerStat.weapons[WEAPON_TYPE_HANDGRENADE].bulletsFired),
-			("se4",		playerStat.weapons[WEAPON_TYPE_SHOCKPAD].bulletsFired),
-			("se5",		playerStat.weapons[WEAPON_TYPE_ATMINE].bulletsFired),
-
-			("hw0",		playerStat.weapons[WEAPON_TYPE_ASSAULT].bulletsHit),
-			("hw1",		playerStat.weapons[WEAPON_TYPE_ASSAULTGRN].bulletsHit),
-			("hw2",		playerStat.weapons[WEAPON_TYPE_CARBINE].bulletsHit),
-			("hw3",		playerStat.weapons[WEAPON_TYPE_LMG].bulletsHit),
-			("hw4",		playerStat.weapons[WEAPON_TYPE_SNIPER].bulletsHit),
-			("hw5",		playerStat.weapons[WEAPON_TYPE_PISTOL].bulletsHit),
-			("hw6",		playerStat.weapons[WEAPON_TYPE_ATAA].bulletsHit),
-			("hw7",		playerStat.weapons[WEAPON_TYPE_SMG].bulletsHit),
-			("hw8",		playerStat.weapons[WEAPON_TYPE_SHOTGUN].bulletsHit),
-			
-			("he0",		playerStat.weapons[WEAPON_TYPE_KNIFE].bulletsHit),
-			("he1",		playerStat.weapons[WEAPON_TYPE_C4].bulletsHit),
-			("he2",		playerStat.weapons[WEAPON_TYPE_CLAYMORE].bulletsHit),
-			("he3",		playerStat.weapons[WEAPON_TYPE_HANDGRENADE].bulletsHit),
-			("he4",		playerStat.weapons[WEAPON_TYPE_SHOCKPAD].bulletsHit),
-			("he5",		playerStat.weapons[WEAPON_TYPE_ATMINE].bulletsHit),
-			]
-
-	weapkeyvals = []
-	for k in weaponKeys:
-		weapkeyvals.append ("\\".join((k[0], str(k[1]))))
-
-	weaponSnapShot = "\\".join(weapkeyvals)
-	
-	allSnapShots = []
-	if len(playerSnapShot) > 0: allSnapShots = allSnapShots + [playerSnapShot]
-	if len(medalsSnapShot) > 0: allSnapShots = allSnapShots + [medalsSnapShot]
-	if len(vehicleSnapShot) > 0: allSnapShots = allSnapShots + [vehicleSnapShot]
-	if len(kitSnapShot) > 0: allSnapShots = allSnapShots + [kitSnapShot]
-	if len(weaponSnapShot) > 0: allSnapShots = allSnapShots + [weaponSnapShot]
-	
-	playerSnapShot = "\\".join(allSnapShots)
-	
-	# add pid to all keys (gamespy likes this)
-	transformedSnapShot = ""
+	# NOTE Backend does not care about WEAPON_TYPE_TARGETING, so skip it!
 	i = 0
-	idString = "_" + str(playerStat.connectionOrderNr)
+	weapkeyvals = []
+	for j in range(NUM_WEAPON_TYPES):
 	
-	while i < len(playerSnapShot):
-		key = ""
-		while playerSnapShot[i] != "\\":
-			key += playerSnapShot[i]
-			i += 1
-		i += 1
-		value = ""
-		while i < len(playerSnapShot) and playerSnapShot[i] != "\\":
-			value += playerSnapShot[i]
-			i += 1
-
-		transformedKeyVal = key + idString + "\\" + value
-		if i != len(playerSnapShot):
-			transformedKeyVal += "\\"
+		# Skip targetting
+		if (j == WEAPON_TYPE_TARGETING):
+			continue
 			
-		transformedSnapShot += transformedKeyVal
-		i += 1
+		index = str(i)
+		w = playerStat.weapons[i]
+		wTime = int(w.timeInObject)
+		if wTime > 0:
+			keyvals = []
+			keyvals.append ('"id":' + str(i))
+			keyvals.append ('"time":' + str(wTime))
+			keyvals.append ('"score":' + str(w.score))
+			keyvals.append ('"kills":' + str(w.kills))
+			keyvals.append ('"deaths":' + str(w.deaths))
+			keyvals.append ('"fired":' + str(w.bulletsFired))
+			keyvals.append ('"hits":' + str(w.bulletsHit))
+			keyvals.append ('"deployed":' + str(w.deployed))
+			weapkeyvals.append ('{' +  ",".join(keyvals) + '}')
 		
-	return "\\" + transformedSnapShot
+		i += 1
 
+	weaponSnapShot = '"weaponData":[' + ",".join(weapkeyvals) + ']'
+	
+	allSnapShots = [playerSnapShot, armySnapShot, kitSnapShot, vehicleSnapShot, weaponSnapShot, victimSnapShot, medalsSnapShot]
+	playerSnapShot = ",".join(allSnapShots)
+	return "{" + playerSnapShot + "}"
+
+
+def sayAll(msg):
+	host.rcon_invoke("game.sayAll \"" + str(msg) + "\"")

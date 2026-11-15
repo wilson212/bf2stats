@@ -1,11 +1,11 @@
 <?php
-function getVehicleByID($id)
+function getVehicleByID($id): string
 {
 	$lines  = file(getcwd()."/queries/vehicle.list");
 	return $lines [$id];
 }
 
-function getVehicleCount()
+function getVehicleCount(): int
 {
 	$lines  = file(getcwd()."/queries/vehicle.list");
 	return count($lines);	

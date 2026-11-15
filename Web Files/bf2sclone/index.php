@@ -1,29 +1,28 @@
 <?php
 // Include our config file
-include('config.inc.php');
-	
+include(__DIR__ . '/config.inc.php');
 // process page start:
 $time_start = microtime(true);
 
 // Define a smaller Directory seperater and ROOT path
 define('DS', DIRECTORY_SEPARATOR);
-define('ROOT', dirname(__FILE__));
+define('ROOT', __DIR__);
 define('CACHE_PATH', ROOT . DS . 'cache' . DS);
 define('TEMPLATE_PATH', ROOT . DS . 'template' . DS);
 
 // IFF PID -> go show stats!
-$PID = isset($_GET["pid"]) ? $_GET["pid"] : "0";
-$GO = isset($_GET["go"]) ? $_GET["go"] : "0";
-$GET = isset($_POST["get"]) ? $_POST["get"] : 0;
-$SET = isset($_POST["set"]) ? $_POST["set"] : 0;
-$ADD = isset($_GET["add"]) ? $_GET["add"] : 0;
-$REMOVE = isset($_GET["remove"]) ? $_GET["remove"] : 0;
-$LEADERBOARD = isset($_POST["leaderboard"]) ? $_POST["leaderboard"] : "0";
+$PID = $_GET["pid"] ?? "0";
+$GO = $_GET["go"] ?? "0";
+$GET = $_POST["get"] ?? 0;
+$SET = $_POST["set"] ?? 0;
+$ADD = $_GET["add"] ?? 0;
+$REMOVE = $_GET["remove"] ?? 0;
+$LEADERBOARD = $_POST["leaderboard"] ?? "0";
 
 // Check for leaderboard getting / setting
 if($SET)
 {
-	setcookie("leaderboard", $LEADERBOARD, time() + 315360000, '/', $DOMAIN); // delete after 10 years ;)
+	setcookie("leaderboard", (string) $LEADERBOARD, ['expires' => time() + 315360000, 'path' => '/', 'domain' => (string) $DOMAIN]); // delete after 10 years ;)
 	#NOTE: after setting a cookie, you must redirect!
 	header("Location: ".$ROOT."?go=my-leaderboard"); // refresh for cookie
 	exit();
@@ -32,7 +31,7 @@ if($SET)
 if($GET)
 {
 	// output the nice save-url
-	header("Location: ". $ROOT .'?go=my-leaderboard&pid='.urlencode($LEADERBOARD));
+	header("Location: ". $ROOT .'?go=my-leaderboard&pid='.urlencode((string) $LEADERBOARD));
 	exit();
 }
 
@@ -94,7 +93,7 @@ if($GO == "0" && $PID)
 		include( TEMPLATE_PATH . 'playerstats.php' );
 		
 		// write cache file
-		writeCache($PID, trim($template));
+		writeCache($PID, trim((string) $template));
 		$LASTUPDATE = intToTime(0);
 		$NEXTUPDATE = intToTime(RANKING_REFRESH_TIME);		
 		$template 	= str_replace('{:LASTUPDATE:}', $LASTUPDATE, $template);
@@ -105,7 +104,7 @@ if($GO == "0" && $PID)
 /***************************************************************
  * CURRENT RANKINGS
  ***************************************************************/
-elseif(strcasecmp($GO, 'currentranking') == 0)
+elseif(strcasecmp((string) $GO, 'currentranking') == 0)
 {
 	$rankings = getRankingCollection();
 	$LASTUPDATE = 0;
@@ -134,26 +133,19 @@ elseif(strcasecmp($GO, 'currentranking') == 0)
 /***************************************************************
  * MY LEADER BOARD
  ***************************************************************/
-elseif((strcasecmp($GO, 'my-leaderboard') == 0))
+elseif((strcasecmp((string) $GO, 'my-leaderboard') == 0))
 {
-	if($ADD > 0)
+	if ($ADD > 0) {
+        $LEADERBOARD = $_COOKIE['leaderboard'] != '' ? $_COOKIE['leaderboard'].','.$ADD : $ADD;
+        setcookie("leaderboard", (string) $LEADERBOARD, ['expires' => time()+315360000, 'path' => '/', 'domain' => (string) $DOMAIN]);
+        // delete after 10 years ;)
+        #NOTE: after setting a cookie, you must redirect!
+        header("Location: ".$ROOT."?go=my-leaderboard");
+        // refresh for cookie
+        exit();
+    } elseif($REMOVE > 0)
 	{
-		if ($_COOKIE['leaderboard'] != '')
-		{
-			$LEADERBOARD = $_COOKIE['leaderboard'].','.$ADD;
-		}
-		else
-		{
-			$LEADERBOARD = $ADD;
-		}
-		setcookie("leaderboard", $LEADERBOARD, time()+315360000, '/', $DOMAIN); // delete after 10 years ;)
-		#NOTE: after setting a cookie, you must redirect!
-		header("Location: ".$ROOT."?go=my-leaderboard"); // refresh for cookie
-		exit();
-	}
-	elseif($REMOVE > 0)
-	{
-		$LEADERBOARD = explode(',', $_COOKIE['leaderboard']); // get array
+		$LEADERBOARD = explode(',', (string) $_COOKIE['leaderboard']); // get array
 		
 		// delete "remove"
 		foreach($LEADERBOARD as $i => $value) 
@@ -165,16 +157,16 @@ elseif((strcasecmp($GO, 'my-leaderboard') == 0))
 		}
 		$LEADERBOARD = implode(',', $LEADERBOARD); // back to string ;)
 
-		setcookie("leaderboard", $LEADERBOARD, time() + 315360000, '/', $DOMAIN); // delete after 10 years ;)
+		setcookie("leaderboard", $LEADERBOARD, ['expires' => time() + 315360000, 'path' => '/', 'domain' => (string) $DOMAIN]); // delete after 10 years ;)
 		header("Location: ".$ROOT."?go=my-leaderboard"); // refresh for cookie
 		exit();
 	}
 	# nothing todo -> load from cookie
-	$LEADERBOARD = isset($_COOKIE['leaderboard']) ? $_COOKIE['leaderboard'] : '';
+	$LEADERBOARD = $_COOKIE['leaderboard'] ?? '';
 	
 	if($PID != 0) // a saved leaderboard
 	{
-		$LEADER = getLeaderBoardEntries(urldecode($PID)); # query from database
+		$LEADER = getLeaderBoardEntries(urldecode((string) $PID)); # query from database
 	}
 	else
 	{
@@ -188,10 +180,12 @@ elseif((strcasecmp($GO, 'my-leaderboard') == 0))
 /***************************************************************
  * SEARCH FOR PLAYERS
  ***************************************************************/
-elseif(strcasecmp($GO, 'search') == 0)
+elseif(strcasecmp((string) $GO, 'search') == 0)
 {
-	$SEARCHVALUE = isset($_POST["searchvalue"]) ? $_POST["searchvalue"] : "0";
-	if($SEARCHVALUE) $searchresults = getSearchResults($SEARCHVALUE);
+	$SEARCHVALUE = $_POST["searchvalue"] ?? "0";
+	if ($SEARCHVALUE) {
+        $searchresults = getSearchResults($SEARCHVALUE);
+    }
 	include( TEMPLATE_PATH .'search.php');
 }
 
@@ -225,7 +219,7 @@ else
 }
 
 // Closing connection
-mysql_close($link);
+mysqli_close($link);
 
 //processing page END
 $time_end = microtime(true);

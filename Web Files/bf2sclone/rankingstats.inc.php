@@ -41,28 +41,36 @@ function getRankingCollection()
 	return $full;	
 }
 
-function getTopTen()
+/**
+ * @return list<mixed>
+ */
+function getTopTen(): array
 {
+	global $link;
 	include(ROOT . DS . 'queries'. DS .'getTopTen.php'); // imports the correct sql statement
-	$result = mysql_query($query) or die('Query failed: ' . mysql_error());	
-	$data = array();
+	$result = mysqli_query($link, $query) or die('Query failed: ' . mysqli_error($ink));	
+	$data = [];
 	
-	while ($row = mysql_fetch_assoc($result)) 
+	while ($row = mysqli_fetch_assoc($result)) 
 	{
 		$data[] = $row;
 	}	 	
-	mysql_free_result($result);
+	mysqli_free_result($result);
 	return $data;
 }
 
-function getTopCaptures()
+/**
+ * @return array{id: mixed, name: mixed, rank: mixed, value: mixed, country: mixed}[]
+ */
+function getTopCaptures(): array
 {
+	global $link;
 	include(ROOT . DS . 'queries'. DS .'getRankingTopCaptures.php'); // imports the correct sql statement
-	$result = mysql_query($query) or die('Query failed: ' . mysql_error());	
-	$data = array();
+	$result = mysqli_query($link, $query) or die('Query failed: ' . mysqli_error($link));	
+	$data = [];
 	
 	$idx = 0;
-	while ($row = mysql_fetch_assoc($result)) 
+	while ($row = mysqli_fetch_assoc($result)) 
 	{
 		$data[$idx]['id'] = $row['id'];
 		$data[$idx]['name'] = $row['name'];
@@ -71,18 +79,22 @@ function getTopCaptures()
 		$data[$idx]['country'] = $row['country'];
 		$idx++;
 	}	 	
-	mysql_free_result($result);
+	mysqli_free_result($result);
 	return $data;
 }
 
-function getTopCMD()
+/**
+ * @return array{id: mixed, name: mixed, rank: mixed, value: mixed, country: mixed}[]
+ */
+function getTopCMD(): array
 {
+	global $link;
 	include( ROOT . DS . 'queries'. DS .'getRankingTopCMD.php' ); // imports the correct sql statement
-	$result = mysql_query($query) or die('Query failed: ' . mysql_error());	
-	$data = array();
+	$result = mysqli_query($link, $query) or die('Query failed: ' . mysqli_error($link));	
+	$data = [];
 	
 	$idx = 0;
-	while ($row = mysql_fetch_assoc($result)) 
+	while ($row = mysqli_fetch_assoc($result)) 
 	{
 		$data[$idx]['id'] = $row['id'];
 		$data[$idx]['name'] = $row['name'];
@@ -91,18 +103,22 @@ function getTopCMD()
 		$data[$idx]['country'] = $row['country'];
 		$idx++;
 	}	 	
-	mysql_free_result($result);
+	mysqli_free_result($result);
 	return $data;
 }
 
-function getTopCMDScore()
+/**
+ * @return array{id: mixed, name: mixed, rank: mixed, value: mixed, country: mixed}[]
+ */
+function getTopCMDScore(): array
 {
+	global $link;
 	include( ROOT . DS . 'queries'. DS .'getRankingTopCmdScore.php' ); // imports the correct sql statement
-	$result = mysql_query($query) or die('Query failed: ' . mysql_error());	
-	$data = array();
+	$result = mysqli_query($link, $query) or die('Query failed: ' . mysqli_error($link));	
+	$data = [];
 	
 	$idx = 0;
-	while ($row = mysql_fetch_assoc($result)) 
+	while ($row = mysqli_fetch_assoc($result)) 
 	{
 		$data[$idx]['id'] = $row['id'];
 		$data[$idx]['name'] = $row['name'];
@@ -111,38 +127,46 @@ function getTopCMDScore()
 		$data[$idx]['country'] = $row['country'];
 		$idx++;
 	}	 	
-	mysql_free_result($result);
+	mysqli_free_result($result);
 	return $data;
 }
 
-function getTopRndScore()
+/**
+ * @return array{id: mixed, name: mixed, rank: mixed, value: mixed, country: mixed}[]
+ */
+function getTopRndScore(): array
 {
+	global $link;
 	include( ROOT . DS . 'queries'. DS .'getRankingTopRndScore.php' ); // imports the correct sql statement
-	$result = mysql_query($query) or die('Query failed: ' . mysql_error());	
-	$data = array();
+	$result = mysqli_query($link, $query) or die('Query failed: ' . mysqli_error($link));	
+	$data = [];
 	
 	$idx = 0;
-	while ($row = mysql_fetch_assoc($result)) 
+	while ($row = mysqli_fetch_assoc($result)) 
 	{
 		$data[$idx]['id'] = $row['id'];
 		$data[$idx]['name'] = $row['name'];
 		$data[$idx]['rank'] = $row['rank'];
-		$data[$idx]['value'] = $row['rndscore'];
+		$data[$idx]['value'] = $row['bestscore'];
 		$data[$idx]['country'] = $row['country'];
 		$idx++;
 	}	 	
-	mysql_free_result($result);
+	mysqli_free_result($result);
 	return $data;
 }
 
-function getTopFlagwork()
+/**
+ * @return array{id: mixed, name: mixed, rank: mixed, value: mixed, country: mixed}[]
+ */
+function getTopFlagwork(): array
 {
+	global $link;
 	include( ROOT . DS . 'queries'. DS .'getRankingTopFlagwork.php' ); // imports the correct sql statement
-	$result = mysql_query($query) or die('Query failed: ' . mysql_error());	
-	$data = array();
+	$result = mysqli_query($link, $query) or die('Query failed: ' . mysqli_error($link));	
+	$data = [];
 	
 	$idx = 0;
-	while ($row = mysql_fetch_assoc($result)) 
+	while ($row = mysqli_fetch_assoc($result)) 
 	{
 		$data[$idx]['id'] = $row['id'];
 		$data[$idx]['name'] = $row['name'];
@@ -151,18 +175,22 @@ function getTopFlagwork()
 		$data[$idx]['country'] = $row['country'];
 		$idx++;
 	}	 	
-	mysql_free_result($result);
+	mysqli_free_result($result);
 	return $data;
 }
 
-function getTopKDR()
+/**
+ * @return array{id: mixed, name: mixed, rank: mixed, value: mixed, country: mixed}[]
+ */
+function getTopKDR(): array
 {
+	global $link;
 	include( ROOT . DS . 'queries'. DS .'getRankingTopKDR.php' ); // imports the correct sql statement
-	$result = mysql_query($query) or die('Query failed: ' . mysql_error());	
-	$data = array();
+	$result = mysqli_query($link, $query) or die('Query failed: ' . mysqli_error($link));	
+	$data = [];
 	
 	$idx = 0;
-	while ($row = mysql_fetch_assoc($result)) {
+	while ($row = mysqli_fetch_assoc($result)) {
 		$data[$idx]['id'] = $row['id'];
 		$data[$idx]['name'] = $row['name'];
 		$data[$idx]['rank'] = $row['rank'];
@@ -170,18 +198,22 @@ function getTopKDR()
 		$data[$idx]['country'] = $row['country'];
 		$idx++;
 	}	 	
-	mysql_free_result($result);
+	mysqli_free_result($result);
 	return $data;
 }
 
-function getTopSani()
+/**
+ * @return array{id: mixed, name: mixed, rank: mixed, value: mixed, country: mixed}[]
+ */
+function getTopSani(): array
 {
+	global $link;
 	include(ROOT . DS . 'queries'. DS .'getRankingTopSani.php'); // imports the correct sql statement
-	$result = mysql_query($query) or die('Query failed: ' . mysql_error());	
-	$data = array();
+	$result = mysqli_query($link, $query) or die('Query failed: ' . mysqli_error($link));	
+	$data = [];
 	
 	$idx = 0;
-	while ($row = mysql_fetch_assoc($result)) 
+	while ($row = mysqli_fetch_assoc($result)) 
 	{
 		$data[$idx]['id'] = $row['id'];
 		$data[$idx]['name'] = $row['name'];
@@ -190,18 +222,22 @@ function getTopSani()
 		$data[$idx]['country'] = $row['country'];
 		$idx++;
 	}	 	
-	mysql_free_result($result);
+	mysqli_free_result($result);
 	return $data;
 }
 
-function getTopWLR()
+/**
+ * @return array{id: mixed, name: mixed, rank: mixed, value: mixed, country: mixed}[]
+ */
+function getTopWLR(): array
 {
+	global $link;
 	include(ROOT . DS . 'queries'. DS .'getRankingTopWLR.php'); // imports the correct sql statement
-	$result = mysql_query($query) or die('Query failed: ' . mysql_error());	
-	$data = array();
+	$result = mysqli_query($link, $query) or die('Query failed: ' . mysqli_error($link));	
+	$data = [];
 	
 	$idx = 0;
-	while ($row = mysql_fetch_assoc($result)) 
+	while ($row = mysqli_fetch_assoc($result)) 
 	{
 		$data[$idx]['id'] = $row['id'];
 		$data[$idx]['name'] = $row['name'];
@@ -210,18 +246,22 @@ function getTopWLR()
 		$data[$idx]['country'] = $row['country'];
 		$idx++;
 	}	 	
-	mysql_free_result($result);
+	mysqli_free_result($result);
 	return $data;
 }
 
-function getTopSPM()
+/**
+ * @return array{id: mixed, name: mixed, rank: mixed, value: mixed, country: mixed}[]
+ */
+function getTopSPM(): array
 {
+	global $link;
 	include(ROOT . DS . 'queries'. DS .'getRankingTopSPM.php'); // imports the correct sql statement
-	$result = mysql_query($query) or die('Query failed: ' . mysql_error());	
-	$data = array();
+	$result = mysqli_query($link, $query) or die('Query failed: ' . mysqli_error($link));	
+	$data = [];
 	
 	$idx = 0;
-	while ($row = mysql_fetch_assoc($result)) 
+	while ($row = mysqli_fetch_assoc($result)) 
 	{
 		$data[$idx]['id'] = $row['id'];
 		$data[$idx]['name'] = $row['name'];
@@ -230,18 +270,22 @@ function getTopSPM()
 		$data[$idx]['country'] = $row['country'];
 		$idx++;
 	}	 	
-	mysql_free_result($result);
+	mysqli_free_result($result);
 	return $data;
 }
 
-function getTopScore()
+/**
+ * @return array{id: mixed, name: mixed, rank: mixed, value: mixed, country: mixed}[]
+ */
+function getTopScore(): array
 {
+	global $link;
 	include(ROOT . DS . 'queries'. DS .'getRankingTopScore.php'); // imports the correct sql statement
-	$result = mysql_query($query) or die('Query failed: ' . mysql_error());	
-	$data = array();
+	$result = mysqli_query($link, $query) or die('Query failed: ' . mysqli_error($link));	
+	$data = [];
 	
 	$idx = 0;
-	while ($row = mysql_fetch_assoc($result)) 
+	while ($row = mysqli_fetch_assoc($result)) 
 	{
 		$data[$idx]['id'] = $row['id'];
 		$data[$idx]['name'] = $row['name'];
@@ -250,18 +294,22 @@ function getTopScore()
 		$data[$idx]['country'] = $row['country'];
 		$idx++;
 	}	 	
-	mysql_free_result($result);
+	mysqli_free_result($result);
 	return $data;
 }
 
-function getTopKills()
+/**
+ * @return array{id: mixed, name: mixed, rank: mixed, value: mixed, country: mixed}[]
+ */
+function getTopKills(): array
 {
+	global $link;
 	include(ROOT . DS . 'queries'. DS .'getRankingTopKills.php'); // imports the correct sql statement
-	$result = mysql_query($query) or die('Query failed: ' . mysql_error());	
-	$data = array();
+	$result = mysqli_query($link, $query) or die('Query failed: ' . mysqli_error($link));	
+	$data = [];
 	
 	$idx = 0;
-	while ($row = mysql_fetch_assoc($result)) 
+	while ($row = mysqli_fetch_assoc($result)) 
 	{
 		$data[$idx]['id'] = $row['id'];
 		$data[$idx]['name'] = $row['name'];
@@ -270,18 +318,22 @@ function getTopKills()
 		$data[$idx]['country'] = $row['country'];
 		$idx++;
 	}	 	
-	mysql_free_result($result);
+	mysqli_free_result($result);
 	return $data;
 }
 
-function getTopTeamwork()
+/**
+ * @return array{id: mixed, name: mixed, rank: mixed, value: mixed, country: mixed}[]
+ */
+function getTopTeamwork(): array
 {
+	global $link;
 	include(ROOT . DS . 'queries'. DS .'getRankingTopTeamwork.php'); // imports the correct sql statement
-	$result = mysql_query($query) or die('Query failed: ' . mysql_error());	
-	$data = array();
+	$result = mysqli_query($link, $query) or die('Query failed: ' . mysqli_error($link));	
+	$data = [];
 	
 	$idx = 0;
-	while ($row = mysql_fetch_assoc($result)) 
+	while ($row = mysqli_fetch_assoc($result)) 
 	{
 		$data[$idx]['id'] = $row['id'];
 		$data[$idx]['name'] = $row['name'];
@@ -290,7 +342,7 @@ function getTopTeamwork()
 		$data[$idx]['country'] = $row['country'];
 		$idx++;
 	}	 	
-	mysql_free_result($result);
+	mysqli_free_result($result);
 	return $data;
 }
 ?>

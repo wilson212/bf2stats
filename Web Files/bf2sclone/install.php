@@ -1,17 +1,17 @@
 <?php
 // Define a smaller Directory seperater and ROOT path
 define('DS', DIRECTORY_SEPARATOR);
-define('ROOT', dirname(__FILE__));
+define('ROOT', __DIR__);
 define('CACHE_PATH', ROOT . DS . 'cache' . DS);
 define('TEMPLATE_PATH', ROOT . DS . 'template' . DS);
 
 // Check for post data
-$DBIP = isset($_POST["dbip"]) ? $_POST["dbip"] : 0;
-$DBNAME = isset($_POST["dbname"]) ? $_POST["dbname"] : 0;
-$DBLOGIN = isset($_POST["dblogin"]) ? $_POST["dblogin"] : 0;
-$DBPASSWORD = isset($_POST["dbpassword"]) ? $_POST["dbpassword"] : 0;
+$DBIP = $_POST["dbip"] ?? 0;
+$DBNAME = $_POST["dbname"] ?? 0;
+$DBLOGIN = $_POST["dblogin"] ?? 0;
+$DBPASSWORD = $_POST["dbpassword"] ?? 0;
 
-$TITLE = isset($_POST["title"]) ? $_POST["title"] : 0;
+$TITLE = $_POST["title"] ?? 0;
 
 // If no post data, then load the instaler	
 if ($DBIP === 0)	
@@ -81,7 +81,7 @@ if ($DBIP === 0)
 else
 {
 	// Include our functions file
-	include_once('functions.inc.php');
+	include_once(__DIR__ . '/functions.inc.php');
 	
 	// delete cache files, otherwise links wont work
 	deleteCompleteCache();

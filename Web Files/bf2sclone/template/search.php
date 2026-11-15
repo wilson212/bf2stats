@@ -47,8 +47,9 @@ $template = '
 				<form action="?go=search" method="post">
 					<label>Search Player by ID\'s or Nick: <br>
 						<input name="searchvalue" size="80" value="';
-							if ($SEARCHVALUE)
-								$template .= $SEARCHVALUE;
+							if ($SEARCHVALUE) {
+                                $template .= $SEARCHVALUE;
+                            }
 							$template .= '" type="text">
 					</label> 
 					<input name="search" value="Search" type="submit">
@@ -77,23 +78,25 @@ if ($SEARCHVALUE)
 						<td>
 							<img src="'.$ROOT.'game-images/ranks/icon/rank_'.$searchresults[$i]['rank'].'.gif" alt="" style="border: 0pt none ;"> 
 							<a href="'.$ROOT.'?pid='.$searchresults[$i]['id'].'"> '.$searchresults[$i]['name'].'</a>&nbsp;
-							<img src="'.$ROOT.'game-images/flags/'.strtoupper($searchresults[$i]['country']).'.png" height="12" width = "16">
+							<img src="'.$ROOT.'game-images/flags/'.strtoupper((string) $searchresults[$i]['country']).'.png" height="12" width = "16">
 						</td>
 						<td>'.$searchresults[$i]['score'].'</td>
 						<td>'.$searchresults[$i]['spm'].'</td>
 						<td>';
-							if ($searchresults[$i]['kdr'])
-								$template .= $searchresults[$i]['kdr'];
-							else
-								$template .= 'N/A';
+							if ($searchresults[$i]['kdr']) {
+                                $template .= $searchresults[$i]['kdr'];
+                            } else {
+                                $template .= 'N/A';
+                            }
 							$template .= '
 						</td>
 						<td title="'.$searchresults[$i]['time'].'">'.intToTime($searchresults[$i]['time']).'</td>
 						<td>';
-							if (getLastUpdate(getcwd().'/cache/'.$searchresults[$i]['id'].'.cache')<0)
-								$template .= 'N/A';
-							else
-								$template .= intToTime(getLastUpdate(getcwd().'/cache/'.$searchresults[$i]['id'].'.cache'));
+							if (getLastUpdate(getcwd().'/cache/'.$searchresults[$i]['id'].'.cache')<0) {
+                                $template .= 'N/A';
+                            } else {
+                                $template .= intToTime(getLastUpdate(getcwd().'/cache/'.$searchresults[$i]['id'].'.cache'));
+                            }
 						  $template .= '								
 						</td>
 						<td>'.$searchresults[$i]['id'].'</td>

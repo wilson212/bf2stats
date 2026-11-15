@@ -52,7 +52,7 @@ $template = '
 										<td>
 											<img src="'.$ROOT.'game-images/ranks/icon/rank_'.$value['rank'].'.gif">&nbsp;
 											<a href="'.$ROOT.'?pid='.$value['id'].'">'.$value['name'].'</a>&nbsp;
-											<img src="'.$ROOT.'game-images/flags/'.strtoupper($value['country']).'.png" height="12" width="16">
+											<img src="'.$ROOT.'game-images/flags/'.strtoupper((string) $value['country']).'.png" height="12" width="16">
 										</td>
 										<td>'.$value['score'].'</td>
 									</tr>';

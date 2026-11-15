@@ -1,0 +1,29 @@
+.mws-table tfoot tr td {
+    color: #feffde;
+}
+
+.mws-table tfoot tr:nth-child(2) {
+    border-top: 1px dotted #888888;
+}
+
+table#rank-advancement {
+    width: 100%;
+    border-spacing: 0.8em;
+}
+
+table#rank-advancement tr td {
+    padding-bottom: 0.8em;
+}
+
+td#rank {
+    width: 128px !important;
+    vertical-align: top !important;
+}
+
+.thumbnail-value {
+    display: inline-table;
+    min-height: 118px;
+    vertical-align: middle;
+    height: 100%;
+    width: 100%;
+}

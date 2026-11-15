@@ -1,0 +1,7 @@
+ARG PHP_VERSION=8.3
+FROM docker.io/library/php:${PHP_VERSION}-apache-bookworm
+RUN apt-get update && apt-get install -y --no-install-recommends mariadb-server python3 \
+    && docker-php-ext-install pdo_mysql mysqli \
+    && a2enmod rewrite \
+    && rm -rf /var/lib/apt/lists/*
+WORKDIR /workspace

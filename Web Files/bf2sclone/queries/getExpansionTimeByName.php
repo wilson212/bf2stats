@@ -1,10 +1,10 @@
 <?php
-function getExpasionTimeQueryByName($PID, $ExpansionID)
+function getExpasionTimeQueryByName($PID, string $ExpansionID): string
 {
 	$id_lines  = file(getcwd()."/queries/maps-".$ExpansionID.".list");
 	$maplist = '';
 	$first = true;
-	foreach ($id_lines as $key => $value)
+	foreach ($id_lines as $value)
 	{
 		if ($first)
 		{

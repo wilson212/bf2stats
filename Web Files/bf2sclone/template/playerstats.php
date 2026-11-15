@@ -41,16 +41,17 @@ $template = '
 			<div id="prefCol">
 				<div id="prefers">
 					<img class="solider" src="';
-					if (file_exists(getcwd() . '/game-images/soldiers/' . $playerFavorite['army'] . '_' . $playerFavorite['kit'] . '_' . $playerFavorite['weapon'] . '.jpg'))
-						$template .= $ROOT . 'game-images/soldiers/' . $playerFavorite['army'] . '_' . $playerFavorite['kit'] . '_' . $playerFavorite['weapon'] . '.jpg';
-					else
-						$template .= $ROOT . 'game-images/soldiers/' . $playerFavorite['army'] . '_' . $playerFavorite['kit'] . '_5.jpg'; // show pistol...
+					if (file_exists(getcwd() . '/game-images/soldiers/' . $playerFavorite['army'] . '_' . $playerFavorite['kit'] . '_' . $playerFavorite['weapon'] . '.jpg')) {
+                        $template .= $ROOT . 'game-images/soldiers/' . $playerFavorite['army'] . '_' . $playerFavorite['kit'] . '_' . $playerFavorite['weapon'] . '.jpg';
+                    } else {
+                        $template .= $ROOT . 'game-images/soldiers/' . $playerFavorite['army'] . '_' . $playerFavorite['kit'] . '_5.jpg';
+                    } // show pistol...
 					$template .= '" alt="' . $player['name'] . ' - ' . getArmyByID($playerFavorite['army']) . '" />
 					<img class="weapon" src="' . $ROOT . 'game-images/weapons/weapon_' . $playerFavorite['weapon'] . '.jpg" alt="' . $weapons[$playerFavorite['weapon']]['name'] . '" />
 					<img class="vehicle" src="' . $ROOT . 'game-images/vehicles/vehicles_' . $playerFavorite['vehicle'] . '.jpg" alt="' . getVehicleByID($playerFavorite['vehicle']) . '" />
 					<img class="kit" src="' . $ROOT . 'game-images/kits/kit_' . $playerFavorite['kit'] . '.jpg" alt="' . getKitByID($playerFavorite['kit']) . '" />
 					<img class="map" src="' . $ROOT . 'game-images/maps/map_' . $playerFavorite['map'] . '.jpg" alt="' . getMapByID( $playerFavorite['map'] ) . '" />
-					<img id="flag" src="' . $ROOT . 'game-images/flags/' . strtoupper($player['country']) . '.png" alt="' . getCountryByCode($player['country']) . '" width="32" height="24" />
+					<img id="flag" src="' . $ROOT . 'game-images/flags/' . strtoupper((string) $player['country']) . '.png" alt="' . getCountryByCode($player['country']) . '" width="32" height="24" />
 				</div>
 				<a id="add-to-mlb" href="'.$ROOT.'/?go=my-leaderboard&add=' . $PID . '"><img src="' . $ROOT . '/site-images/user_add.png" alt="Add to My Leader Board" /></a>
 			</div>
@@ -121,10 +122,11 @@ $template = '
 								<td nowrap="nowrap">Wins &amp; Losses</td>
 								<td nowrap="nowrap">';
 									$template .= @number_format($player['wins']) ."&nbsp;/&nbsp;" . @number_format($player['losses']).'&nbsp;(';
-									if ($player['losses'])
-										$template .= round($player['wins'] / $player['losses'], 2); 
-									else
-										$template .= $player['wins'];
+									if ($player['losses']) {
+                                        $template .= round($player['wins'] / $player['losses'], 2);
+                                    } else {
+                                        $template .= $player['wins'];
+                                    }
 									$template .= ')
 								</td>
 							</tr>
@@ -182,10 +184,11 @@ $template = '
 							<tr>
 								<td><acronym title="Score per minute">SPM</acronym></td>
 								<td>';
-									if (intToMins($player['time']))
-										$template .= round(($player['score']/intToMins($player['time'])),4);
-									else
-										$template .= $player['score'];
+									if (intToMins($player['time'])) {
+                                        $template .= round(($player['score']/intToMins($player['time'])),4);
+                                    } else {
+                                        $template .= $player['score'];
+                                    }
 									$template .= '
 								</td>
 							</tr>
@@ -196,10 +199,11 @@ $template = '
 							<tr>
 								<td nowrap="nowrap">K/D Ratio</td>
 								<td>';
-									if ($player['deaths'])
-										$template .= round($player['kills']/$player['deaths'],3); 
-									else
-										$template .= $player['kills'];
+									if ($player['deaths']) {
+                                        $template .= round($player['kills']/$player['deaths'],3);
+                                    } else {
+                                        $template .= $player['kills'];
+                                    }
 										
 									$template .= '
 								</td>
@@ -215,20 +219,22 @@ $template = '
 							<tr>
 								<td nowrap="nowrap">Per Minute </td>
 								<td>';
-									if (intToMins($player['time'])) 
-										$template .= round($player['kills'] / round(intToMins($player['time']),0), 3);
-									else
-										$template .= @number_format($player['kills']);
+									if (intToMins($player['time'])) {
+                                        $template .= round($player['kills'] / round(intToMins($player['time']),0), 3);
+                                    } else {
+                                        $template .= @number_format($player['kills']);
+                                    }
 									$template .= '
 								</td>
 							</tr>
 							<tr>
 								<td nowrap="nowrap">Per Round </td>
 								<td>';
-									if ($player['rounds']) 
-										$template .= round($player['kills'] / $player['rounds'], 3);
-									else
-										$template .= round($player['kills']);
+									if ($player['rounds']) {
+                                        $template .= round($player['kills'] / $player['rounds'], 3);
+                                    } else {
+                                        $template .= round($player['kills']);
+                                    }
 									$template .= '
 								</td>
 							</tr>
@@ -238,30 +244,33 @@ $template = '
 							<tr>
 								<td>Total &amp; Streak</td>
 								<td>';
-									if ($player['deathstreak'])
-										$template .= @number_format($player['deaths']) . ' / ' . $player['deathstreak'];
-									else
-										$template .= @number_format($player['deaths']);
+									if ($player['deathstreak']) {
+                                        $template .= @number_format($player['deaths']) . ' / ' . $player['deathstreak'];
+                                    } else {
+                                        $template .= @number_format($player['deaths']);
+                                    }
 									$template .= '
 								</td>
 							</tr>
 							<tr>
 								<td>Per Minute </td>
 								<td>';
-									if ($player['time'] )
-										$template .= round($player['deaths'] / round(intToMins($player['time']),0), 3);
-									else
-										$template .= $player['deaths'];
+									if ($player['time']) {
+                                        $template .= round($player['deaths'] / round(intToMins($player['time']),0), 3);
+                                    } else {
+                                        $template .= $player['deaths'];
+                                    }
 									$template .=	'
 								</td>
 							</tr>
 							<tr>
 								<td>Per Round </td>
 								<td>';
-									if ($player['rounds'])
-										$template .= round($player['deaths'] / $player['rounds'], 3);
-									else
-										$template .= round($player['deaths']);
+									if ($player['rounds']) {
+                                        $template .= round($player['deaths'] / $player['rounds'], 3);
+                                    } else {
+                                        $template .= round($player['deaths']);
+                                    }
 									$template .= '
 								</td>
 							</tr>
@@ -297,10 +306,11 @@ $template = '
 					
 								<td>'. @number_format($armies[0]['loss'.$i]) .'</td>
 								<td>';
-							if ($armies[0]['loss'.$i])
-								$template .= round($armies[0]['win'.$i] / $armies[0]['loss'.$i],2);
-							else
-								$template .= $armies[0]['win'.$i];
+							if ($armies[0]['loss'.$i]) {
+                                $template .= round($armies[0]['win'.$i] / $armies[0]['loss'.$i],2);
+                            } else {
+                                $template .= $armies[0]['win'.$i];
+                            }
 							$template .= '</td>
 									<td>'.$armies[0]["best$i"].'</td>
 								</tr>
@@ -322,10 +332,11 @@ $template = '
 							<td>' . round($armySummary['average']['win'],0) . '</td>
 							<td>' . round($armySummary['average']['loss'],0) . '</td>
 							<td>';
-								if ($armySummary['average']['loss'])
-									$template .= round($armySummary['average']['win']/$armySummary['total']['loss'], 0);
-								else
-									$template .= round($armySummary['average']['win'],0);
+								if ($armySummary['average']['loss']) {
+                                    $template .= round($armySummary['average']['win']/$armySummary['total']['loss'], 0);
+                                } else {
+                                    $template .= round($armySummary['average']['win'],0);
+                                }
 								$template .= '
 							</td>
 							<td>' . round($armySummary['average']['best'],0) . '</td>
@@ -353,10 +364,11 @@ $template = '
 								<td>'. @number_format($maps[$i]['win']) .'</td>
 								<td>'. @number_format($maps[$i]['loss']) .'</td>
 								<td>';
-								if ($maps[$i]['loss'])
-									$template .= round($maps[$i]['win']/$maps[$i]['loss'],2);
-								else
-									$template .= $maps[$i]['win'];
+								if ($maps[$i]['loss']) {
+                                    $template .= round($maps[$i]['win']/$maps[$i]['loss'],2);
+                                } else {
+                                    $template .= $maps[$i]['win'];
+                                }
 								$template .= '
 								</td>
 								<td>'.$maps[$i]['best'].'</td>
@@ -426,10 +438,7 @@ $template = '
 						$count = getVehicleCount();
 						for ($i=0; $i < $count; $i++)
 						{
-							if ($vehicles[0]['kills'.$i])
-								$vehicleTotalKills = (100 * round($vehicles[0]['kills'.$i] / $player['kills'], 2));
-							else
-								$vehicleTotalKills = 0;
+							$vehicleTotalKills = $vehicles[0]['kills'.$i] ? 100 * round($vehicles[0]['kills'.$i] / $player['kills'], 2) : 0;
 							
 							$fav = $playerFavorite['vehicle'];
 							$template .= ($fav == $i) ? '<tr class="favorite">' : '<tr>';
@@ -439,10 +448,11 @@ $template = '
 								<td><span class="abbr" alt="Accounts for '.$vehicleTotalKills.'% of all kills">'. @number_format($vehicles[0]['kills'.$i]) .'</span></td>
 								<td>'. @number_format($vehicles[0]['deaths'.$i]) .'</td>
 								<td>';
-								if ($vehicles[0]['deaths'.$i])
-									$template .= round(($vehicles[0]['kills'.$i] + $vehicles[0]['rk'.$i]) / $vehicles[0]['deaths'.$i], 2);
-								else 
-									$template .= @number_format($vehicles[0]['kills'.$i]);
+								if ($vehicles[0]['deaths'.$i]) {
+                                    $template .= round(($vehicles[0]['kills'.$i] + $vehicles[0]['rk'.$i]) / $vehicles[0]['deaths'.$i], 2);
+                                } else {
+                                    $template .= @number_format($vehicles[0]['kills'.$i]);
+                                }
 								$template .= '</td>
 								<td>'.$vehicles[0]['rk'.$i].'</td>
 							</tr>
@@ -454,10 +464,11 @@ $template = '
 							<td nowrap="nowrap">' . intToTime($vehicleSummary['total']['time']) . '</td>
 							<td>
 								<span class="abbr" alt="Accounts for ';
-									if ($vehicleSummary['total']['kills'])
-										$template .= (100 * round($vehicleSummary['total']['kills'] / $player['kills'], 2));
-									else
-										$template .= 0;
+									if ($vehicleSummary['total']['kills']) {
+                                        $template .= (100 * round($vehicleSummary['total']['kills'] / $player['kills'], 2));
+                                    } else {
+                                        $template .= 0;
+                                    }
 									$template .= '
 									% of all kills">' . @number_format($vehicleSummary['total']['kills']) . '
 								</span>
@@ -522,15 +533,17 @@ $template = '
 								{
 									$template .= (100 * round($kits[0]['kills'.$i] / $player['kills'],2));
 								}
-								else
-									$template .= 0;
+								else {
+                                    $template .= 0;
+                                }
 								$template .= '% of all kills">'. @number_format($kits[0]['kills'.$i]) .'</span></td>
 								<td>'. @number_format($kits[0]['deaths'.$i]) .'</td>
 								<td>';
-								if ($kits[0]['deaths'.$i])
-									$template .= round($kits[0]['kills'.$i] / $kits[0]['deaths'.$i], 2);
-								else
-									$template .= $kits[0]['kills'.$i];
+								if ($kits[0]['deaths'.$i]) {
+                                    $template .= round($kits[0]['kills'.$i] / $kits[0]['deaths'.$i], 2);
+                                } else {
+                                    $template .= $kits[0]['kills'.$i];
+                                }
 								$template .= '</td>
 							</tr>';
 						}
@@ -574,18 +587,22 @@ $template = '
 								<td>'. @number_format($weapons[$i]['deaths']) .'</td>
 					
 								<td>';
-								if ($weapons[$i]['deaths'])
-									$template .=  round($weapons[$i]['kills'] / $weapons[$i]['deaths'],2);
-								else
-									$template .=  $weapons[$i]['kills'];
+								if ($weapons[$i]['deaths']) {
+                                    $template .=  round($weapons[$i]['kills'] / $weapons[$i]['deaths'],2);
+                                } else {
+                                    $template .=  $weapons[$i]['kills'];
+                                }
 								#calc shot hit Ratio
 								if ($weapons[$i]['hit'])
 								{
 									$ratio = round(100 * $weapons[$i]['hit'] / $weapons[$i]['fired'],2);
-									if ($ratio == 1) $ratio = 100;
+									if ($ratio == 1) {
+                                        $ratio = 100;
+                                    }
 								}
-								else
-									$ratio = 0;
+								else {
+                                    $ratio = 0;
+                                }
 								$template .=  '</td>
 								<td title="'.$ratio.'"><span class="abbr" alt="Shots: '. @number_format($weapons[$i]['fired']) .', Hits: '. @number_format($weapons[$i]['hit']) .'">'.round($ratio, 2).'%</span></td>
 							</tr>';	
@@ -595,10 +612,11 @@ $template = '
 							<td id="weapon-11">Explosives (C4, Claymore, AT Mine)</td>
 							<td nowrap="nowrap" title="' . ($weapons[11]['time'] + $weapons[13]['time'] + $weapons[14]['time']) . '">' . intToTime($weapons[11]['time'] + $weapons[13]['time'] + $weapons[14]['time']) . '</td>';
 						
-							if ($weapons[11]['kills'] + $weapons[13]['kills'] + $weapons[14]['kills'])
-								$ratio = round((100 * $weapons[11]['kills'] + $weapons[13]['kills'] + $weapons[14]['kills']) / $player['kills'],2);
-							else
-								$ratio = 0;
+							if ($weapons[11]['kills'] + $weapons[13]['kills'] + $weapons[14]['kills']) {
+                                $ratio = round((100 * $weapons[11]['kills'] + $weapons[13]['kills'] + $weapons[14]['kills']) / $player['kills'],2);
+                            } else {
+                                $ratio = 0;
+                            }
 								
 							$template .= '<td><span class="abbr" alt="Accounts for ';
 							$template .= round($ratio,2);
@@ -609,18 +627,20 @@ $template = '
 							<td>' . @number_format($weapons[11]['deaths'] + $weapons[13]['deaths'] + $weapons[14]['deaths']) . '</td>';
 							
 								// kd ratio
-								if ($weapons[11]['deaths' ]+ $weapons[13]['deaths'] + $weapons[14]['deaths'])
-									$ratio = ($weapons[11]['kills'] + $weapons[13]['kills'] + $weapons[14]['kills']) / ($weapons[11]['deaths'] + $weapons[13]['deaths'] + $weapons[14]['deaths']);
-								else
-									$ratio =  $weapons[11]['kills'] + $weapons[13]['kills'] + $weapons[14]['kills'];
+								if ($weapons[11]['deaths' ]+ $weapons[13]['deaths'] + $weapons[14]['deaths']) {
+                                    $ratio = ($weapons[11]['kills'] + $weapons[13]['kills'] + $weapons[14]['kills']) / ($weapons[11]['deaths'] + $weapons[13]['deaths'] + $weapons[14]['deaths']);
+                                } else {
+                                    $ratio =  $weapons[11]['kills'] + $weapons[13]['kills'] + $weapons[14]['kills'];
+                                }
 									
 							$template .=   
 							'<td>'.round($ratio,2);
 								//kd fired/hit ratio
-								if ($weapons[11]['hit'] + $weapons[13]['hit'] + $weapons[14]['hit'])
-									$ratio = ($weapons[11]['fired'] + $weapons[13]['fired'] + $weapons[14]['fired']) / ($weapons[11]['hit'] + $weapons[13]['hit'] + $weapons[14]['hit']);
-								else
-									$ratio =  0;			
+								if ($weapons[11]['hit'] + $weapons[13]['hit'] + $weapons[14]['hit']) {
+                                    $ratio = ($weapons[11]['fired'] + $weapons[13]['fired'] + $weapons[14]['fired']) / ($weapons[11]['hit'] + $weapons[13]['hit'] + $weapons[14]['hit']);
+                                } else {
+                                    $ratio =  0;
+                                }			
 								$template .= '
 							</td>
 							<td title="' . $ratio . '"><span class="abbr" alt="Shots: ' . @number_format($weapons[11]['fired']+$weapons[13]['fired']+$weapons[14]['fired']) . ', Hits: ' . 
@@ -632,17 +652,15 @@ $template = '
 							<td><span class="abbr" alt="Accounts for ' . $weapons[12]['totalkills'] . '% of all kills">' . @number_format($weapons[12]['kills']) . '</span></td>
 							<td>' . @number_format($weapons[12]['deaths']) . '</td>
 							<td>';
-								if ($weapons[12]['deaths'])
-									$template .= round($weapons[12]['kills']/$weapons[12]['deaths'],2);
-								else
-									$template .= $weapons[12]['kills'];
+								if ($weapons[12]['deaths']) {
+                                    $template .= round($weapons[12]['kills']/$weapons[12]['deaths'],2);
+                                } else {
+                                    $template .= $weapons[12]['kills'];
+                                }
 
 								$template .= '</td>';
 
-								if ($weapons[12]['hit'])
-									$ratio = round(100*$weapons[12]['hit']/$weapons[12]['fired'],2);
-								else
-									$ratio = $weapons[12]['fired'];
+								$ratio = $weapons[12]['hit'] ? round(100*$weapons[12]['hit']/$weapons[12]['fired'],2) : $weapons[12]['fired'];
 							$template .= '
 							<td title="' . $ratio . '"><span class="abbr" alt="Shots: ' . @number_format($weapons[12]['fired']) . ', Hits: ' . @number_format($weapons[12]['hit']) . '">' . round($ratio,2) . '%</span></td>
 						</tr>
@@ -690,10 +708,11 @@ $template = '
 									<td><span class="abbr" alt="Accounts for '. round($weapons[$i]['totalkills'], 2) .'% of all kills">'. @number_format($weapons[$i]['kills']) .'</span></td>
 									<td>'. @number_format($weapons[$i]['deaths']) .'</td>
 									<td>';
-							if ($weapons[$i]['deaths'])
-								$template .= round($weapons[$i]['kills']/$weapons[$i]['deaths'],2);
-							else
-								$template .= $weapons[$i]['kills'];	
+							if ($weapons[$i]['deaths']) {
+                                $template .= round($weapons[$i]['kills']/$weapons[$i]['deaths'],2);
+                            } else {
+                                $template .= $weapons[$i]['kills'];
+                            }	
 							$template .= '
 									</td>
 									<td>'. @number_format($weapons[$i]['fired']) .'</td>
@@ -729,26 +748,26 @@ $template = '
 						<tr>
 							<td>Favorite Victim<br />(Kills to) </td>';
 
-								if ($victims && trim($victims[0]['victim']) != '')
-								  $template .= '<td nowrap="nowrap"><acronym title="his rank is '.getRankByID(getRankFromPID($victims[0]['victim'])).'"><img src="'.$ROOT.'game-images/ranks/icon/rank_'.getRankFromPID($victims[0]['victim']).'.gif"> <a rel="nofollow" href="?pid=' . $victims[0]['victim'] . '">' . getNickFromPID($victims[0]['victim']) . '</a></acronym> (' . $victims[0]['count'] . ')</td>';
-								else
-									$template .= '<td>You are no one\'s worst enemy. Go bully someone.</td>';
+								if ($victims && trim((string) $victims[0]['victim']) !== '') {
+                                    $template .= '<td nowrap="nowrap"><acronym title="his rank is '.getRankByID(getRankFromPID($victims[0]['victim'])).'"><img src="'.$ROOT.'game-images/ranks/icon/rank_'.getRankFromPID($victims[0]['victim']).'.gif"> <a rel="nofollow" href="?pid=' . $victims[0]['victim'] . '">' . getNickFromPID($victims[0]['victim']) . '</a></acronym> (' . $victims[0]['count'] . ')</td>';
+                                } else {
+                                    $template .= '<td>You are no one\'s worst enemy. Go bully someone.</td>';
+                                }
 							$template .= '
 						</tr>
 						<tr>
 							<td nowrap="nowrap">More Victims<br />(Top 10)</td>
 							<td>';
 
-								if (count($victims) < 10)
-									$limit = count($victims)-1;
-								else
-									$limit = 9;
+								$limit = count($victims) < 10 ? count($victims)-1 : 9;
 								$written = 0;
 								for ($i=1; $i<=$limit; $i++)
 								{
-									if (trim($victims[$i]['victim']) != '' && $victims[$i]['count'] > 1) // minimum 2 kills
+									if (trim((string) $victims[$i]['victim']) !== '' && $victims[$i]['count'] > 1) // minimum 2 kills
 									{
-										if ($written != 0) $template .=  ', ';
+										if ($written != 0) {
+                                            $template .=  ', ';
+                                        }
 										$written++;
 										$template .=  '<acronym title="his rank is '.getRankByID(getRankFromPID($victims[$i]['victim'])).'"><img src="'.$ROOT.'game-images/ranks/icon/rank_'.getRankFromPID($victims[$i]['victim']).'.gif"> <a rel="nofollow" href="?pid='.$victims[$i]['victim'].'">'.getNickFromPID($victims[$i]['victim']).'</a></acronym> ('.$victims[$i]['count'].')';
 									}
@@ -758,26 +777,26 @@ $template = '
 						</tr>
 						<tr>
 							<td nowrap="nowrap">Worst Enemy<br />(Deaths by)</td>';
-								if ($enemies)
-									$template .=  '<td nowrap="nowrap"><acronym title="his rank is '.getRankByID(getRankFromPID($enemies[0]['attacker'])).'"><img src="'.$ROOT.'game-images/ranks/icon/rank_'.getRankFromPID($enemies[0]['attacker']).'.gif"> <a rel="nofollow" href="?pid=' . $enemies[0]['attacker'] . '">' . getNickFromPID($enemies[0]['attacker']) . '</a></acronym> (' . $enemies[0]['count'] . ')</td>';
-								else
-									$template .=  '<td>It seems you are invincible!</td>';
+								if ($enemies) {
+                                    $template .=  '<td nowrap="nowrap"><acronym title="his rank is '.getRankByID(getRankFromPID($enemies[0]['attacker'])).'"><img src="'.$ROOT.'game-images/ranks/icon/rank_'.getRankFromPID($enemies[0]['attacker']).'.gif"> <a rel="nofollow" href="?pid=' . $enemies[0]['attacker'] . '">' . getNickFromPID($enemies[0]['attacker']) . '</a></acronym> (' . $enemies[0]['count'] . ')</td>';
+                                } else {
+                                    $template .=  '<td>It seems you are invincible!</td>';
+                                }
 								$template .= '
 						</tr>
 						<tr>
 							<td nowrap="nowrap">More Enemies<br />(Top 10)</td>
 							<td>';
-								if (count($enemies) < 10)
-									$limit = count($enemies)-1;
-								else
-									$limit = 9;			
+								$limit = count($enemies) < 10 ? count($enemies)-1 : 9;			
 								
 								$written = 0;
 								for ($i=1; $i<=$limit; $i++)
 								{
-									if ($enemies && trim($enemies[$i]['attacker']) != '' && $enemies[$i]['count'] > 1) // minimum 2 kills
+									if ($enemies && trim((string) $enemies[$i]['attacker']) !== '' && $enemies[$i]['count'] > 1) // minimum 2 kills
 									{
-										if ($written != 0) $template .=  ', ';
+										if ($written != 0) {
+                                            $template .=  ', ';
+                                        }
 										$written++;
 										$template .=  '<acronym title="his rank is '.getRankByID(getRankFromPID($enemies[$i]['attacker'])).'"><img src="'.$ROOT.'game-images/ranks/icon/rank_'.getRankFromPID($enemies[$i]['attacker']).'.gif"> <a rel="nofollow" href="?pid='.$enemies[$i]['attacker'].'">'.getNickFromPID($enemies[$i]['attacker']).'</a></acronym> ('.$enemies[$i]['count'].')';
 									}
@@ -824,10 +843,11 @@ $template = '
 						<tr>
 							<td>Cost ($50 base)</td>
 							<td nowrap="nowrap">';
-								if($player['time'])
-									$template .= round(50/($player['time']/3600), 4);
-								else
-									$template .= 0;
+								if ($player['time']) {
+                                    $template .= round(50/($player['time']/3600), 4);
+                                } else {
+                                    $template .= 0;
+                                }
 								$template .= '&nbsp;<u><abbr title="cents per hour">cph</abbr></u>
 							</td>
 						</tr>
@@ -848,7 +868,7 @@ $template = '
 								$weapon = getUnlockByID($uid);
 								$template .=  '
 									<div class="unlock-inline" onmouseover="show_mine(this);" onmouseout="hide_mine(this);">
-											<a href="http://wiki.bf2s.com/weapons/unlocks/'.strtolower($weapon).'"><img src="'.$ROOT.'spacer.gif" style="background: url(\''.$ROOT.'game-images/unlocks/'.$unlocks[$uid]['state'] .'/'.$uid.'.png\');" width="115" height="33" alt="" /></a>
+											<a href="http://wiki.bf2s.com/weapons/unlocks/'.strtolower((string) $weapon).'"><img src="'.$ROOT.'spacer.gif" style="background: url(\''.$ROOT.'game-images/unlocks/'.$unlocks[$uid]['state'] .'/'.$uid.'.png\');" width="115" height="33" alt="" /></a>
 											<div class="unlock-pop dir-left">
 												<img src="'.$ROOT.'spacer.gif" style="background: url(\''.$ROOT.'game-images/unlocks/full/'.$uid.'.jpg\');" width="128" height="128" alt="" />
 												<strong>Click for more about the '.$weapon.'</strong>
@@ -875,18 +895,20 @@ $template = '
 								$template .= '
 								<div class="award-inline" onMouseOver="show_mine(this);" onMouseOut="hide_mine(this);">
 									<img src="' . $ROOT . 'spacer.gif" style="background: url(\'' . $ROOT . 'game-images/awards/';
-									if ($awardlevel>0)
-										$template .= 'front/'.$PlayerAwards[$i][$awardlevel][AWD].'_'.$awardlevel;
-									else
-										$template .= 'locked/'.$PlayerAwards[$i][$awardlevel][AWD].'_0';
+									if ($awardlevel>0) {
+                                        $template .= 'front/'.$PlayerAwards[$i][$awardlevel][AWD].'_'.$awardlevel;
+                                    } else {
+                                        $template .= 'locked/'.$PlayerAwards[$i][$awardlevel][AWD].'_0';
+                                    }
 									
 									$template .= '.png\');" width="42" height="42" alt="" />
 									
 									<div class="award-pop dir-';
-										if ($i < $count / 2)
-											$template .= 'left';
-										else
-											$template .= 'right';
+										if ($i < $count / 2) {
+                                            $template .= 'left';
+                                        } else {
+                                            $template .= 'right';
+                                        }
 									
 										$template .= '">
 										<p>
@@ -915,17 +937,19 @@ $template = '
 										$template .= '
 										<div class="award-inline" onMouseOver="show_mine(this);" onMouseOut="hide_mine(this);">
 											<img src="' . $ROOT . 'spacer.gif" style="background: url(\'' . $ROOT . 'game-images/awards/';
-											if ($PlayerAwards[$i][0][LEVEL]>0)
-												$template .= 'front/'.$PlayerAwards[$i][0][AWD];
-											else
-												$template .= 'locked/'.$PlayerAwards[$i][0][AWD];
+											if ($PlayerAwards[$i][0][LEVEL]>0) {
+                                                $template .= 'front/'.$PlayerAwards[$i][0][AWD];
+                                            } else {
+                                                $template .= 'locked/'.$PlayerAwards[$i][0][AWD];
+                                            }
 											
 											$template .= '.png\');" width="42" height="42" alt="" />
 											<div class="award-pop dir-';
-											if ($i-$oldcount<$awdcount/2)
-												$template .= 'left';
-											else
-												$template .= 'right';
+											if ($i-$oldcount<$awdcount/2) {
+                                                $template .= 'left';
+                                            } else {
+                                                $template .= 'right';
+                                            }
 											
 											$template .= '">
 												<p>
@@ -957,17 +981,19 @@ $template = '
 										$template .= '
 										<div class="award-inline" onMouseOver="show_mine(this);" onMouseOut="hide_mine(this);">
 											<img src="' . $ROOT . 'spacer.gif" style="background: url(\'' . $ROOT . 'game-images/awards/';
-											if ($PlayerAwards[$i][0][LEVEL]>0)
-												$template .= 'front/'.$PlayerAwards[$i][0][AWD];
-											else
-												$template .= 'locked/'.$PlayerAwards[$i][0][AWD];
+											if ($PlayerAwards[$i][0][LEVEL]>0) {
+                                                $template .= 'front/'.$PlayerAwards[$i][0][AWD];
+                                            } else {
+                                                $template .= 'locked/'.$PlayerAwards[$i][0][AWD];
+                                            }
 											
 											$template .= '.png\');" width="42" height="42" alt="" />
 											<div class="award-pop dir-';
-											if ($i-$oldcount<$awdcount/2)
-												$template .= 'left';
-											else
-												$template .= 'right';
+											if ($i-$oldcount<$awdcount/2) {
+                                                $template .= 'left';
+                                            } else {
+                                                $template .= 'right';
+                                            }
 											
 											$template .= '">
 												<p>
@@ -996,17 +1022,19 @@ $template = '
 													$template .= '
 													<div class="award-inline" onMouseOver="show_mine(this);" onMouseOut="hide_mine(this);">
 														<img src="' . $ROOT . 'spacer.gif" style="background: url(\'' . $ROOT . 'game-images/awards/';
-														if ($awardlevel>0)
-															$template .= 'front/'.$PlayerAwards[$i][$awardlevel][AWD].'_'.$awardlevel;
-														else
-															$template .= 'locked/'.$PlayerAwards[$i][$awardlevel][AWD].'_0';
+														if ($awardlevel>0) {
+                                                            $template .= 'front/'.$PlayerAwards[$i][$awardlevel][AWD].'_'.$awardlevel;
+                                                        } else {
+                                                            $template .= 'locked/'.$PlayerAwards[$i][$awardlevel][AWD].'_0';
+                                                        }
 
 														$template .= '.png\');" width="42" height="42" alt="" />
 														<div class="award-pop dir-';
-														if ($i-$oldcount<$awdcount/2)
-															$template .= 'left';
-														else
-															$template .= 'right';
+														if ($i-$oldcount<$awdcount/2) {
+                                                            $template .= 'left';
+                                                        } else {
+                                                            $template .= 'right';
+                                                        }
 															
 														$template .= '">
 															<p>
@@ -1026,17 +1054,19 @@ $template = '
 													$template .= '
 													<div class="award-inline" onMouseOver="show_mine(this);" onMouseOut="hide_mine(this);">
 														<img src="' . $ROOT . 'spacer.gif" style="background: url(\'' . $ROOT . 'game-images/awards/';
-														if ($PlayerAwards[$i][0][LEVEL]>0)
-															$template .= 'front/'.$PlayerAwards[$i][0][AWD];
-														else
-															$template .= 'locked/'.$PlayerAwards[$i][0][AWD];
+														if ($PlayerAwards[$i][0][LEVEL]>0) {
+                                                            $template .= 'front/'.$PlayerAwards[$i][0][AWD];
+                                                        } else {
+                                                            $template .= 'locked/'.$PlayerAwards[$i][0][AWD];
+                                                        }
 														
 														$template .= '.png\');" width="42" height="42" alt="" />
 														<div class="award-pop dir-';
-														if ($i-$oldcount<$awdcount/2)
-															$template .= 'left';
-														else
-															$template .= 'right';
+														if ($i-$oldcount<$awdcount/2) {
+                                                            $template .= 'left';
+                                                        } else {
+                                                            $template .= 'right';
+                                                        }
 														
 														$template .= '">
 															<p>
@@ -1069,17 +1099,19 @@ $template = '
 												$template .= '
 												<div class="award-inline" onMouseOver="show_mine(this);" onMouseOut="hide_mine(this);">
 													<img src="' . $ROOT . 'spacer.gif" style="background: url(\'' . $ROOT . 'game-images/awards/';
-													if ($PlayerAwards[$i][0][LEVEL]>0)
-														$template .= 'front/'.$PlayerAwards[$i][0][AWD];
-													else
-														$template .= 'locked/'.$PlayerAwards[$i][0][AWD];
+													if ($PlayerAwards[$i][0][LEVEL]>0) {
+                                                        $template .= 'front/'.$PlayerAwards[$i][0][AWD];
+                                                    } else {
+                                                        $template .= 'locked/'.$PlayerAwards[$i][0][AWD];
+                                                    }
 													
 													$template .= '.png\');" width="42" height="42" alt="" />
 													<div class="award-pop dir-';
-													if ($i-$oldcount<$awdcount/2)
-														$template .= 'left';
-													else
-														$template .= 'right';
+													if ($i-$oldcount<$awdcount/2) {
+                                                        $template .= 'left';
+                                                    } else {
+                                                        $template .= 'right';
+                                                    }
 													
 													$template .= '">
 														<p>
@@ -1109,7 +1141,7 @@ $template = '
 							<tr>
 								<td>Rank</td>
 								<td>';
-								foreach($RANK_INFO as $key => $value)
+								foreach($RANK_INFO as $value)
 								{
 									$template .= '
 									<img src="' . $ROOT . 'game-images/ranks/progress/rank_'.$value['rank'].'.png" alt="" style="float: left; margin: 0 5px 5px 0" height="83" width="83" />			

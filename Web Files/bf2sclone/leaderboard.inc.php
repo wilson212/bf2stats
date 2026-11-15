@@ -1,16 +1,20 @@
 <?php
 
-function getLeaderBoardEntries($LEADERBOARD)
+/**
+ * @return list<mixed>
+ */
+function getLeaderBoardEntries($LEADERBOARD): array
 {
+	global $link;
 	include( ROOT . DS . 'queries'. DS .'getLeaderBoardEntry.php' ); // imports the correct sql statement
-	$result = mysql_query($query) or die('Query failed: ' . mysql_error());	
-	$data = array();
+	$result = mysqli_query($link, $query) or die('Query failed: ' . mysqli_error($link));	
+	$data = [];
 	
-	while ($row = mysql_fetch_assoc($result)) 
+	while ($row = mysqli_fetch_assoc($result)) 
 	{
 		$data[] = $row;
 	}	 	
-	mysql_free_result($result);
+	mysqli_free_result($result);
 	return $data;
 }
 ?>

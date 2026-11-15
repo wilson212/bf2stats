@@ -1,11 +1,11 @@
 <?php
-function getArmyByID($id)
+function getArmyByID($id): string
 {
 	$lines  = file(getcwd()."/queries/armies.list");
 	return $lines [$id];
 }
 
-function getArmyCount()
+function getArmyCount(): int
 {
 	$lines  = file(getcwd()."/queries/armies.list");
 	return count($lines);	

@@ -12,19 +12,24 @@ define('EARNED', 2);
 define('FIRST', 3);
 define('NAME', 4);
 
-function achieved($has, $value)
+function achieved($has, $value): string
 {
-	if ($has == $value) return 'achieved';
-	else return 'notachieved';
+	if ($has == $value) {
+        return 'achieved';
+    } else {
+        return 'notachieved';
+    }
 }
 
-function earned($date)
+function earned($date): ?string
 {
-	if ($date > 0)
-		return ' (<i>'.date('Y-m-d H:i:s', $date).'</i>)';
+    if ($date > 0) {
+        return ' (<i>'.date('Y-m-d H:i:s', $date).'</i>)';
+    }
+    return null;
 }
 
-function getBadgeLevel($value)
+function getBadgeLevel($value): ?int
 {
 	for ($LEVEL=3; $LEVEL>=0; $LEVEL--)
 	{
@@ -32,12 +37,15 @@ function getBadgeLevel($value)
 		{
 			return $LEVEL;
 		}
-		if ($value[$LEVEL][EARNED] == $LEVEL) // both is zero
-			return 0;
+		if ($value[$LEVEL][EARNED] == $LEVEL) {
+            // both is zero
+            return 0;
+        }
 	}
+    return null;
 }
 
-function getRibbonLevel($value)
+function getRibbonLevel($value): ?int
 {
 	for ($LEVEL=2; $LEVEL>=0; $LEVEL--)
 	{
@@ -45,45 +53,58 @@ function getRibbonLevel($value)
 		{
 			return $LEVEL;
 		}
-		if ($value[$LEVEL][EARNED] == $LEVEL) // both is zero
-			return 0;
+		if ($value[$LEVEL][EARNED] == $LEVEL) {
+            // both is zero
+            return 0;
+        }
 	}
+    return null;
 }
 
-function getAwardByPID_and_AWD($PID, $AWD, $LEVEL)
+/**
+ * @return list<mixed>
+ */
+function getAwardByPID_and_AWD($PID, $AWD, $LEVEL): array
 {
+	global $link;
 	include(ROOT . DS .'queries'. DS .'getAwardByPID_and_AWD.php'); // imports the correct sql statement
-	$result = mysql_query($query) or die('Query failed: ' . mysql_error());
+	$result = mysqli_query($link, $query) or die('Query failed: ' . mysqli_error($link));
 	
-	$awards = array();
-	while ($row = mysql_fetch_assoc($result)) 
+	$awards = [];
+	while ($row = mysqli_fetch_assoc($result)) 
 	{
 		$awards[] = $row;
 	}
 	// Free resultset
-	mysql_free_result($result);
+	mysqli_free_result($result);
 	return $awards;
 }
 
-function getAwardByPID_and_AWD_NOLEVEL($PID, $AWD)
+/**
+ * @return list<mixed>
+ */
+function getAwardByPID_and_AWD_NOLEVEL($PID, $AWD): array
 {
+	global $link;
 	include(ROOT . DS .'queries'. DS .'getAwardByPID_and_AWD_NOLEVEL.php'); // imports the correct sql statement
-	$result = mysql_query($query) or die('Query failed: ' . mysql_error());
+	$result = mysqli_query($link, $query) or die('Query failed: ' . mysqli_error($link));
 	
-	$awards = array();
-	while ($row = mysql_fetch_assoc($result)) 
+	$awards = [];
+	while ($row = mysqli_fetch_assoc($result)) 
 	{
 		$awards[] = $row;
 	}
 	// Free resultset
-	mysql_free_result($result);
+	mysqli_free_result($result);
 	return $awards;
 }
 
 
-function getAwardsByPID($PID)
+/**
+ * @return non-empty-array<int<0, 3>, array{string, mixed, mixed, mixed, mixed}>[]
+ */
+function getAwardsByPID($PID): array
 {
-	$PlayerAwards = array();
 	# grab all badges
 	# $PlayerAwards[$awd]
 	# $PlayerAwards[$awd][$level]
@@ -92,20 +113,20 @@ function getAwardsByPID($PID)
 	
 
 
-	$PlayerAwards = array();
+	$PlayerAwards = [];
 
 	#get badges
 	$count = getBadgeCount();
 	for ($i=0; $i<$count; $i++)
 	{
-		$AWD = trim(getBadge($i));
+		$AWD = trim((string) getBadge($i));
 		for ($LEVEL=0; $LEVEL<4; $LEVEL++) // levels!
 		{
 			$award = getAwardByPID_and_AWD($PID, $AWD, $LEVEL);
-			$PlayerAwards[$i][$LEVEL][AWD] = isset($AWD) ? $AWD : 0;
+			$PlayerAwards[$i][$LEVEL][AWD] = $AWD ?? 0;
 			$PlayerAwards[$i][$LEVEL][LEVEL] = $LEVEL;
-			$PlayerAwards[$i][$LEVEL][EARNED] = isset($award[0]['earned']) ? $award[0]['earned'] : 0;
-			$PlayerAwards[$i][$LEVEL][FIRST] = isset($award[0]['first']) ? $award[0]['first'] : 0;
+			$PlayerAwards[$i][$LEVEL][EARNED] = $award[0]['earned'] ?? 0;
+			$PlayerAwards[$i][$LEVEL][FIRST] = $award[0]['first'] ?? 0;
 			$PlayerAwards[$i][$LEVEL][NAME] = getBadgeByID($AWD);		
 		}
 	}
@@ -116,13 +137,13 @@ function getAwardsByPID($PID)
 	$count = $oldcount+getMedalCount();
 	for ($i=$oldcount; $i<$count; $i++)
 	{
-		$AWD = trim(getMedal($i-$oldcount));
+		$AWD = trim((string) getMedal($i-$oldcount));
 		$LEVEL=0; // levels!
 		$award = getAwardByPID_and_AWD_NOLEVEL($PID, $AWD);
-		$PlayerAwards[$i][$LEVEL][AWD] = isset($AWD) ? $AWD : 0;
-		$PlayerAwards[$i][$LEVEL][LEVEL] = isset($award[0]['level']) ? $award[0]['level'] : 0;
-		$PlayerAwards[$i][$LEVEL][EARNED] = isset($award[0]['earned']) ? $award[0]['earned'] : 0;
-		$PlayerAwards[$i][$LEVEL][FIRST] = isset($award[0]['first']) ? $award[0]['first'] : 0;
+		$PlayerAwards[$i][$LEVEL][AWD] = $AWD ?? 0;
+		$PlayerAwards[$i][$LEVEL][LEVEL] = $award[0]['level'] ?? 0;
+		$PlayerAwards[$i][$LEVEL][EARNED] = $award[0]['earned'] ?? 0;
+		$PlayerAwards[$i][$LEVEL][FIRST] = $award[0]['first'] ?? 0;
 		$PlayerAwards[$i][$LEVEL][NAME] = getMedalByID($AWD);		
 	}	
 	#append next after those
@@ -131,13 +152,13 @@ function getAwardsByPID($PID)
 	$count = $oldcount+getRibbonCount();
 	for ($i=$oldcount; $i<$count; $i++)
 	{
-		$AWD = trim(getRibbon($i-$oldcount));
+		$AWD = trim((string) getRibbon($i-$oldcount));
 		$LEVEL=0; // levels!
 		$award = getAwardByPID_and_AWD_NOLEVEL($PID, $AWD);
-		$PlayerAwards[$i][$LEVEL][AWD] = isset($AWD) ? $AWD : 0;
-		$PlayerAwards[$i][$LEVEL][LEVEL] = isset($award[0]['level']) ? $award[0]['level'] : 0;
-		$PlayerAwards[$i][$LEVEL][EARNED] = isset($award[0]['earned']) ? $award[0]['earned'] : 0;
-		$PlayerAwards[$i][$LEVEL][FIRST] = isset($award[0]['first']) ? $award[0]['first'] : 0;
+		$PlayerAwards[$i][$LEVEL][AWD] = $AWD ?? 0;
+		$PlayerAwards[$i][$LEVEL][LEVEL] = $award[0]['level'] ?? 0;
+		$PlayerAwards[$i][$LEVEL][EARNED] = $award[0]['earned'] ?? 0;
+		$PlayerAwards[$i][$LEVEL][FIRST] = $award[0]['first'] ?? 0;
 		$PlayerAwards[$i][$LEVEL][NAME] = getRibbonByID($AWD);		
 	}		
 	
@@ -147,14 +168,14 @@ function getAwardsByPID($PID)
 	$count = $oldcount+getSFBadgeCount();
 	for ($i=$oldcount; $i<$count; $i++)
 	{
-		$AWD = trim(getSFBadge($i-$oldcount));
+		$AWD = trim((string) getSFBadge($i-$oldcount));
 		for ($LEVEL=0; $LEVEL<4; $LEVEL++) // levels!
 		{
 			$award = getAwardByPID_and_AWD($PID, $AWD, $LEVEL);
-			$PlayerAwards[$i][$LEVEL][AWD] = isset($AWD) ? $AWD : 0;
+			$PlayerAwards[$i][$LEVEL][AWD] = $AWD ?? 0;
 			$PlayerAwards[$i][$LEVEL][LEVEL] = $LEVEL;
-			$PlayerAwards[$i][$LEVEL][EARNED] = isset($award[0]['earned']) ? $award[0]['earned'] : 0;
-			$PlayerAwards[$i][$LEVEL][FIRST] = isset($award[0]['first']) ? $award[0]['first'] : 0;
+			$PlayerAwards[$i][$LEVEL][EARNED] = $award[0]['earned'] ?? 0;
+			$PlayerAwards[$i][$LEVEL][FIRST] = $award[0]['first'] ?? 0;
 			$PlayerAwards[$i][$LEVEL][NAME] = getSFBadgeByID($AWD);		
 		}
 	}	
@@ -165,13 +186,13 @@ function getAwardsByPID($PID)
 	$count = $oldcount+getSFRibbonCount();
 	for ($i=$oldcount; $i<$count; $i++)
 	{
-		$AWD = trim(getSFRibbon($i-$oldcount));
+		$AWD = trim((string) getSFRibbon($i-$oldcount));
 		$LEVEL=0; // levels!
 		$award = getAwardByPID_and_AWD_NOLEVEL($PID, $AWD);
-		$PlayerAwards[$i][$LEVEL][AWD] = isset($AWD) ? $AWD : 0;
-		$PlayerAwards[$i][$LEVEL][LEVEL] = isset($award[0]['level']) ? $award[0]['level'] : 0;
-		$PlayerAwards[$i][$LEVEL][EARNED] = isset($award[0]['earned']) ? $award[0]['earned'] : 0;
-		$PlayerAwards[$i][$LEVEL][FIRST] = isset($award[0]['first']) ? $award[0]['first'] : 0;
+		$PlayerAwards[$i][$LEVEL][AWD] = $AWD ?? 0;
+		$PlayerAwards[$i][$LEVEL][LEVEL] = $award[0]['level'] ?? 0;
+		$PlayerAwards[$i][$LEVEL][EARNED] = $award[0]['earned'] ?? 0;
+		$PlayerAwards[$i][$LEVEL][FIRST] = $award[0]['first'] ?? 0;
 		$PlayerAwards[$i][$LEVEL][NAME] = getSFRibbonByID($AWD);		
 	}			
 	
@@ -181,17 +202,16 @@ function getAwardsByPID($PID)
 
 # returns the path to the award
 #NOT FINISHED YET
-function getBadgeStatus($awards, $awardID)
+function getBadgeStatus(array $awards, string $awardID): ?string
 {
-	foreach ($awards as $key => $value)
+	foreach ($awards as $value)
 	{
-		if ($awards['awd'] == $awardID)
+		if ($awards['awd'] != $awardID)
 		{
-			$ROOT."game-images/awards/front/".$awardID.'_'.$awards['level'].'.png';	
+			return $ROOT."game-images/awards/locked/".$awardID.'_0.png';	
 		}
-		else
-			return $ROOT."game-images/awards/locked/".$awardID.'_0.png';
 	}
+    return null;
 }
 
 ?>

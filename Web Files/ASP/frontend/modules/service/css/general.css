@@ -1,0 +1,23 @@
+.mws-table tr td a:link {
+    color: #000000;
+}
+
+.mws-table tr td a:visited {
+    color: #000000;
+    text-decoration: underline;
+}
+
+img.center {
+    display: block;
+    margin: 0 auto;
+}
+.no-search .select2-search {
+    display:none
+}
+img.flag {
+    height: 16px;
+    width: 22px;
+}
+.mws-summary > li .key {
+    width: 145px;
+}

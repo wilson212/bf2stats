@@ -16,52 +16,57 @@ include_once(ROOT . DS . 'queries'. DS .'getUnlockID.php');
 */
 function getPIDFromNick($NICK)
 {
+	global $link;
 	include(ROOT . DS . 'queries'. DS . 'getPID.php'); // imports the correct sql statement
-	$result = mysql_query($query) or die('Query failed: ' . mysql_error());	
-	$PID = mysql_fetch_assoc($result);
+	$result = mysqli_query($link, $query) or die('Query failed: ' . mysqli_error($link));	
+	$PID = mysqli_fetch_assoc($result);
 	 	
-	mysql_free_result($result);
+	mysqli_free_result($result);
 	return $PID['id'];
 }
 
 function getRankFromPID($PID)
 {
+	global $link;
 	include(ROOT . DS . 'queries'. DS .'getRankFromPID.php'); // imports the correct sql statement
-	$result = mysql_query($query) or die('Query failed: ' . mysql_error());	
-	$Rank = mysql_fetch_assoc($result);
+	$result = mysqli_query($link, $query) or die('Query failed: ' . mysqli_error($link));	
+	$Rank = mysqli_fetch_assoc($result);
 	
-	mysql_free_result($result);
+	mysqli_free_result($result);
 	return $Rank['rank'];
 }
 
 function getNickFromPID($PID)
 {
+	global $link;
 	// Performing SQL query
 	include(ROOT . DS . 'queries'. DS .'getNameFromPID.php'); // imports the correct sql statement
-	$result = mysql_query($query) or die('Query failed: ' . mysql_error());
+	$result = mysqli_query($link, $query) or die('Query failed: ' . mysqli_error($link));
 	
-	$player = array();
+	$player = [];
 	$player['name'] = 'N/A'; # if player is not found
-	while ($row = mysql_fetch_assoc($result)) {
+	while ($row = mysqli_fetch_assoc($result)) {
 		$player = $row;
-		if ($player['name'] == '')
-			$player['name'] = 'N/A'; # if player is not found
+		if ($player['name'] == '') {
+            $player['name'] = 'N/A';
+        } # if player is not found
 	}	 
 
 	// Free resultset
-	mysql_free_result($result);
+	mysqli_free_result($result);
 	return $player['name'];
 }
 
 function getPlayerDataFromPID($PID)
 {
+	global $link;
 	// Performing SQL query
 	include(ROOT . DS . 'queries'. DS .'getPlayerData.php'); // imports the correct sql statement
-	$result = mysql_query($query) or die('Query failed: ' . mysql_error());
-	$player = mysql_fetch_assoc($result); 
+	$result = mysqli_query($link, $query) or die('Query failed: ' . mysqli_error($link));
+	$player = mysqli_fetch_assoc($result); 
 
 	// Free resultset
-	mysql_free_result($result);
+	mysqli_free_result($result);
 	return $player;
 }
 
@@ -70,34 +75,42 @@ function getPlayerDataFromPID($PID)
 | Favorite enemy & Victims
 | --------------------------------------------------------------
 */
-function getFavouriteVictims($PID)
+/**
+ * @return list<mixed>
+ */
+function getFavouriteVictims($PID): array
 {
+	global $link;
 	include(ROOT . DS . 'queries'. DS .'getVictimsByPID.php'); // imports the correct sql statement
-	$result = mysql_query($query) or die('Query failed: ' . mysql_error());
+	$result = mysqli_query($link, $query) or die('Query failed: ' . mysqli_error($link));
 	
-	$players = array();
-	while ($row = mysql_fetch_assoc($result)) 
+	$players = [];
+	while ($row = mysqli_fetch_assoc($result)) 
 	{
 		$players[] = $row;
 	}
 
 	// Free resultset
-	mysql_free_result($result);
+	mysqli_free_result($result);
 	return $players;
 }
 
-function getFavouriteEnemies($PID)
+/**
+ * @return list<mixed>
+ */
+function getFavouriteEnemies($PID): array
 {
+	global $link;
 	include(ROOT . DS . 'queries'. DS .'getEnemiesByPID.php'); // imports the correct sql statement
-	$result = mysql_query($query) or die('Query failed: ' . mysql_error());
+	$result = mysqli_query($link, $query) or die('Query failed: ' . mysqli_error($link));
 	
-	$players = array();
-	while ($row = mysql_fetch_assoc($result)) 
+	$players = [];
+	while ($row = mysqli_fetch_assoc($result)) 
 	{
 		$players[] = $row;
 	}
 	// Free resultset
-	mysql_free_result($result);
+	mysqli_free_result($result);
 	return $players;
 }
 
@@ -106,24 +119,29 @@ function getFavouriteEnemies($PID)
 | Army data & Summary
 | --------------------------------------------------------------
 */
-function getArmyData($PID)
+/**
+ * @return list<mixed>
+ */
+function getArmyData($PID): array
 {
+	global $link;
 	include(ROOT . DS . 'queries'. DS .'getArmiesByPID.php'); // imports the correct sql statement
-	$result = mysql_query($query) or die('Query failed: ' . mysql_error());
+	$result = mysqli_query($link, $query) or die('Query failed: ' . mysqli_error($link));
 	
-	$armies = array();
-	while ($row = mysql_fetch_assoc($result)) 
+	$armies = [];
+	while ($row = mysqli_fetch_assoc($result)) 
 	{
 		$armies[] = $row;
 	}
 
 	// Free resultset
-	mysql_free_result($result);
+	mysqli_free_result($result);
 	return $armies;
 }
 
 function getArmySummaries($armies)
 {
+	global $link;
 	$armyCount = getArmyCount();
 	
 	$summary['total']['time'] = 0;
@@ -161,18 +179,22 @@ function getArmySummaries($armies)
 | Vehicle data & Summary
 | --------------------------------------------------------------
 */
-function getVehicleData($PID)
+/**
+ * @return list<mixed>
+ */
+function getVehicleData($PID): array
 {
+	global $link;
 	include(ROOT . DS . 'queries'. DS .'getVehicleDataByID.php'); // imports the correct sql statement
-	$result = mysql_query($query) or die('Query failed: ' . mysql_error());
+	$result = mysqli_query($link, $query) or die('Query failed: ' . mysqli_error($link));
 	
-	$vehicles = array();
-	while ($row = mysql_fetch_assoc($result)) 
+	$vehicles = [];
+	while ($row = mysqli_fetch_assoc($result)) 
 	{
 		$vehicles[] = $row;
 	}
 	// Free resultset
-	mysql_free_result($result);
+	mysqli_free_result($result);
 	return $vehicles;
 }
 
@@ -198,10 +220,11 @@ function getVehicleSummaries($vehicles)
 	$summary['average']['kills'] 	= round($summary['total']['kills'] / $vehicleCount, 2);
 	$summary['average']['deaths'] 	= round($summary['total']['deaths'] / $vehicleCount, 2);
 
-	if ($summary['total']['kills'])
-		$summary['average']['ratio'] = round(($summary['total']['kills']/$summary['total']['kills']) / $vehicleCount, 2);
-	else
-		$summary['average']['ratio'] = ($summary['total']['kills'] / $vehicleCount);
+	if ($summary['total']['kills']) {
+        $summary['average']['ratio'] = round(($summary['total']['kills']/$summary['total']['kills']) / $vehicleCount, 2);
+    } else {
+        $summary['average']['ratio'] = ($summary['total']['kills'] / $vehicleCount);
+    }
 
 	$summary['average']['rk'] = round($summary['total']['rk'] / $vehicleCount, 2);
 
@@ -213,14 +236,15 @@ function getVehicleSummaries($vehicles)
 | Weapon & Equipment data & Summary
 | --------------------------------------------------------------
 */
-function getWeaponData($PID, $player)
+function getWeaponData($PID, array $player): array
 {
+	global $link;
 	include(ROOT . DS . 'queries'. DS .'getWeaponDataByID.php'); // imports the correct sql statement
-	$result = mysql_query($query) or die('Query failed: ' . mysql_error());
+	$result = mysqli_query($link, $query) or die('Query failed: ' . mysqli_error($link));
 	
-	$SQLweapons = array();
-	$weapons = array();
-	while ($row = mysql_fetch_assoc($result)) 
+	$SQLweapons = [];
+	$weapons = [];
+	while ($row = mysqli_fetch_assoc($result)) 
 	{
 		$SQLweapons[] = $row;
 	}
@@ -240,10 +264,11 @@ function getWeaponData($PID, $player)
 		$weapons[$i]['time'] 	= $SQLweapons[0]['time'.$i];
 		$weapons[$i]['kills'] 	= $SQLweapons[0]['kills'.$i];
 
-		if ($SQLweapons[0]['kills'.$i])
-			$weapons[$i]['totalkills'] = (100 * round($SQLweapons[0]['kills'.$i] / $player['kills'], 2));
-		else
-			$weapons[$i]['totalkills'] = 0;
+		if ($SQLweapons[0]['kills'.$i]) {
+            $weapons[$i]['totalkills'] = (100 * round($SQLweapons[0]['kills'.$i] / $player['kills'], 2));
+        } else {
+            $weapons[$i]['totalkills'] = 0;
+        }
 		$weapons[$i]['deaths'] = $SQLweapons[0]['deaths'.$i];
 		$weapons[$i]['fired'] = $SQLweapons[0]['fired'.$i];
 		$weapons[$i]['hit'] = $SQLweapons[0]['hit'.$i];
@@ -252,10 +277,11 @@ function getWeaponData($PID, $player)
 	$weapons[9]['name'] = 'Knife';
 	$weapons[9]['time'] = $SQLweapons[0]['knifetime'];
 	$weapons[9]['kills'] = $SQLweapons[0]['knifekills'];
-	if ($SQLweapons[0]['knifekills'])
-		$weapons[9]['totalkills'] = (100 * round($SQLweapons[0]['knifekills'] / $player['kills'], 2));
-	else
-		$weapons[9]['totalkills'] = 0;	
+	if ($SQLweapons[0]['knifekills']) {
+        $weapons[9]['totalkills'] = (100 * round($SQLweapons[0]['knifekills'] / $player['kills'], 2));
+    } else {
+        $weapons[9]['totalkills'] = 0;
+    }	
 	$weapons[9]['deaths'] = $SQLweapons[0]['knifedeaths'];
 	$weapons[9]['fired'] = $SQLweapons[0]['knifefired'];
 	$weapons[9]['hit'] = $SQLweapons[0]['knifehit'];			
@@ -264,10 +290,11 @@ function getWeaponData($PID, $player)
 	$weapons[10]['name'] = 'Defibrillator';
 	$weapons[10]['time'] = $SQLweapons[0]['shockpadtime'];
 	$weapons[10]['kills'] = $SQLweapons[0]['shockpadkills'];
-	if ($SQLweapons[0]['shockpadkills'])
-		$weapons[10]['totalkills'] = (100 * round($SQLweapons[0]['shockpadkills'] / $player['kills'], 2));
-	else
-		$weapons[10]['totalkills'] = 0;	
+	if ($SQLweapons[0]['shockpadkills']) {
+        $weapons[10]['totalkills'] = (100 * round($SQLweapons[0]['shockpadkills'] / $player['kills'], 2));
+    } else {
+        $weapons[10]['totalkills'] = 0;
+    }	
 	$weapons[10]['deaths'] = $SQLweapons[0]['shockpaddeaths'];
 	$weapons[10]['fired'] = $SQLweapons[0]['shockpadfired'];
 	$weapons[10]['hit'] = $SQLweapons[0]['shockpadhit'];		
@@ -276,10 +303,11 @@ function getWeaponData($PID, $player)
 	$weapons[11]['name'] = 'Claymore';
 	$weapons[11]['time'] = $SQLweapons[0]['claymoretime'];
 	$weapons[11]['kills'] = $SQLweapons[0]['claymorekills'];
-	if ($SQLweapons[0]['claymorekills'])
-		$weapons[11]['totalkills'] = (100 * round($SQLweapons[0]['claymorekills'] / $player['kills'], 2));
-	else
-		$weapons[11]['totalkills'] = 0;		
+	if ($SQLweapons[0]['claymorekills']) {
+        $weapons[11]['totalkills'] = (100 * round($SQLweapons[0]['claymorekills'] / $player['kills'], 2));
+    } else {
+        $weapons[11]['totalkills'] = 0;
+    }		
 	$weapons[11]['deaths'] = $SQLweapons[0]['claymoredeaths'];
 	$weapons[11]['fired'] = $SQLweapons[0]['claymorefired'];
 	$weapons[11]['hit'] = $SQLweapons[0]['claymorehit'];	
@@ -288,10 +316,11 @@ function getWeaponData($PID, $player)
 	$weapons[12]['name'] = 'Hand Grenade';
 	$weapons[12]['time'] = $SQLweapons[0]['handgrenadetime'];
 	$weapons[12]['kills'] = $SQLweapons[0]['handgrenadekills'];
-	if ($SQLweapons[0]['handgrenadekills'])
-		$weapons[12]['totalkills'] = (100 * round($SQLweapons[0]['handgrenadekills'] / $player['kills'], 2));
-	else
-		$weapons[12]['totalkills'] = 0;		
+	if ($SQLweapons[0]['handgrenadekills']) {
+        $weapons[12]['totalkills'] = (100 * round($SQLweapons[0]['handgrenadekills'] / $player['kills'], 2));
+    } else {
+        $weapons[12]['totalkills'] = 0;
+    }		
 	$weapons[12]['deaths'] = $SQLweapons[0]['handgrenadedeaths'];
 	$weapons[12]['fired'] = $SQLweapons[0]['handgrenadefired'];
 	$weapons[12]['hit'] = $SQLweapons[0]['handgrenadehit'];	
@@ -300,10 +329,11 @@ function getWeaponData($PID, $player)
 	$weapons[13]['name'] = 'AT Mine';
 	$weapons[13]['time'] = $SQLweapons[0]['atminetime'];
 	$weapons[13]['kills'] = $SQLweapons[0]['atminekills'];
-	if ($SQLweapons[0]['atminekills'])
-		$weapons[13]['totalkills'] = (100 * round($SQLweapons[0]['atminekills'] / $player['kills'], 2));
-	else
-		$weapons[13]['totalkills'] = 0;		
+	if ($SQLweapons[0]['atminekills']) {
+        $weapons[13]['totalkills'] = (100 * round($SQLweapons[0]['atminekills'] / $player['kills'], 2));
+    } else {
+        $weapons[13]['totalkills'] = 0;
+    }		
 	$weapons[13]['deaths'] = $SQLweapons[0]['atminedeaths'];
 	$weapons[13]['fired'] = $SQLweapons[0]['atminefired'];
 	$weapons[13]['hit'] = $SQLweapons[0]['atminehit'];		
@@ -312,10 +342,11 @@ function getWeaponData($PID, $player)
 	$weapons[14]['name'] = 'C4';
 	$weapons[14]['time'] = $SQLweapons[0]['c4time'];
 	$weapons[14]['kills'] = $SQLweapons[0]['c4kills'];
-	if ($SQLweapons[0]['c4kills'])
-		$weapons[14]['totalkills'] = (100 * round($SQLweapons[0]['c4kills'] / $player['kills'], 2));
-	else
-		$weapons[14]['totalkills'] = 0;		
+	if ($SQLweapons[0]['c4kills']) {
+        $weapons[14]['totalkills'] = (100 * round($SQLweapons[0]['c4kills'] / $player['kills'], 2));
+    } else {
+        $weapons[14]['totalkills'] = 0;
+    }		
 	$weapons[14]['deaths'] = $SQLweapons[0]['c4deaths'];
 	$weapons[14]['fired'] = $SQLweapons[0]['c4fired'];
 	$weapons[14]['hit'] = $SQLweapons[0]['c4hit'];	
@@ -344,16 +375,16 @@ function getWeaponData($PID, $player)
 	
 	
 	// Free resultset
-	mysql_free_result($result);
+	mysqli_free_result($result);
 
 	return $weapons;
 }
 
-function getWeaponSummary($weapons, $player)
+function getWeaponSummary($weapons, array $player): array
 {
-	$summary = array();
-	$summary['total'] = array();
-	$summary['average'] = array();
+	$summary = [];
+	$summary['total'] = [];
+	$summary['average'] = [];
 	$summary['total']['time'] = 0;
 	$summary['total']['kills'] = 0;
 	$summary['total']['totalkills'] = 0;
@@ -367,26 +398,30 @@ function getWeaponSummary($weapons, $player)
 	{
 		$summary['total']['time'] 	+= $weapons[$i]['time'];
 		$summary['total']['kills'] 	+= $weapons[$i]['kills'];
-		if ($weapons[$i]['kills'])
-			$summary['total']['totalkills'] += $weapons[$i]['kills'];
+		if ($weapons[$i]['kills']) {
+            $summary['total']['totalkills'] += $weapons[$i]['kills'];
+        }
 		
 		$summary['total']['deaths'] += $weapons[$i]['deaths'];
 		$summary['total']['fired'] 	+= $weapons[$i]['fired'];
 		$summary['total']['hit'] 	+= $weapons[$i]['hit'];
 
-		if ($weapons[$i]['deaths'])
-			$summary['total']['ratio'] += ($weapons[$i]['kills'] / $weapons[$i]['deaths']);
-		else
-			$summary['total']['ratio'] += $weapons[$i]['kills'];
+		if ($weapons[$i]['deaths']) {
+            $summary['total']['ratio'] += ($weapons[$i]['kills'] / $weapons[$i]['deaths']);
+        } else {
+            $summary['total']['ratio'] += $weapons[$i]['kills'];
+        }
 			
-		if ($weapons[$i]['hit'])
-			$summary['total']['acc'] += ($weapons[$i]['fired'] / $weapons[$i]['hit']);			
+		if ($weapons[$i]['hit']) {
+            $summary['total']['acc'] += ($weapons[$i]['fired'] / $weapons[$i]['hit']);
+        }			
 	}
 
-	if ($summary['total']['totalkills'] > 0)
-		$summary['total']['totalkills'] = (100 * ($summary['total']['totalkills'] / $player['kills']));
-	else
-		$summary['total']['totalkills'] = ($player['kills']);
+	if ($summary['total']['totalkills'] > 0) {
+        $summary['total']['totalkills'] = (100 * ($summary['total']['totalkills'] / $player['kills']));
+    } else {
+        $summary['total']['totalkills'] = ($player['kills']);
+    }
 
 	$summary['average']['time'] 	= ($summary['total']['time'] / 13);
 	$summary['average']['kills'] 	= ($summary['total']['kills'] / 13);
@@ -403,30 +438,37 @@ function getWeaponID($weapons, $weaponname)
 {
 	foreach ($weapons as $key => $value)
 	{
-		if (strcasecmp($value, $weaponname) == 0) return $key; // same but not case sensitive!
+		if (strcasecmp((string) $value, (string) $weaponname) == 0) {
+            return $key;
+        } // same but not case sensitive!
 	}
+    return null;
 }
 
-function getUnlocksByPID($PID)
+/**
+ * @return mixed[]
+ */
+function getUnlocksByPID($PID): array
 {
+	global $link;
 	include(ROOT . DS . 'queries'. DS .'getUnlocksByPID.php'); // imports the correct sql statement
-	$result = mysql_query($query) or die('Query failed: ' . mysql_error());
+	$result = mysqli_query($link, $query) or die('Query failed: ' . mysqli_error($link));
 	
-	$unlocks = array();
-	while ($row = mysql_fetch_assoc($result)) 
+	$unlocks = [];
+	while ($row = mysqli_fetch_assoc($result)) 
 	{
 		$unlocks[$row['kit']] = $row['state'];
 	}
 
-	mysql_free_result($result);
+	mysqli_free_result($result);
 	return $unlocks;
 }
 
-function getEquipmentSummary($weapons, $player)
+function getEquipmentSummary($weapons, array $player): array
 {
-	$summary = array();
-	$summary['total'] = array();
-	$summary['average'] = array();
+	$summary = [];
+	$summary['total'] = [];
+	$summary['average'] = [];
 	$summary['total']['time'] = 0;
 	$summary['total']['kills'] = 0;
 	$summary['total']['totalkills'] = 0;
@@ -439,17 +481,20 @@ function getEquipmentSummary($weapons, $player)
 		$summary['total']['time'] 	+= $weapons[$i]['time'];
 		$summary['total']['kills'] 	+= $weapons[$i]['kills'];
 
-		if ($weapons[$i]['kills'])
-			$summary['total']['totalkills'] += $weapons[$i]['kills'];
-		if ($summary['total']['deaths'])
-			$summary['total']['ratio'] = $summary['total']['kills']/$summary['total']['deaths'];
+		if ($weapons[$i]['kills']) {
+            $summary['total']['totalkills'] += $weapons[$i]['kills'];
+        }
+		if ($summary['total']['deaths']) {
+            $summary['total']['ratio'] = $summary['total']['kills']/$summary['total']['deaths'];
+        }
 
 		$summary['total']['deaths'] += $weapons[$i]['deaths'];
 		$summary['total']['fired'] 	+= $weapons[$i]['fired'];
 	}
 	
-	if ($summary['total']['totalkills'] > 0)
-		$summary['total']['totalkills'] = (100 * ($summary['total']['totalkills'] / $player['kills']));
+	if ($summary['total']['totalkills'] > 0) {
+        $summary['total']['totalkills'] = (100 * ($summary['total']['totalkills'] / $player['kills']));
+    }
 	
 	$summary['average']['time'] 	= ($summary['total']['time'] / 13);
 	$summary['average']['kills'] 	= ($summary['total']['kills'] / 13);
@@ -465,22 +510,26 @@ function getEquipmentSummary($weapons, $player)
 | Kit data & Summary
 | --------------------------------------------------------------
 */
-function getKitData($PID)
+/**
+ * @return list<mixed>
+ */
+function getKitData($PID): array
 {
+	global $link;
 	include(ROOT . DS . 'queries'. DS .'getKitDataByPID.php'); // imports the correct sql statement
-	$result = mysql_query($query) or die('Query failed: ' . mysql_error());
+	$result = mysqli_query($link, $query) or die('Query failed: ' . mysqli_error($link));
 	
-	$kits = array();
-	while ($row = mysql_fetch_assoc($result)) 
+	$kits = [];
+	while ($row = mysqli_fetch_assoc($result)) 
 	{
 		$kits[] = $row;
 	}
 	// Free resultset
-	mysql_free_result($result);
+	mysqli_free_result($result);
 	return $kits;
 }
 
-function getKitSummary($kits, $player)
+function getKitSummary($kits, array $player)
 {
 	$summary['total']['time'] = 0;
 	$summary['total']['kills'] = 0;
@@ -495,19 +544,21 @@ function getKitSummary($kits, $player)
 		$summary['total']['totalkills'] += $kits[0]['kills'.$i];
 		$summary['total']['deaths'] += $kits[0]['deaths'.$i];
 	}
-	if ($summary['total']['totalkills'])
-		$summary['total']['totalkills'] = ($player['kills'] / $summary['total']['totalkills']);
-	else
-		$summary['total']['totalkills'] = $player['kills'];
+	if ($summary['total']['totalkills']) {
+        $summary['total']['totalkills'] = ($player['kills'] / $summary['total']['totalkills']);
+    } else {
+        $summary['total']['totalkills'] = $player['kills'];
+    }
 	
 	$summary['average']['time'] 	= ($summary['total']['time'] / $count);
 	$summary['average']['kills'] 	= ($summary['total']['kills'] / $count);
 	$summary['average']['deaths'] 	= ($summary['total']['deaths'] / $count);
 
-	if ($summary['total']['deaths'])
-		$summary['average']['ratio'] = ($summary['total']['kills'] / $summary['total']['deaths']);
-	else
-		$summary['average']['ratio'] = ($summary['total']['kills'] / 13);
+	if ($summary['total']['deaths']) {
+        $summary['average']['ratio'] = ($summary['total']['kills'] / $summary['total']['deaths']);
+    } else {
+        $summary['average']['ratio'] = ($summary['total']['kills'] / 13);
+    }
 	return $summary;	
 }
 
@@ -520,24 +571,28 @@ function getKitSummary($kits, $player)
 |	-> good for booster packs etc...
 |
 */
-function getMapData($PID)
+/**
+ * @return list<mixed>
+ */
+function getMapData($PID): array
 {
+	global $link;
 	include(ROOT . DS . 'queries'. DS .'getMapDataByPID.php'); // imports the correct sql statement
-	$result = mysql_query($query) or die('Query failed: ' . mysql_error());
+	$result = mysqli_query($link, $query) or die('Query failed: ' . mysqli_error($link));
 	
-	$maps = array();
-	while ($row = mysql_fetch_assoc($result)) 
+	$maps = [];
+	while ($row = mysqli_fetch_assoc($result)) 
 	{
 		$maps[] = $row;
 	}
 	// Free resultset
-	mysql_free_result($result);
+	mysqli_free_result($result);
 	return $maps;
 }
 
-function getMapSummary($maps)
+function getMapSummary($maps): array
 {
-	$summary = array();
+	$summary = [];
 	$summary['total']['time'] = 0;
 	$summary['total']['win'] = 0;
 	$summary['total']['loss'] = 0;
@@ -576,9 +631,9 @@ function getMapSummary($maps)
 | Player Favorites function
 | --------------------------------------------------------------
 */
-function getPlayerFavorites($weapons, $vehicles, $kits, $armies, $maps, $theatres)
+function getPlayerFavorites($weapons, $vehicles, $kits, $armies, $maps, $theatres): array
 {
-	$summary = array(
+	$summary = [
 		'weapon' => 0,
 		'equipment' => 0,
 		'vehicle' => 0,
@@ -586,7 +641,7 @@ function getPlayerFavorites($weapons, $vehicles, $kits, $armies, $maps, $theatre
 		'army' => 0,
 		'map' => 0,
 		'theatre' => 0
-	);
+	];
 
 	// Fav weapon
 	$max = -1;
@@ -687,59 +742,63 @@ function getPlayerFavorites($weapons, $vehicles, $kits, $armies, $maps, $theatre
 */
 function getFavouriteMap($PID)
 {
+	global $link;
 	include(ROOT . DS . 'queries'. DS .'getFavMap.php'); // imports the correct sql statement
-	$result = mysql_query($query) or die('Query failed: ' . mysql_error());
+	$result = mysqli_query($link, $query) or die('Query failed: ' . mysqli_error($link));
 	
-	$favmap = array();
-	while ($row = mysql_fetch_assoc($result)) 
+	$favmap = [];
+	while ($row = mysqli_fetch_assoc($result)) 
 	{
 		$favmap[] = $row;
 	}
 
 	// Free resultset
-	mysql_free_result($result);
+	mysqli_free_result($result);
 	return $favmap[0]['mapid'];
 }
 
-function getFavouriteKit($PID)
+function getFavouriteKit($PID): string|array
 {
+	global $link;
 	include(ROOT . DS . 'queries'. DS .'getFavKit.php'); // imports the correct sql statement
-	$result = mysql_query($query) or die('Query failed: ' . mysql_error());
-	$kits = mysql_fetch_row($result);
+	$result = mysqli_query($link, $query) or die('Query failed: ' . mysqli_error($link));
+	$kits = mysqli_fetch_row($result);
 
 	arsort($kits);
 	$kit = str_replace('time', '', key($kits));
 	
 	// Free resultset
-	mysql_free_result($result);
+	mysqli_free_result($result);
 	return $kit;
 }
 
-function getFavouriteArmy($PID)
+function getFavouriteArmy($PID): string|array
 {
+	global $link;
 	include(ROOT . DS . 'queries'. DS .'getFavArmy.php'); // imports the correct sql statement
-	$result = mysql_query($query) or die('Query failed: ' . mysql_error());
-	$arms = mysql_fetch_row($result);
+	$result = mysqli_query($link, $query) or die('Query failed: ' . mysqli_error($link));
+	$arms = mysqli_fetch_row($result);
 	
 	arsort($arms);
 	$arm = str_replace('time', '', key($arms));
 	
 	// Free resultset
-	mysql_free_result($result);
+	mysqli_free_result($result);
 	return $arm;
 }
 
-function getFavouriteVehicle($PID)
+function getFavouriteVehicle($PID): string|array
 {
+	global $link;
 	include(ROOT . DS . 'queries'. DS .'getFavVehicle.php'); // imports the correct sql statement
-	$result = mysql_query($query) or die('Query failed: ' . mysql_error());
-	$vs = mysql_fetch_row($result);
+	$result = mysqli_query($link, $query) or die('Query failed: ' . mysqli_error($link));
+	$vs = mysqli_fetch_row($result);
 	
 	arsort($vs);
 	$v = str_replace('time', '', key($vs));
 	
 	// Free resultset
-	mysql_free_result($result);
+	mysqli_free_result($result);
 	return $v;
 }
 
@@ -748,7 +807,10 @@ function getFavouriteVehicle($PID)
 | Next Ranks Functions
 | --------------------------------------------------------------
 */
-function getNextRankInfo($PID)
+/**
+ * @return array{rank: mixed, title: mixed, rank_points: mixed, points_needed: (float | int), percent: (100 | float), days: mixed, time_straight: mixed}[]
+ */
+function getNextRankInfo($PID): array
 {
 	// Get player data
 	$player = getPlayerDataFromPID($PID);
@@ -773,14 +835,14 @@ function getNextRankInfo($PID)
 	$SPM = round(($player['score'] / intToMins($player['time'])), 1);
 	
 	// Init a return array
-	$return = array();
+	$return = [];
 	
 	// Include the requirements for special ranks, and get the next 3
 	include(ROOT . DS . 'queries'. DS .'nextRankReqs.php' );
 	foreach(getNextRanks($PID, $player['rank'], 3) as $id)
 	{
 		// Next rank
-		$return[] = array(
+		$return[] = [
 			'rank' => $id,
 			'title' => $rank[$id], 
 			'rank_points' => $points[$id],
@@ -788,28 +850,32 @@ function getNextRankInfo($PID)
 			'percent' => @round(($player['score'] / $points[$id]) * 100, 2),
 			'days' => getNextRankDayCount($player['joined'], $player['lastonline'], $player['score'], $points[$id]),
 			'time_straight' => getNextRankTime($player['score'], $points[$id], $SPM)
-		);
+		];
 	}
 	
 	// Make sure our percents are not over 100!
 	foreach($return as $key => $value)
 	{
-		if($value['percent'] > 100) $return[$key]['percent'] = 100;
+		if ($value['percent'] > 100) {
+            $return[$key]['percent'] = 100;
+        }
 	}
 	return $return;
 }
 
-function getNextRankTime($score, $points_needed, $spm)
+function getNextRankTime($score, $points_needed, $spm): string
 {
 	
 	$temp = ($points_needed - $score) / ($spm  / 60);
-	if($temp < 0) return "0 Seconds";
+	if ($temp < 0) {
+        return "0 Seconds";
+    }
 	
 	// Convert into a fancy little time
 	$temp = intToTime($temp, 0, 0, 0);
 	
 	// Explode the time
-	$time = explode(':', $temp);
+	$time = explode(':', (string) $temp);
 	
 	// Hour corrections
 	$return = '';
@@ -825,7 +891,7 @@ function getNextRankTime($score, $points_needed, $spm)
 	return $return;
 }
 
-function getNextRankDayCount($joined, $last, $score, $points_needed)
+function getNextRankDayCount($joined, $last, $score, $points_needed): float|int
 {
 	$temp = $last - $joined;
 	$days = round(($temp / 86400), 0);

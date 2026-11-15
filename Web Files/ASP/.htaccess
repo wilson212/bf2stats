@@ -1,2 +1,49 @@
-AddType application/x-httpd-php .aspx
-IndexIgnore *
+# Startup warnings occur before PHP can call ini_set(), corrupting GameSpy
+# responses and preventing correct HTTP statuses (for example oversized POSTs).
+<IfModule php_module>
+    php_flag display_errors Off
+</IfModule>
+
+<IfModule mod_rewrite.c>
+    Options +FollowSymlinks
+
+    # Enable Rewrite Engine
+    RewriteEngine On
+
+    # Tell PHP that the mod_rewrite module is ENABLED.
+    SetEnv HTTP_MOD_REWRITE On
+
+    # Private data must be denied before the public asset extension allowlist.
+    RewriteRule ^system(?:/|$) - [R=403,L,NC]
+    RewriteRule (^|/)\. - [R=403,L]
+
+    # We don't want to pass calls to css, script, and image files to the index,
+    # whether they exist or not. So quit right here, and allow direct access
+    # to common format files. Add formats here to allow direct link access
+    RewriteRule ^.*\.(gif|png|jpe?g|bmp|css|js|swf|wav|avi|mpg|ttf|woff)$ - [NC,L]
+
+    # Deny access to the aspx, frontend and system folders. All defined
+    # file extensions from the previous rewrite rule wont make it here, which allows
+    # direct access to images and such in these folders still.
+    RewriteRule ^aspx/ - [R=403,L,NC]
+    RewriteRule ^frontend/ - [R=403,L,NC]
+    RewriteRule ^system/ - [R=403,L,NC]
+
+    # Don't redirect direct links to non-existent files or directories to the index.php
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+
+    # Redirect all ASPX file calls to the index.php?aspx=ASPX_FILENAME
+    RewriteRule ^(.*)\.aspx$ index.php?aspx=$1 [QSA,L]
+
+    # Don't redirect direct links to non-existent files or directories to the index.php
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+
+    # Rewrite all other URLs to index.php/URL
+    RewriteRule ^(.*)$ index.php?uri=$1 [PT,L]
+</IfModule>
+<IfModule !mod_rewrite.c>
+    # Tell PHP that the mod_rewrite module is DISABLED.
+    SetEnv HTTP_MOD_REWRITE Off
+</IfModule>

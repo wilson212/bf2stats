@@ -1,0 +1,9 @@
+.idea/
+system/backups/
+system/cache/*.cache
+system/logs/*.log
+system/snapshots/processed/
+system/snapshots/failed/
+system/snapshots/unauthorized/
+system/snapshots/unprocessed/
+system/config/config.php.bak

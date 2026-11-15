@@ -1,12 +1,24 @@
-BF2Stats ToDo!!!
-================
+Must Do's:
+ - Create user guide with a FAQ
+ - Add player promotion history on player details
+ - Add a blacklist option for hiding servers in the server browser.
+ - Add more global player statistics
+ --> Kits used Statistics Pie Chart
+ --> Weapon used Statistics Pie Chart
+ --> Vehicle used Statistics Pie Chart
+ --> Vehicle vs Weapon Pie Chart
+ --> Wins by Army Pie Chart
+ --> Expansion / Mod played pie chart
+ --> Top played maps
+ --> Average SPM
 
-1) Finish BF2stats Admin
-	* ClanManager Web Front-End
-	* Add Filter/Search to Player Lists?
-2) Add Install Script
-	* Create simple install wizard...
-3) Add ValidationManger to BF2 Game Server
-	* Check bf2statsconfig.py settings
-	* Test "GameSpy" response
-4) Add a option to import EA Stats into the bf2statistics database.
+Nice To Have's:
+ - Create a system where a round played with too many BattleSpy flags will not be saved, but rather have to be
+    sanctioned after review by the stats admin before being processed into the database.
+
+FAQ
+ - I lose my rank at the end of each round
+    A: At the end of each round, the game server sends the round data to the ASP. When the game server loads the next
+        round, it fetches each users stats data again from the ASP. If the ASP has not finished processing the previous
+        rounds data for any reason, then the data loaded by the game server will be of the players previous status.
+    How can I fix this?: Increase the time between rounds to allow the ASP more time to finish processing the round data.

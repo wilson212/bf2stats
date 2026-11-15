@@ -1,0 +1,11 @@
+# Turn on the rewrite engine
+RewriteEngine On
+
+# If the request is a file that does not exist
+RewriteCond %{REQUEST_FILENAME} !-f
+
+# Filename matches extension
+RewriteCond %{REQUEST_URI} \.(png|jpeg|jpg|gif)$
+
+# Show empty flag
+RewriteRule .* "/ASP/frontend/images/maps/small/default.png" [L]

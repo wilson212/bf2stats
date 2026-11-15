@@ -7,8 +7,9 @@
 
 // *******************************************************************
 // Checks to see if the player has the required rewards to make 1SG or SGM
-function checkReqs($rank, $PID)
+function checkReqs($rank, $PID): bool
 {
+	global $link;
 	// Lets make sure we are dealing with the correct ranks!
 	// Rank 7 is MSG, Rank 9 is MGYSG
 	if($rank == 7 || $rank == 9)
@@ -17,7 +18,7 @@ function checkReqs($rank, $PID)
 		{
 			// Rank is MSG
 			case 7:
-				$award_list = array(
+				$award_list = [
 					'1031105' => 1, // Engineer Combat Badge
 					'1031109' => 1, // Sniper Combat Badge
 					'1031113' => 1, // Medic Combat Badge
@@ -31,34 +32,36 @@ function checkReqs($rank, $PID)
 					//'1190507' => 1, // Engineer Badge
 					//'1190601' => 1, // First Aid Badge
 					//'1191819' => 1  // Resupply Badge
-				);
+				];
 			break;
 			
 			// Rank is MGYSG
 			case 9:
-				$award_list = array(
+				$award_list = [
 					'1031923' => 1, // Ground Defense
 					'1220104' => 1, // Air Defense
 					'1220118' => 1, // Armor Badge
 					'1220122' => 1, // Aviator Badge
 					'1220803' => 1, // Helicopter Badge
 					'1222016' => 1  // Transport Badge
-				);
+				];
 			break;
 		}
 		
 		// Initiate an array of players earned awards
-		$player_awards = array();
+		$player_awards = [];
 		
 		// Start a query to get users awards
 		$query = "SELECT * FROM awards where id = $PID";
-		$result = mysql_query($query) or die('Query failed: ' . mysql_error());
+		$result = mysqli_query($link, $query) or die('Query failed: ' . mysqli_error($link));
 		
 		// Build the players earned awards to an array
-		while($row = mysql_fetch_assoc($result)) 
+		while($row = mysqli_fetch_assoc($result)) 
 		{
 			$player_awards[$row['awd']] = $row['level'];
 		}
+
+		mysqli_free_result($result);
 		
 		// Start a loop. For each required award, check to see 2 things:
 		// 1) The player has the award
@@ -103,28 +106,35 @@ function checkReqs($rank, $PID)
 
 // *******************************************************************
 // Removes rank 11 (SMOC) from the posted rank, converts to rank 12 (2LT)
-function removeSMOC($r1, $r2, $r3)
+function removeSMOC($r1, $r2, $r3): array
 {
 	if($r1 == 11) { $r1++; $r2++; $r3++; }
 	if($r2 == 11) { $r2++; $r3++; }
-	if($r3 == 11) $r3++;
-	return array($r1, $r2, $r3);
+	if ($r3 == 11) {
+        $r3++;
+    }
+	return [$r1, $r2, $r3];
 }
 
 // *******************************************************************
 // Main function... gets the next %s ranks based on requirements
-function getNextRanks($PID, $rank, $count = 3)
+/**
+ * @return mixed[]
+ */
+function getNextRanks($PID, $rank, $count = 3): array
 {
 	// Get the next $count of ranks for the player
-	if($count == 0) $count = 21;
-	$return = array();
+	if ($count == 0) {
+        $count = 21;
+    }
+	$return = [];
 	$i = 0;
 	
 	// loop
 	while($rank < 21 && $i < $count)
 	{
 		$data = getNext3($PID, $rank);
-		$i = $i + count($data);
+		$i += count($data);
 		$return = array_merge($return, $data);
 		$rank = end($data);
 	}
@@ -164,7 +174,9 @@ function getNext3($PID, $rank)
 		$second++; // Increment
 		$third++; // Increment
 	}
-	if($third == 8 || $third == 10)		$third++; // Increment
+	if ($third == 8 || $third == 10) {
+        $third++;
+    } // Increment
 	
 	// if -> NEXT <- rank is MSG, or MGYSGT
 	if($first == 7 || $first == 9)
@@ -252,7 +264,9 @@ function getNext3($PID, $rank)
 	// Remove additional ranks
 	foreach($return as $k => $v)
 	{
-		if($v > 21) unset($return[$k]);
+		if ($v > 21) {
+            unset($return[$k]);
+        }
 	}
 	
 	// return the next 3 ranks

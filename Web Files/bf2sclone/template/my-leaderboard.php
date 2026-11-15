@@ -72,7 +72,7 @@ $template = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "htt
 						<th class="nosort"><img nicetitle="Remove A Player" src="'.$ROOT.'site-images/user_delete.png"></th>
 					</tr>';
 
-				foreach ($LEADER as $key => $value)
+				foreach ($LEADER as $value)
 				{
 					$template .= '		
 					<tr>
@@ -83,18 +83,20 @@ $template = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "htt
 						<td>'.$value['score'].'</td>
 						<td>'.$value['spm'].'</td>
 						<td>';
-							if ($value['kdr'])
-								$template .= $value['kdr'];
-							else
-								$template .= $value['kills'];
+							if ($value['kdr']) {
+                                $template .= $value['kdr'];
+                            } else {
+                                $template .= $value['kills'];
+                            }
 							$template .= '
 						</td>
 						<td title="'.$value['time'].'">'.intToTime($value['time']).'</td>
 						<td>';
-							if (getLastUpdate(getcwd().'/cache/'.$value['id'].'.cache')>0)
-								$template .= intToTime(getLastUpdate(getcwd().'/cache/'.$value['id'].'.cache'));
-							else
-								$template .=  'N/A';
+							if (getLastUpdate(getcwd().'/cache/'.$value['id'].'.cache')>0) {
+                                $template .= intToTime(getLastUpdate(getcwd().'/cache/'.$value['id'].'.cache'));
+                            } else {
+                                $template .=  'N/A';
+                            }
 							$template .= '
 						</td>
 						<td>'.$value['id'].'</td>
