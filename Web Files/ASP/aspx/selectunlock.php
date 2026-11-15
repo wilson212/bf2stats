@@ -25,168 +25,22 @@ use System\Database\DbConnection;
 // No direct access
 defined("BF2_ADMIN") || die("No Direct Access");
 
-// Prepare output
+// Keep the legacy query parameters and GameSpy response framing.
 $Response = new AspResponse();
-
-// Make sure we have an ID and PID
-$pid = (isset($_GET['pid'])) ? (int)$_GET['pid'] : 0;
-$id = (isset($_GET['id'])) ? (int)$_GET['id'] : 0;
-
-// Check user input
-if ($pid == 0 || $id == 0)
-{
+$pid = filter_var($_GET['pid'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 4294967295]]);
+$id = filter_var($_GET['id'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 65535]]);
+if ($pid === false || $id === false) {
     $Response->responseError(true, 107);
     $Response->writeHeaderLine("asof", "err");
     $Response->writeDataLine(time(), "Invalid Syntax!");
-    $Response->send();
-}
-else
-{
-    // Connect to the database
-    $connection = Database::GetConnection("stats");
-
-    // Check if unlock is already selected first!
-    $query = "SELECT * FROM `player_unlock` WHERE `player_id` = $pid AND `unlock_id` = $id LIMIT 1";
-    $result = $connection->query($query)->fetch();
-    if (empty($result))
-    {
-        // Grab player rank
-        $rank = $connection->query("SELECT rank_id FROM `player` WHERE `id` = $pid LIMIT 1")->fetchColumn(0);
-        if ($rank === false)
-        {
-            $Response->responseError(true);
-            $Response->writeHeaderLine("asof", "err");
-            $Response->writeDataLine(time(), "Player Not Found!");
-            $Response->send();
-        }
-
-        // Case to integer
-        $rank = (int)$rank;
-
-        // Determine Earned Unlocks due to Rank
-        $unlocks = getUnlockCountByRank($rank);
-
-        // Determine Bonus Unlocks due to Kit Badges
-        $unlocks += getBonusUnlockCountByBadges($pid, $rank, $connection);
-
-        // Check Used Unlocks
-        $query = "SELECT COUNT(`player_id`) AS `count` FROM `player_unlock` WHERE `player_id` = {$pid}";
-        $used = (int)$connection->query($query)->fetchColumn(0);
-
-        // Determine available unlocks count
-        $available = max(0, $unlocks - $used);
-
-        // Finally, if the user HAS available unlocks, let them choose this one
-        if ($available > 0)
-        {
-            $time = time();
-            $connection->exec("INSERT INTO player_unlock VALUES ($pid, $id, $time)");
-            $Response->writeLine("OK");
-            $Response->send();
-        }
-        else
-        {
-            $Response->responseError(true);
-            $Response->writeHeaderLine("asof", "err");
-            $Response->writeDataLine(time(), "No Unlocks Available!");
-            $Response->send();
-        }
-    }
-    else
-    {
+} else {
+    try {
+        Unlocks::select($pid, $id, Database::GetConnection('stats'));
         $Response->writeLine("OK");
-        $Response->send();
+    } catch (\DomainException $e) {
+        $Response->responseError(true);
+        $Response->writeHeaderLine("asof", "err");
+        $Response->writeDataLine(time(), $e->getMessage());
     }
 }
-
-/**
- * This method returns the number of unlocks the player should
- * have due to the specified rank id
- *
- * @param int $rank The players current rank
- *
- * @return int The amount of unlocks due to rank
- */
-function getUnlockCountByRank($rank): int
-{
-    // Determine Earned Unlocks due to Rank
-    if ($rank >= 9)
-    {
-        return 7;
-    }
-    elseif ($rank >= 7)
-    {
-        return 6;
-    }
-    elseif ($rank >= 6)
-    {
-        return 5;
-    }
-    elseif ($rank >= 5)
-    {
-        return 4;
-    }
-    elseif ($rank >= 4)
-    {
-        return 3;
-    }
-    elseif ($rank >= 3)
-    {
-        return 2;
-    }
-    elseif ($rank >= 2)
-    {
-        return 1;
-    }
-    else
-    {
-        return 0;
-    }
-}
-
-/**
- * This method returns the amount of bonus unlocks due to
- * earned badges
- *
- * @param int $pid The player ID
- * @param int $rank The players rank
- * @param DbConnection $connection
- */
-function getBonusUnlockCountByBadges($pid, $rank, $connection): int
-{
-    // Check if Minimum Rank Unlocks obtained
-    if ($rank < Config::Get('game_unlocks_bonus_min')) {
-        return 0;
-    }
-
-    // Are bonus Unlocks available?
-    $level = (int)Config::Get('game_unlocks_bonus');
-    if ($level == 0) {
-        return 0;
-    }
-
-    // Define Kit Badges Array
-    $kitbadges = [
-        1031119,        // Assault
-        1031120,        // Anti-tank
-        1031109,        // Sniper
-        1031115,        // Spec-Ops
-        1031121,        // Support
-        1031105,        // Engineer
-        1031113         // Medic
-    ];
-
-    // Count number of kit badges obtained
-    $checkawds = implode(",", $kitbadges);
-    $query = <<<SQL
-SELECT COUNT(`award_id`) AS `count` 
-FROM `player_award` 
-WHERE `player_id` = $pid 
-  AND (
-    `award_id` IN ($checkawds) 
-      AND `level` >= $level
-  );
-SQL;
-
-    return (int)$connection->query($query)->fetchColumn(0);
-}
+$Response->send();

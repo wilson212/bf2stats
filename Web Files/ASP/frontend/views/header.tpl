@@ -24,6 +24,8 @@
 
 	<!-- Required JavaScript Plugins -->
     <script type="text/javascript" src="/ASP/frontend/js/jquery-1.8.3.min.js"></script>
+    <meta name="csrf-token" content="<?php echo \System\Security::CsrfToken(); ?>">
+    <script type="text/javascript" src="/ASP/frontend/js/csrf.js"></script>
 	{JS_VARS}
 
     <!-- jQuery-UI Dependent Scripts -->
@@ -88,4 +90,4 @@
 				<noscript>
 					<div class="alert global">Your browser does not have JavaScript enabled! The ASP will not function properly!</div>
 				</noscript>
-            	{GLOBAL_MESSAGES}
+                {GLOBAL_MESSAGES}

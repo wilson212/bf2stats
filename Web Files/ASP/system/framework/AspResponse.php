@@ -173,7 +173,7 @@ class AspResponse
      * @param bool $killScript If set to true, the script
      *  will die when this method is called.
      */
-    public function send(CacheItem $item = null, $killScript = true): void
+    public function send(?CacheItem $item = null, $killScript = true): void
     {
         // Do we cache this response?
         if (is_null($item))

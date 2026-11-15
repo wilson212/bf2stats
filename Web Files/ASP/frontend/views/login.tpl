@@ -40,6 +40,7 @@
         <div id="mws-login-form">
             <form class="mws-form" method="post">
                 <input type="hidden" name="action" value="login" />
+                <input type="hidden" name="csrf_token" value="<?php echo \System\Security::CsrfToken(); ?>" />
                 <div class="mws-form-row">
                     <div class="mws-form-item">
                         <input type="text" name="username" class="mws-login-username required" placeholder="username" autocomplete="off">

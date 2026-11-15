@@ -52,8 +52,16 @@ namespace System
     // Disable Z lib Compression
     ini_set('zlib.output_compression', '0');
 
+    // PHP may discard bodies exceeding post_max_size before php://input is
+    // read. Reject an advertised oversized body as well as limiting the read.
+    if (isset($_SERVER['CONTENT_LENGTH']) && is_numeric($_SERVER['CONTENT_LENGTH'])
+        && (float)$_SERVER['CONTENT_LENGTH'] > 8 * 1024 * 1024) {
+        http_response_code(413);
+        die(_ERR_RESPONSE . 'SNAPSHOT Data Too Large');
+    }
+
     // Check user agent first and foremost
-    if (trim((string) $_SERVER['HTTP_USER_AGENT']) !== "GameSpyHTTP/1.0")
+    if (trim((string) ($_SERVER['HTTP_USER_AGENT'] ?? '')) !== "GameSpyHTTP/1.0")
     {
         header("Content-Type: text/plain; charset=utf-8");
         header('HTTP/1.1 403 Forbidden');
@@ -119,7 +127,13 @@ namespace System
 */
 
     // Read snapshot data from input
-    $rawdata = file_get_contents('php://input');
+    // Bound memory use before JSON parsing. Read one extra byte beyond the
+    // 8 MiB limit to detect oversized bodies without Content-Length as well.
+    $rawdata = file_get_contents('php://input', false, null, 0, 8 * 1024 * 1024 + 1);
+    if (strlen((string)$rawdata) > 8 * 1024 * 1024) {
+        http_response_code(413);
+        die(_ERR_RESPONSE . 'SNAPSHOT Data Too Large');
+    }
     if (empty($rawdata))
     {
         $errmsg = "SNAPSHOT Data NOT found!";
@@ -129,15 +143,15 @@ namespace System
 
     // Convert data string to an array
     $data = json_decode($rawdata, true);
-    if ($data == null)
+    if (json_last_error() !== JSON_ERROR_NONE || !is_array($data) || !str_starts_with(ltrim($rawdata), '{'))
     {
         $code = json_last_error();
         $message = match ($code) {
-            JSON_ERROR_NONE => 'No errors',
+            JSON_ERROR_NONE => 'Expected a JSON object',
             JSON_ERROR_DEPTH => 'Maximum stack depth exceeded',
             JSON_ERROR_STATE_MISMATCH => 'Underflow or the modes mismatch',
             JSON_ERROR_CTRL_CHAR => 'Unexpected control character found',
-            JSON_ERROR_SYNTAX => (str_contains($data, '\mapname\\'))
+            JSON_ERROR_SYNTAX => (str_contains($rawdata, '\mapname\\'))
                 ? 'Detected old SNAPSHOT format'
                 : 'Syntax error, malformed JSON',
             JSON_ERROR_UTF8 => 'Malformed UTF-8 characters, possibly incorrectly encoded',
@@ -193,13 +207,13 @@ namespace System
 
         die(_ERR_RESPONSE . $e->getMessage());
     }
-    catch (Exception $e)
+    catch (\Throwable $e)
     {
         $LogWriter->logError($e);
 
         // If error code is unknown map
         if ($e->getCode() == 99) {
-            die(_ERR_RESPONSE . $e);
+            die(_ERR_RESPONSE . $e->getMessage());
         } else {
             die(_ERR_RESPONSE . "SNAPSHOT Data Incomplete");
         }

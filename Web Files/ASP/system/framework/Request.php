@@ -268,12 +268,10 @@ class Request
         // Return it if we already determined the IP
         if (empty(self::$clientIp))
         {
-            // Check to see if the server has the IP address
-            if (isset($_SERVER['HTTP_CLIENT_IP']) && filter_var($_SERVER['HTTP_CLIENT_IP'], FILTER_VALIDATE_IP))
-            {
-                self::$clientIp = $_SERVER['HTTP_CLIENT_IP'];
-            }
-            elseif (isset($_SERVER['REMOTE_ADDR']) && !empty($_SERVER['REMOTE_ADDR']))
+            // Forwarded headers are client controlled. A trusted reverse proxy must
+            // configure the web server to validate and rewrite REMOTE_ADDR itself.
+            if (isset($_SERVER['REMOTE_ADDR']) && is_string($_SERVER['REMOTE_ADDR'])
+                && filter_var($_SERVER['REMOTE_ADDR'], FILTER_VALIDATE_IP))
             {
                 self::$clientIp = $_SERVER['REMOTE_ADDR'];
             }
@@ -293,7 +291,7 @@ class Request
     public static function IsLocalHost()
     {
         $clientIp = Request::ClientIp();
-        return in_array($clientIp, array('127.0.0.1', '::1')) || $_SERVER['SERVER_ADDR'] == $clientIp;
+        return in_array($clientIp, ['127.0.0.1', '::1'], true);
     }
 
     /**
